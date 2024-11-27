@@ -5,3 +5,73 @@
 % If you want to split the blueprint content into several files then
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
+
+\chapter{Bachman-Landau notation and the Master theorem for divide-and-conquer recurrences}
+
+The primary goal of this project is to formalize some results from computational complexity theory in Lean 4:
+\begin{itemize}
+\item the Bachman-Landau family of notations, e.g. big O and other closely related notations,
+\item properties of the Bachman-Landau notations and relations between them,
+\item the Master theorem for divide-and-conquer recurrences,
+\item and, if time permits, the Akra-Bazzi method for solving a more general class of recurrences
+\end{itemize}
+
+\section{Bachman-Landau notation}
+
+Bachman-Landau family of notations if the name of a few closely related notations used in algorithm analysis. 
+The most famous of them is the so-called big-O notation. We define it as follows. Let $f: \R \to \R$.
+Then the set $O(f(x))$ contains a function $g: \R \to \R$ if there exist $x_0$ and positive $k$ such that
+$|g(x)| \le k*|f(x)|$ for all $x \gt x_0$. We also say that $g(x) \in O(f(x))$ if $g(x)$
+is asymptotically bounded above by $f(x)$. Similarly, we define $\Omega(f(x))$ as the set of 
+functions $g(x)$ such that $|g(x)| \ge k*|f(x)|$ under the same assumptions, or that $g(x)$ is 
+asymptotically bounded below by $f(x)$. If both $g(x) \in O(f(x))$ and $f(x) \in \Omega(f(x))$,
+we write $g(x) \in \Theta(f(x))$. By some abuse of notation, we sometimes also write 
+$g(x) = O(f(x))$, $g(x) = \Omega(f(x))$ and $g(x) = \Theta(f(x))$ respectively.
+
+There are also some more notations that are less commonly used in algorithm analysis, but see some
+use in other fields of mathematics. Out of these, we shall use two useful notations that fit 
+the above notations elegantly. The first of these is the small-o notation - $g(x) \in o(f(x))$
+if it is \textit{dominated} by $f(x)$. We can think of domination as a strict (i.e. exclusive) 
+asymptotic bound. More precisely, $g(x) \in o(f(x))$ if for all positive $k$ there exists $x_0$ 
+such that $|f(x)| \le k*|g(x)|$ for all $x \gt x_0$. Mind the universal quantification over $k$ as
+opposed to existential quantification in prior definitions. While $g(x) \in O(f(x))$ and implies
+$\limsup_{x \to \infty} \frac{|f(x)|}{|g(x)|} \lt \infty$, $g(x) \in o(f(x))$ implies 
+$lim_{x \to \infty} \frac{|f(x)|}{|g(x)|} = 0$. Analogously, we also have $g(x) \in \omega(f(x))$,
+which states that $g(x)$ \textit{dominates} $f(x)$. The formal definition is just the definition
+of $\Omega(f(x))$, but with an universal quantification on $k$. Precisely, $g(x) \in \omega(f(x))$
+if for all positive $k$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \gt x_0$.
+And just like before, while $g(x) \in \Omega(f(x))$ implies $liminf_{x \to \infty} \frac{|f(x)|}{|g(x)|} \gt 0$,
+$g(x) \in \omega(f(x))$ implies $lim_{x \to \infty} \frac{|f(x)|}{|g(x)|} = \infty$.
+
+\subsubsection Goals (to be updated as necessary):
+\begin{itemize}
+\item definitions of notations $O(f(x))$, $\Omega(f(x))$, $\Theta(f(x))$, $o(f(x))$ and $\omega(f(x))$,
+\item basic relations between notations (e.g. $o(f(x)) \implies O(f(x))$),
+\item linear orders on different instances of each kind of notation,
+\item equivalence relations on asymptotically equivalent instances of each kind of notation,
+\item equivalences of notations with their limit definitions
+\item show properties of certain classes of instances - notably polynomials and exponentials
+\item add accompanying examples
+\end{itemize}
+
+
+\section{The Master theorem}
+
+Analyzing the time complexity of algorithms, especially recursive ones, is more often than not 
+a non-trivial task. For a recursive algorithm, its time complexity can be written as a recurrence
+formula, which is generally not easy, sometimes even impossible to solve with a closed formula.
+In some cases, though, it turns out that we can find asymptotic bounds of the solution, despite not
+being able to necessarily find the precise solution to the recurrence.
+
+Divide-and-conquer algorithms, i.e. algorithms that work by recursively splitting the input problem
+into similarly-sized subproblems have especially nice recurrence formulas which can be asymptotically
+bounded with a simple formula that is known in the field as the Master theorem.
+
+\begin{theorem}[Master theorem for divide-and-conquer recurrences]
+TODO
+\end{theorem}
+
+Goals:
+\begin{itemize}
+\item TODO
+\end{itemize}
