@@ -18,14 +18,15 @@ The primary goal of this project is to formalize some results from computational
 
 \section{Bachman-Landau notation}
 
-Bachman-Landau family of notations if the name of a few closely related notations used in algorithm analysis. 
-The most famous of them is the so-called big-O notation. We define it as follows. Let $f: \R \to \R$.
-Then the set $O(f(x))$ contains a function $g: \R \to \R$ if there exist $x_0$ and positive $k$ such that
-$|g(x)| \le k*|f(x)|$ for all $x \gt x_0$. We also say that $g(x) \in O(f(x))$ if $g(x)$
-is asymptotically bounded above by $f(x)$. Similarly, we define $\Omega(f(x))$ as the set of 
-functions $g(x)$ such that $|g(x)| \ge k*|f(x)|$ under the same assumptions, or that $g(x)$ is 
-asymptotically bounded below by $f(x)$. If both $g(x) \in O(f(x))$ and $f(x) \in \Omega(f(x))$,
-we write $g(x) \in \Theta(f(x))$. By some abuse of notation, we sometimes also write 
+Bachman-Landau family of notations if the name of a few closely related notations used in 
+algorithm analysis. The most famous of them is the so-called big-O notation. We define it as 
+follows. Let $f: \mathbb{R} \to \mathbb{R}$. Then the set $O(f(x))$ contains a function 
+$g: \mathbb{R} \to \mathbb{R}$ if there exist $x_0$ and positive $k$ such that 
+$|g(x)| < k*|f(x)|$ for all $x \ge x_0$. We also say that $g(x) \in O(f(x))$ if $g(x)$ is 
+asymptotically bounded above by $f(x)$. Similarly, we define $\Omega(f(x))$ as the set of functions 
+$g(x)$ such that $|g(x)| \ge k*|f(x)|$ under the same assumptions, or that $g(x)$ is asymptotically 
+bounded below by $f(x)$. If both $g(x) \in O(f(x))$ and $f(x) \in \Omega(f(x))$, we write 
+$g(x) \in \Theta(f(x))$. By some abuse of notation, we sometimes write 
 $g(x) = O(f(x))$, $g(x) = \Omega(f(x))$ and $g(x) = \Theta(f(x))$ respectively.
 
 There are also some more notations that are less commonly used in algorithm analysis, but see some
@@ -33,15 +34,16 @@ use in other fields of mathematics. Out of these, we shall use two useful notati
 the above notations elegantly. The first of these is the small-o notation - $g(x) \in o(f(x))$
 if it is \textit{dominated} by $f(x)$. We can think of domination as a strict (i.e. exclusive) 
 asymptotic bound. More precisely, $g(x) \in o(f(x))$ if for all positive $k$ there exists $x_0$ 
-such that $|f(x)| \le k*|g(x)|$ for all $x \gt x_0$. Mind the universal quantification over $k$ as
+such that $|f(x)| < k*|g(x)|$ for all $x \ge x_0$. Mind the universal quantification over $k$ as
 opposed to existential quantification in prior definitions. While $g(x) \in O(f(x))$ and implies
-$\limsup_{x \to \infty} \frac{|f(x)|}{|g(x)|} \lt \infty$, $g(x) \in o(f(x))$ implies 
+$\limsup_{x \to \infty} \frac{|f(x)|}{|g(x)|} < \infty$, $g(x) \in o(f(x))$ implies 
 $lim_{x \to \infty} \frac{|f(x)|}{|g(x)|} = 0$. Analogously, we also have $g(x) \in \omega(f(x))$,
 which states that $g(x)$ \textit{dominates} $f(x)$. The formal definition is just the definition
 of $\Omega(f(x))$, but with an universal quantification on $k$. Precisely, $g(x) \in \omega(f(x))$
-if for all positive $k$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \gt x_0$.
-And just like before, while $g(x) \in \Omega(f(x))$ implies $liminf_{x \to \infty} \frac{|f(x)|}{|g(x)|} \gt 0$,
-$g(x) \in \omega(f(x))$ implies $lim_{x \to \infty} \frac{|f(x)|}{|g(x)|} = \infty$.
+if for all positive $k$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x > x_0$.
+And just like before, while $g(x) \in \Omega(f(x))$ implies 
+$liminf_{x \to \infty} \frac{|f(x)|}{|g(x)|} > 0$, $g(x) \in \omega(f(x))$ implies 
+$lim_{x \to \infty} \frac{|f(x)|}{|g(x)|} = \infty$.
 
 \subsubsection Goals (to be updated as necessary):
 \begin{itemize}
