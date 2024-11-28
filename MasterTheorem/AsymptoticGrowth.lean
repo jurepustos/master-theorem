@@ -29,12 +29,14 @@ theorem asymp_dominated_implies_bounded_above (f g : L → R) (h : Asymptoticall
   use 1
   constructor
   . linarith
+  . exact h
 
 theorem asymp_dominates_implies_bounded_below (f g : L → R) (h : AsymptoticallyDominates f g) : AsymptoticallyBoundedBelowBy f g := by
   specialize h 1 (by linarith)
   use 1
   constructor
   . linarith
+  . exact h
 
 theorem asymp_bounded_above_and_below_implies_bounded (f g : L → R) (ha : AsymptoticallyBoundedBelowBy f g) (hb : AsymptoticallyBoundedAboveBy f g) : AsymptoticallyBoundedBy f g := by
   unfold AsymptoticallyBoundedBelowBy at ha
