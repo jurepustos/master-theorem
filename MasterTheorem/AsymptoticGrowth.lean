@@ -61,6 +61,7 @@ theorem asymp_bounded_above_and_below_implies_bounded (f g : R → F) (ha : Asym
       . exact ha
       . exact hb
 
+-- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not dominated by g.
 theorem asymp_bounded_implies_not_dominated (f g : R → F) (hg : AsymptoticallyNonZero g) (hb : AsymptoticallyBoundedBy f g) : ¬AsymptoticallyDominatedBy f g := by
   intro hd
   -- unfold definitions to make it clearer
@@ -70,7 +71,7 @@ theorem asymp_bounded_implies_not_dominated (f g : R → F) (hg : Asymptotically
 
   -- unwrap the existential quantifiers
   rcases hb with ⟨k₁, k₁_pos, k₂, k₂_pos, N₁, hb⟩
-  rcases hg with ⟨k₄, k₄_pos, N₂, hg⟩
+  rcases hg with ⟨_, _, N₂, hg⟩
 
   -- set k to a useful value and get the N out
   specialize hd (k₁ / 2) (by linarith)
