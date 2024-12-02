@@ -28,10 +28,10 @@ theorem ω_implies_Ω (f g : L → R) (h : f ∈ ω g) : f ∈ Ω g := by
 theorem O_and_Ω_implies_Θ (f g : L → R) (hO : f ∈ O g) (hΩ : f ∈ Ω g) : f ∈ Θ g := by
   sorry
 
-theorem Θ_and_O_implies_not_o (f g : L → R) (hΘ : f ∈ Θ g) (hO : f ∈ O g) : ¬f ∈ o g := by
+theorem Θ_implies_not_o (f g : L → R) (hΘ : f ∈ Θ g) : ¬f ∈ o g := by
   sorry
 
-theorem Θ_and_Ω_implies_not_ω (f g : L → R) (hΘ : f ∈ Θ g) (hΩ : f ∈ Ω g) : ¬f ∈ ω g := by
+theorem Θ_implies_not_ω (f g : L → R) (hΘ : f ∈ Θ g) : ¬f ∈ ω g := by
   sorry
 
 theorem not_o_and_ω (f g : L → R) (ho : f ∈ o g) (hω : f ∈ ω g) : False := by

@@ -4,9 +4,8 @@ import Mathlib.Order.Defs
 import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
 
-
 def AsymptoticallyNonZero {R₁ R₂ : Type} [LinearOrderedCommRing R₁] [LinearOrderedRing R₂] (f : R₁ → R₂) :=
-  ∃ k > 0, ∃ N, ∀ n > N, f n ≠ 0
+  ∃ N, ∀ n > N, f n ≠ 0
 
 variable {R F : Type} [LinearOrderedCommRing R] [LinearOrderedField F]
 
@@ -71,7 +70,7 @@ theorem asymp_bounded_implies_not_dominated (f g : R → F) (hg : Asymptotically
 
   -- unwrap the existential quantifiers
   rcases hb with ⟨k₁, k₁_pos, k₂, k₂_pos, N₁, hb⟩
-  rcases hg with ⟨_, _, N₂, hg⟩
+  rcases hg with ⟨N₂, hg⟩
 
   -- set k to a useful value and get the N out
   specialize hd (k₁ / 2) (by linarith)
@@ -104,8 +103,7 @@ theorem asymp_bounded_implies_not_dominated (f g : R → F) (hg : Asymptotically
   rcases hb with ⟨ha, hb⟩
   -- use an alias for convenience
   generalize hG : |g (N + 1)| = G
-  rw [hG] at ha hb hd
-  rw [hG] at hg_abs
+  rw [hG] at ha hb hd hg_abs
 
   -- it is not entirely obvious that G is positive
   have G_nonneg : G ≥ 0 := by {
@@ -120,8 +118,55 @@ theorem asymp_bounded_implies_not_dominated (f g : R → F) (hg : Asymptotically
   have half_kG_lt_kG : (k₁ * G) / 2 < k₁ * G := half_lt_self (mul_pos k₁_pos G_pos)
   linarith
 
-theorem asymp_bounded_and_bounded_below_implies_not_dominates (f g : R → F) (h : AsymptoticallyBoundedBy f g) (ha : AsymptoticallyBoundedBelowBy f g) : ¬AsymptoticallyDominates f g := by
-  sorry
+theorem asymp_bounded_implies_not_dominates (f g : R → F) (hg : AsymptoticallyNonZero g) (hb : AsymptoticallyBoundedBy f g) : ¬AsymptoticallyDominates f g := by
+  intro hd
+  -- unfold definitions to make it clearer
+  unfold AsymptoticallyBoundedBy at hb
+  unfold AsymptoticallyDominates at hd
+  unfold AsymptoticallyNonZero at hg
+
+  rcases hg with ⟨N₁, hg⟩
+  rcases hb with ⟨k₁, k₁_pos, k₂, k₂_pos, N₂, hb⟩
+
+  -- use a favorable value for k
+  specialize hd (k₂ + 1) (by linarith)
+  rcases hd with ⟨N₃, hd⟩
+
+  -- define an N that is large enough
+  generalize N_eq_N_max : max N₁ (max N₂ N₃) = N
+  have N_ge_N₁ : N ≥ N₁ := by {
+    rw [← N_eq_N_max]
+    apply le_max_left
+  }
+  have N_ge_N₂ : N ≥ N₂ := by {
+    rw [← N_eq_N_max, max_left_comm]
+    apply le_max_left
+  }
+  have N_ge_N₃ : N ≥ N₃ := by {
+    rw [← N_eq_N_max, ← max_comm, max_assoc, max_left_comm]
+    apply le_max_left
+  }
+
+  specialize hg (N + 1) (by linarith)
+  specialize hb (N + 1) (by linarith)
+  specialize hd (N + 1) (by linarith)
+
+  -- get the absolute-value version of hg
+  have hg_abs : |g (N + 1)| ≠ 0 := abs_ne_zero.2 hg
+  -- split the conjunction
+  rcases hb with ⟨ha, hb⟩
+  -- use an alias for convenience
+  generalize hG : |g (N + 1)| = G
+  rw [hG] at ha hb hd hg_abs
+
+  -- it is not entirely obvious that G is positive
+  have G_nonneg : G ≥ 0 := by {
+    rw [← hG]
+    linarith [abs_nonneg (g (N + 1))]
+  }
+  symm at hg_abs
+  have G_pos : G > 0 := Ne.lt_of_le hg_abs G_nonneg
+  linarith
 
 theorem not_asymp_dominates_and_dominated (f g : R → F) (h : AsymptoticallyDominates f g) (ha : AsymptoticallyDominatedBy f g) : False := by
   sorry 
