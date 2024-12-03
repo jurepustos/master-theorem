@@ -6,44 +6,71 @@
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
 
-\chapter{Bachman-Landau notation and the Master theorem for divide-and-conquer recurrences}
+\title{Bachman-Landau notation and the Master theorem for divide-and-conquer recurrences}
 
-The primary goal of this project is to formalize some results from computational complexity theory in Lean 4:
+The primary goal of this project is to formalize some results from computational 
+complexity theory in Lean 4:
 \begin{itemize}
 \item the Bachman-Landau family of notations, e.g. big O and other closely related notations,
 \item properties of the Bachman-Landau notations and relations between them,
 \item the Master theorem for divide-and-conquer recurrences,
-\item and, if time permits, the Akra-Bazzi method for solving a more general class of recurrences
+\item and, if time permits, the Akra-Bazzi method which solves a more general class of recurrences
 \end{itemize}
 
 \section{Bachman-Landau notation}
 
-Bachman-Landau family of notations if the name of a few closely related notations used in 
-algorithm analysis. The most famous of them is the so-called big-O notation. We define it as 
-follows. Let $f: \mathbb{R} \to \mathbb{R}$. Then the set $O(f(x))$ contains a function 
-$g: \mathbb{R} \to \mathbb{R}$ if there exist $x_0$ and positive $k$ such that 
-$|g(x)| < k*|f(x)|$ for all $x \ge x_0$. We also say that $g(x) \in O(f(x))$ if $g(x)$ is 
-asymptotically bounded above by $f(x)$. Similarly, we define $\Omega(f(x))$ as the set of functions 
-$g(x)$ such that $|g(x)| \ge k*|f(x)|$ under the same assumptions, or that $g(x)$ is asymptotically 
-bounded below by $f(x)$. If both $g(x) \in O(f(x))$ and $f(x) \in \Omega(f(x))$, we write 
-$g(x) \in \Theta(f(x))$. By some abuse of notation, we sometimes write 
-$g(x) = O(f(x))$, $g(x) = \Omega(f(x))$ and $g(x) = \Theta(f(x))$ respectively.
+Bachman-Landau family of notations is the name of a few closely related notations used in 
+algorithm analysis. The most famous of them is the so-called big-O notation. While
+most formulations are defined on functions from naturals or reals to reals, we define 
+them more generally on functions from a linearly ordered commutative ring to a
+linearly ordered field. In the rest of the formulation and blueprint, we let $R$ be
+a linearly ordered commutative ring and $F$ be a linearly ordered field.
 
-There are also some more notations that are less commonly used in algorithm analysis, but see some
-use in other fields of mathematics. Out of these, we shall use two useful notations that fit 
-the above notations elegantly. The first of these is the small-o notation - $g(x) \in o(f(x))$
-if it is \textit{dominated} by $f(x)$. We can think of domination as a strict (i.e. exclusive) 
-asymptotic bound. More precisely, $g(x) \in o(f(x))$ if for all positive $k$ there exists $x_0$ 
-such that $|f(x)| < k*|g(x)|$ for all $x \ge x_0$. Mind the universal quantification over $k$ as
-opposed to existential quantification in prior definitions. While $g(x) \in O(f(x))$ and implies
-$\limsup_{x \to \infty} \frac{|f(x)|}{|g(x)|} < \infty$, $g(x) \in o(f(x))$ implies 
-$lim_{x \to \infty} \frac{|f(x)|}{|g(x)|} = 0$. Analogously, we also have $g(x) \in \omega(f(x))$,
-which states that $g(x)$ \textit{dominates} $f(x)$. The formal definition is just the definition
-of $\Omega(f(x))$, but with an universal quantification on $k$. Precisely, $g(x) \in \omega(f(x))$
-if for all positive $k$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x > x_0$.
-And just like before, while $g(x) \in \Omega(f(x))$ implies 
-$liminf_{x \to \infty} \frac{|f(x)|}{|g(x)|} > 0$, $g(x) \in \omega(f(x))$ implies 
-$lim_{x \to \infty} \frac{|f(x)|}{|g(x)|} = \infty$.
+\subsection{Asymptotic bounds and domination}
+
+\begin{definition}(Big O notation)
+\lean{MasterTheorem.BachmanLandauNotation.O}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in O(g(x))$ if there exist
+    $x_0$ and $k > 0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$. We say that
+    $f(x)$ is asymptotically bounded above by $g(x)$.
+\end{definition}
+
+\begin{definition}(Big Omega notation)
+\lean{MasterTheorem.BachmanLandauNotation.\Omega}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \Omega(g(x))$ if there exist
+    $x_0$ and $k > 0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$. We say that
+    $f(x)$ is asymptotically bounded below by $g(x)$. We say that $f(x)$ is asymptotically 
+    bounded below by $g(x)$.
+\end{definition}
+
+\begin{definition}(Big Theta notation)
+\lean{MasterTheorem.BachmanLandauNotation.\Theta}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \Theta(g(x))$ if there exist
+    $x_0$, $k\_1 > 0$ and $\k\_2$ such that $k\_1*|g(x)| \le |f(x)| \le k\_2*|g(x)|$ 
+    for all $x \ge x_0$. We say that $f(x)$ is asymptotically bounded below by $g(x)$. 
+    We say that $f(x)$ is asymptotically bounded by $g(x)$.
+\end{definition}
+
+\begin{definition}(Small O notation)
+\lean{MasterTheorem.BachmanLandauNotation.o}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in o(g(x))$ if for all
+    $k > 0$ there exists $x_0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$. 
+    We say that $f(x)$ is asymptotically bounded below by $g(x)$. We say that $f(x)$ 
+    is asymptotically dominated by $g(x)$.
+\end{definition}
+
+\begin{definition}(Small Omega notation)
+\lean{MasterTheorem.BachmanLandauNotation.\omega}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \omega(g(x))$ if for all
+    $k > 0$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$. 
+    We say that $f(x)$ is asymptotically bounded below by $g(x)$. We say that $f(x)$ 
+    asymptotically dominates $g(x)$.
+\end{definition}
 
 Goals (to be updated as necessary)
 \begin{itemize}
@@ -51,11 +78,16 @@ Goals (to be updated as necessary)
 \item basic relations between notations (e.g. $o(f(x)) \implies O(f(x))$),
 \item linear orders on different instances of each kind of notation,
 \item equivalence relations on asymptotically equivalent instances of each kind of notation,
-\item equivalences of notations with their limit definitions
-\item show properties of certain classes of instances - notably polynomials and exponentials
+\item equivalences of notations with their limit definitions,
+\item \textbf{optional:} show properties of certain classes of instances - notably polynomials and exponentials,
 \item add accompanying examples
 \end{itemize}
 
+\subsection{Limit definitions}
+
+\subsection{Relations between the asymptotic sets}
+
+\subsection{Linear orderings on asymptotic sets}
 
 \section{The Master theorem}
 
