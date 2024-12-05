@@ -28,64 +28,93 @@ a linearly ordered commutative ring and $F$ be a linearly ordered field.
 
 \subsection{Asymptotic bounds and domination}
 
-\begin{definition}(Big O notation)
-\lean{MasterTheorem.BachmanLandauNotation.O}
+\begin{definition}
+\lean{AsymptoticGrowth.AsymptoticallyBoundedAboveBy}
 \leanok
-    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in O(g(x))$ if there exist
-    $x_0$ and $k > 0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$. We say that
-    $f(x)$ is asymptotically bounded above by $g(x)$.
+    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded above by $g(x)$ if 
+    there exist $x_0$ and $k > 0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
+\end{definition}
+
+\begin{definition}(Big O notation)
+\lean{BachmanLandauNotation.O}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. $f(x) \in O(g(x))$ $f(x)$ if is asymptotically 
+    bounded above by $g(x)$.
+\end{definition}
+
+\begin{definition}
+\lean{AsymptoticGrowth.AsymptoticallyBoundedBelowBy}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded below by $g(x)$ if 
+    there exist $x_0$ and $k > 0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Big Omega notation)
-\lean{MasterTheorem.BachmanLandauNotation.\Omega}
+\lean{BachmanLandauNotation.Ω}
 \leanok
-    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \Omega(g(x))$ if there exist
-    $x_0$ and $k > 0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$. We say that
-    $f(x)$ is asymptotically bounded below by $g(x)$. We say that $f(x)$ is asymptotically 
+    Let $f$ and $g$ be functions $R \to F$. $f(x) \in \Omega(g(x))$ if is asymptotically 
     bounded below by $g(x)$.
 \end{definition}
 
-\begin{definition}(Big Theta notation)
-\lean{MasterTheorem.BachmanLandauNotation.\Theta}
+\begin{definition}
+\lean{AsymptoticGrowth.AsymptoticallyBoundedBy}
 \leanok
-    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \Theta(g(x))$ if there exist
-    $x_0$, $k\_1 > 0$ and $\k\_2$ such that $k\_1*|g(x)| \le |f(x)| \le k\_2*|g(x)|$ 
-    for all $x \ge x_0$. We say that $f(x)$ is asymptotically bounded below by $g(x)$. 
-    We say that $f(x)$ is asymptotically bounded by $g(x)$.
+    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded by $g(x)$ if 
+    there exist $x_0$, $k\_1 > 0$ and $k\_2$ such that $k\_1*|g(x)| \le |f(x)| \le k\_2*|g(x)|$ 
+    for all $x \ge x_0$.
+\end{definition}
+
+\begin{definition}(Big Theta notation)
+\lean{BachmanLandauNotation.Θ}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \Theta(g(x))$ if is asymptotically 
+    bounded below by $g(x)$. We say that $f(x)$ is asymptotically bounded by $g(x)$.
+\end{definition}
+
+\begin{definition}
+\lean{AsymptoticGrowth.AsymptoticallyDominatedBy}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically dominated by $g(x)$ if 
+    for all $k > 0$ there exists $x_0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Small O notation)
-\lean{MasterTheorem.BachmanLandauNotation.o}
+\lean{BachmanLandauNotation.o}
 \leanok
-    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in o(g(x))$ if for all
-    $k > 0$ there exists $x_0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$. 
-    We say that $f(x)$ is asymptotically bounded below by $g(x)$. We say that $f(x)$ 
+    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in o(g(x))$ if $f(x)$ 
     is asymptotically dominated by $g(x)$.
 \end{definition}
 
-\begin{definition}(Small Omega notation)
-\lean{MasterTheorem.BachmanLandauNotation.\omega}
+\begin{definition}
+\lean{AsymptoticGrowth.AsymptoticallyDominates}
 \leanok
-    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \omega(g(x))$ if for all
-    $k > 0$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$. 
-    We say that $f(x)$ is asymptotically bounded below by $g(x)$. We say that $f(x)$ 
+    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically dominates $g(x)$ if 
+    for all $k > 0$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$.
+\end{definition}
+
+\begin{definition}(Small Omega notation)
+\lean{BachmanLandauNotation.ω}
+\leanok
+    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \omega(g(x))$ if $f(x)$ 
     asymptotically dominates $g(x)$.
 \end{definition}
 
-Goals (to be updated as necessary)
-\begin{itemize}
-\item definitions of notations $O(f(x))$, $\Omega(f(x))$, $\Theta(f(x))$, $o(f(x))$ and $\omega(f(x))$,
-\item basic relations between notations (e.g. $o(f(x)) \implies O(f(x))$),
-\item linear orders on different instances of each kind of notation,
-\item equivalence relations on asymptotically equivalent instances of each kind of notation,
-\item equivalences of notations with their limit definitions,
-\item \textbf{optional:} show properties of certain classes of instances - notably polynomials and exponentials,
-\item add accompanying examples
-\end{itemize}
+%Goals (to be updated as necessary)
+%\begin{itemize}
+%\item definitions of notations $O(f(x))$, $\Omega(f(x))$, $\Theta(f(x))$, $o(f(x))$ and $\omega(f(x))$,
+%\item basic relations between notations (e.g. $o(f(x)) \implies O(f(x))$),
+%\item linear orders on different instances of each kind of notation,
+%\item equivalence relations on asymptotically equivalent instances of each kind of notation,
+%\item equivalences of notations with their limit definitions,
+%\item \textbf{optional:} show properties of certain classes of instances - notably polynomials and exponentials,
+%\item add accompanying examples
+%\end{itemize}
 
 \subsection{Limit definitions}
 
 \subsection{Relations between the asymptotic sets}
+
+
 
 \subsection{Linear orderings on asymptotic sets}
 
