@@ -29,35 +29,35 @@ a linearly ordered commutative ring and $F$ be a linearly ordered field.
 \subsection{Asymptotic bounds and domination}
 
 \begin{definition}
-\lean{AsymptoticGrowth.AsymptoticallyBoundedAboveBy}
+\lean{AsymptoticallyBoundedAboveBy}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded above by $g(x)$ if 
     there exist $x_0$ and $k > 0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Big O notation)
-\lean{BachmanLandauNotation.O}
+\lean{O}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x) \in O(g(x))$ $f(x)$ if is asymptotically 
     bounded above by $g(x)$.
 \end{definition}
 
 \begin{definition}
-\lean{AsymptoticGrowth.AsymptoticallyBoundedBelowBy}
+\lean{AsymptoticallyBoundedBelowBy}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded below by $g(x)$ if 
     there exist $x_0$ and $k > 0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Big Omega notation)
-\lean{BachmanLandauNotation.Ω}
+\lean{Ω}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x) \in \Omega(g(x))$ if is asymptotically 
     bounded below by $g(x)$.
 \end{definition}
 
 \begin{definition}
-\lean{AsymptoticGrowth.AsymptoticallyBoundedBy}
+\lean{AsymptoticallyBoundedBy}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded by $g(x)$ if 
     there exist $x_0$, $k\_1 > 0$ and $k\_2$ such that $k\_1*|g(x)| \le |f(x)| \le k\_2*|g(x)|$ 
@@ -65,35 +65,35 @@ a linearly ordered commutative ring and $F$ be a linearly ordered field.
 \end{definition}
 
 \begin{definition}(Big Theta notation)
-\lean{BachmanLandauNotation.Θ}
+\lean{Θ}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \Theta(g(x))$ if is asymptotically 
     bounded below by $g(x)$. We say that $f(x)$ is asymptotically bounded by $g(x)$.
 \end{definition}
 
 \begin{definition}
-\lean{AsymptoticGrowth.AsymptoticallyDominatedBy}
+\lean{AsymptoticallyDominatedBy}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically dominated by $g(x)$ if 
     for all $k > 0$ there exists $x_0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Small O notation)
-\lean{BachmanLandauNotation.o}
+\lean{o}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in o(g(x))$ if $f(x)$ 
     is asymptotically dominated by $g(x)$.
 \end{definition}
 
 \begin{definition}
-\lean{AsymptoticGrowth.AsymptoticallyDominates}
+\lean{AsymptoticallyDominates}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically dominates $g(x)$ if 
     for all $k > 0$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Small Omega notation)
-\lean{BachmanLandauNotation.ω}
+\lean{ω}
 \leanok
     Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \omega(g(x))$ if $f(x)$ 
     asymptotically dominates $g(x)$.

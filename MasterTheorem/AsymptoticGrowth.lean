@@ -168,5 +168,5 @@ theorem asymp_bounded_implies_not_dominates (f g : R → F) (hg : Asymptotically
   have G_pos : G > 0 := Ne.lt_of_le hg_abs G_nonneg
   linarith
 
-theorem not_asymp_dominates_and_dominated (f g : R → F) (h : AsymptoticallyDominates f g) (ha : AsymptoticallyDominatedBy f g) : False := by
+theorem not_asymp_dominates_and_dominated (f g : R → F): ¬(AsymptoticallyDominates f g ∧ AsymptoticallyDominatedBy f g) := by
   sorry 
