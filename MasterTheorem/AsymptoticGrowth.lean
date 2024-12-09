@@ -168,5 +168,49 @@ theorem asymp_bounded_implies_not_dominates (f g : R → F) (hg : Asymptotically
   have G_pos : G > 0 := Ne.lt_of_le hg_abs G_nonneg
   linarith
 
-theorem not_asymp_dominates_and_dominated (f g : R → F): ¬(AsymptoticallyDominates f g ∧ AsymptoticallyDominatedBy f g) := by
-  sorry 
+theorem not_asymp_dominates_and_dominated (f g : R → F) (hg: AsymptoticallyNonZero g): ¬(AsymptoticallyDominates f g ∧ AsymptoticallyDominatedBy f g) := by
+  intro h 
+  rcases h with ⟨ha, hb⟩
+  unfold AsymptoticallyDominates at ha
+  unfold AsymptoticallyDominatedBy at hb
+  unfold AsymptoticallyNonZero at hg
+
+  specialize ha 2 (by linarith)
+  specialize hb 1 (by linarith)
+  rcases ha with ⟨N₁, ha⟩
+  rcases hb with ⟨N₂, hb⟩
+  rcases hg with ⟨N₃, hg⟩
+
+  generalize hN : max N₁ (max N₂ N₃) = N
+  have N_ge_N₁ : N ≥ N₁ := by {
+    rw [← hN]
+    apply le_max_left
+  }
+  have N_ge_N₂ : N ≥ N₂ := by {
+    rw [← hN, max_comm, max_assoc]
+    apply le_max_left
+  }
+  have N_ge_N₃ : N ≥ N₃ := by {
+    rw [← hN, ← max_comm, max_assoc, max_left_comm]
+    apply le_max_left
+  }
+
+  specialize ha (N + 1) (by linarith)
+  specialize hb (N + 1) (by linarith)
+  specialize hg (N + 1) (by linarith)
+   
+  -- get the absolute-value version of hg
+  have hg_abs : |g (N + 1)| ≠ 0 := abs_ne_zero.2 hg
+  -- use an alias for convenience
+  generalize hG : |g (N + 1)| = G
+  rw [hG] at ha hb hg_abs
+
+  have G_nonneg : G ≥ 0 := by {
+    rw [← hG]
+    linarith [abs_nonneg (g (N + 1))]
+  }
+  symm at hg_abs
+  have G_pos : G > 0 := Ne.lt_of_le hg_abs G_nonneg
+  linarith
+  
+  
