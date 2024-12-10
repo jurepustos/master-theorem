@@ -42,25 +42,45 @@ theorem asymp_dominates_implies_bounded_below (h : AsymptoticallyDominates f g) 
   . linarith
   . exact h
 
-theorem asymp_bounded_above_and_below_implies_bounded (ha : AsymptoticallyBoundedBelowBy f g) (hb : AsymptoticallyBoundedAboveBy f g) : AsymptoticallyBoundedBy f g := by
-  unfold AsymptoticallyBoundedBelowBy at ha
-  unfold AsymptoticallyBoundedAboveBy at hb
+theorem asymp_bounded_above_and_below_equiv_bounded : AsymptoticallyBoundedAboveBy f g ∧ AsymptoticallyBoundedBelowBy f g ↔ AsymptoticallyBoundedBy f g := by
+  unfold AsymptoticallyBoundedBelowBy
+  unfold AsymptoticallyBoundedAboveBy
   unfold AsymptoticallyBoundedBy
-  rcases ha with ⟨k₁, k₁_pos, N₁, ha⟩ 
-  rcases hb with ⟨k₂, k₂_pos, N₂, hb⟩ 
-  use k₁
-  constructor 
-  . exact k₁_pos
-  . use k₂
-    constructor
-    . exact k₂_pos
-    . use max N₁ N₂
-      intro n n_gt_N
-      specialize ha n (lt_of_le_of_lt (le_max_left N₁ N₂) n_gt_N)
-      specialize hb n (lt_of_le_of_lt (le_max_right N₁ N₂) n_gt_N)
+  constructor
+  . intro h
+    rcases h with ⟨ha, hb⟩
+    rcases ha with ⟨k₁, k₁_pos, N₁, ha⟩ 
+    rcases hb with ⟨k₂, k₂_pos, N₂, hb⟩ 
+    use k₂
+    constructor 
+    . assumption
+    . use k₁
       constructor
-      . exact ha
-      . exact hb
+      . assumption
+      . use max N₁ N₂
+        intro n n_gt_N
+        specialize ha n (lt_of_le_of_lt (le_max_left N₁ N₂) n_gt_N)
+        specialize hb n (lt_of_le_of_lt (le_max_right N₁ N₂) n_gt_N)
+        constructor
+        . exact hb
+        . exact ha
+  . intro h
+    rcases h with ⟨k₁, k₁_pos, k₂, k₂_pos, N, h⟩
+    constructor
+    . use k₂
+      constructor
+      . assumption
+      . use N
+        intro n hn
+        specialize h n hn
+        tauto
+    . use k₁
+      constructor
+      . assumption
+      . use N
+        intro n hn
+        specialize h n hn
+        tauto
 
 -- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not dominated by g.
 theorem asymp_bounded_implies_not_dominated (hg : AsymptoticallyNonZero g) (hb : AsymptoticallyBoundedBy f g) : ¬AsymptoticallyDominatedBy f g := by

@@ -39,15 +39,24 @@ theorem ω_implies_Ω (h : f ∈ ω g) : f ∈ Ω g := by
   . assumption
   . exact asymp_dominates_implies_bounded_below hd
 
-theorem O_and_Ω_implies_Θ (hO : f ∈ O g) (hΩ : f ∈ Ω g) : f ∈ Θ g := by
-  unfold O at hO
-  unfold Ω at *
-  unfold Θ at *
-  rcases hO with ⟨hg, hO⟩
-  rcases hΩ with ⟨_, hΩ⟩
+theorem O_and_Ω_equiv_Θ : f ∈ O g ∧ f ∈ Ω g ↔ f ∈ Θ g := by
+  unfold O
+  unfold Ω
+  unfold Θ
   constructor
-  . assumption
-  . exact asymp_bounded_above_and_below_implies_bounded hΩ hO
+  . intro h
+    rcases h with ⟨⟨hg, hO⟩, ⟨_, hΩ⟩⟩
+    constructor
+    . assumption
+    . exact asymp_bounded_above_and_below_equiv_bounded.1 (And.intro hO hΩ)
+  . intro h
+    rcases h with ⟨_, h⟩
+    have hbound := asymp_bounded_above_and_below_equiv_bounded.2 h
+    constructor <;> constructor
+    . assumption
+    . exact And.left hbound
+    . assumption
+    . exact And.right hbound
 
 theorem Θ_implies_not_o (hΘ : f ∈ Θ g) : ¬f ∈ o g := by
   intro ho
