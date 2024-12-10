@@ -23,87 +23,91 @@ Bachman-Landau family of notations is the name of a few closely related notation
 algorithm analysis. The most famous of them is the so-called big-O notation. While
 most formulations are defined on functions from naturals or reals to reals, we define 
 them more generally on functions from a linearly ordered commutative ring to a
-linearly ordered field. In the rest of the formulation and blueprint, we let $R$ be
-a linearly ordered commutative ring and $F$ be a linearly ordered field.
+linearly ordered field. In the rest of this page, we let $R$ be a linearly ordered 
+commutative ring and $F$ be a linearly ordered field. We will also use symbols $f$ and 
+$g$ for functions $R \to F$.
 
 \subsection{Asymptotic bounds and domination}
 
 \begin{definition}
-\lean{AsymptoticallyBoundedAboveBy}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded above by $g(x)$ if 
-    there exist $x_0$ and $k > 0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
+    \label{def:asymp_bounded_above}
+    \lean{AsymptoticallyBoundedAboveBy}
+    \leanok
+    $f(x)$ is asymptotically bounded above by $g(x)$ if there exist $x_0$ and $k > 0$ 
+    such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Big O notation)
-\lean{O}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. $f(x) \in O(g(x))$ $f(x)$ if is asymptotically 
-    bounded above by $g(x)$.
+    \label{def:big_o}
+    \lean{O}
+    \leanok
+    $f(x) \in O(g(x))$ if it is asymptotically bounded above by $g(x)$.
 \end{definition}
 
 \begin{definition}
-\lean{AsymptoticallyBoundedBelowBy}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded below by $g(x)$ if 
-    there exist $x_0$ and $k > 0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
+    \label{def:asymp_bounded_below}
+    \lean{AsymptoticallyBoundedBelowBy}
+    \leanok
+    $f(x)$ is asymptotically bounded below by $g(x)$ if there exist $x_0$ and $k > 0$ 
+    such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Big Omega notation)
-\lean{Ω}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. $f(x) \in \Omega(g(x))$ if is asymptotically 
-    bounded below by $g(x)$.
+    \label{def:big_omega}
+    \lean{Ω}
+    \leanok
+    $f(x) \in \Omega(g(x))$ if it is asymptotically bounded below by $g(x)$.
 \end{definition}
 
 \begin{definition}
-\lean{AsymptoticallyBoundedBy}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically bounded by $g(x)$ if 
-    there exist $x_0$, $k\_1 > 0$ and $k\_2$ such that $k\_1*|g(x)| \le |f(x)| \le k\_2*|g(x)|$ 
-    for all $x \ge x_0$.
+    \label{def:asymp_bounded}
+    \lean{AsymptoticallyBoundedBy}
+    \leanok
+    $f(x)$ is asymptotically bounded by $g(x)$ if there exist $x_0$, $k\_1 > 0$ 
+    and $k\_2$ such that $k\_1*|g(x)| \le |f(x)| \le k\_2*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Big Theta notation)
-\lean{Θ}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \Theta(g(x))$ if is asymptotically 
-    bounded below by $g(x)$. We say that $f(x)$ is asymptotically bounded by $g(x)$.
+    \label{def:big_theta}
+    \lean{Θ}
+    \leanok
+    $f(x) \in \Theta(g(x))$ if it is asymptotically bounded by $g(x)$. 
 \end{definition}
 
 \begin{definition}
-\lean{AsymptoticallyDominatedBy}
-\leanok
+    \label{def:asymp_dominated}
+    \lean{AsymptoticallyDominatedBy}
+    \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically dominated by $g(x)$ if 
     for all $k > 0$ there exists $x_0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Small O notation)
-\lean{o}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in o(g(x))$ if $f(x)$ 
-    is asymptotically dominated by $g(x)$.
+    \label{def:small_o}
+    \lean{o}
+    \leanok
+    $f(x) \in o(g(x))$ if it is asymptotically dominated by $g(x)$.
 \end{definition}
 
 \begin{definition}
-\lean{AsymptoticallyDominates}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically dominates $g(x)$ if 
-    for all $k > 0$ there exists $x_0$ such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$.
+    \label{def:asymp_dominates}
+    \lean{AsymptoticallyDominates}
+    \leanok
+    $f(x)$ is asymptotically dominates $g(x)$ if for all $k > 0$ there exists $x_0$ 
+    such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Small Omega notation)
-\lean{ω}
-\leanok
-    Let $f$ and $g$ be functions $R \to F$. Then $f(x) \in \omega(g(x))$ if $f(x)$ 
-    asymptotically dominates $g(x)$.
+    \label{def:small_omega}
+    \lean{ω}
+    \leanok
+    $f(x) \in \omega(g(x))$ if it asymptotically dominates $g(x)$.
 \end{definition}
 
 %Goals (to be updated as necessary)
 %\begin{itemize}
 %\item definitions of notations $O(f(x))$, $\Omega(f(x))$, $\Theta(f(x))$, $o(f(x))$ and $\omega(f(x))$,
 %\item basic relations between notations (e.g. $o(f(x)) \implies O(f(x))$),
-%\item linear orders on different instances of each kind of notation,
 %\item equivalence relations on asymptotically equivalent instances of each kind of notation,
 %\item equivalences of notations with their limit definitions,
 %\item \textbf{optional:} show properties of certain classes of instances - notably polynomials and exponentials,
@@ -112,29 +116,112 @@ a linearly ordered commutative ring and $F$ be a linearly ordered field.
 
 \subsection{Limit definitions}
 
-\subsection{Relations between the asymptotic sets}
+TODO
 
+\subsection{Relations between asymptotic sets}
 
+\begin{theorem}
+    \label{thm:asymp_dominated_implies_bounded_above}
+    \lean{asymp_dominated_implies_bounded_above}
+    \leanok
+    \uses{def:asymp_dominated, def:asymp_bounded_above}
+    If $f(x)$ is dominated by $g(x)$, then it's also bounded above by $g(x)$.
+\end{theorem}
 
-\subsection{Linear orderings on asymptotic sets}
+\begin{proof}
+    \leanok 
+    The definitions of $f(x)$ being dominated and bounded above by $g(x)$ only differ
+    in the quantifier before $k$ at the very start (universal for the former, existential
+    for the latter), so it suffices to use any positive value for $k$. We use $1$. 
+    The desired result then follows directly.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:small_o_implies_big_o}
+    \lean{o_implies_O}
+    \leanok
+    \uses{def:small_o, def:big_o}
+    If $f(x) \in o(g(x))$, then $f(x) \in O(f(x))$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_dominated_implies_bounded_above}
+    Since $o(g(x))$ and $O(f(x))$, we can simply use Theorem 
+    \ref{thm:asymp_dominated_implies_bounded_above}.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_dominates_implies_bounded_below}
+    \lean{asymp_dominates_implies_bounded_below}
+    \leanok
+    \uses{def:asymp_dominates, def:asymp_bounded_below}
+    If $f(x)$ dominates $g(x)$, then it's bounded below by $g(x)$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    The proof is completely analogous to the proof of Theorem 
+    \ref{thm:asymp_dominated_implies_bounded_above}, again using the value $1$ for $k$.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:small_omega_implies_big_omega}
+    \lean{ω_implies_Ω}
+    \leanok
+    \uses{def:small_omega, def:big_omega}
+    If $f(x) \in \omega(g(x))$, then $f(x) \in \Omega(g(x))$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_dominates_implies_bounded_below}
+    The proof is a simple application of Theorem 
+    \ref{thm:asymp_dominates_implies_bounded_below}.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_bounded_above_and_below_equiv_bounded}
+    \lean{asymp_bounded_above_and_below_equiv_bounded}
+    \leanok
+    \uses{def:asymp_bounded_above, def:asymp_bounded_below, def:asymp_bounded}
+    If $f(x)$ is bounded above and below by $g(x)$, then it's bounded by $g(x)$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:big_o_and_omega_equiv_theta}
+    \lean{O_and_Ω_equiv_Θ}
+    \leanok
+    \uses{def:big_o, def:big_omega, def:big_theta}
+    $f(x) \in O(g(x))$ and $f(x) \in \Omega(g(x))$ if and only if $f(x) \in \Theta(g(x))$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_bounded_above_and_below_equiv_bounded}
+    Similarly to previous proofs, the proof is a direct application of Theorem 
+    \ref{thm:asymp_bounded_above_and_below_equiv_bounded}.
+\end{proof}
+
 
 \section{The Master theorem}
 
-Analyzing the time complexity of algorithms, especially recursive ones, is more often than not 
-a non-trivial task. For a recursive algorithm, its time complexity can be written as a recurrence
-formula, which is generally not easy, sometimes even impossible to solve with a closed formula.
-In some cases, though, it turns out that we can find asymptotic bounds of the solution, despite not
-being able to necessarily find the precise solution to the recurrence.
+Analyzing the time complexity of algorithms, especially recursive ones, is more often 
+than not a non-trivial task. For a recursive algorithm, its time complexity can be 
+written as a recurrence formula, which is generally not easy, sometimes even impossible 
+to solve with a closed formula. In some cases, though, it turns out that we can find 
+asymptotic bounds of the solution, despite not being able to necessarily find the 
+precise solution to the recurrence.
 
-Divide-and-conquer algorithms, i.e. algorithms that work by recursively splitting the input problem
-into similarly-sized subproblems have especially nice recurrence formulas which can be asymptotically
-bounded with a simple formula that is known in the field as the Master theorem.
+Divide-and-conquer algorithms, i.e. algorithms that work by recursively splitting the input 
+problem into similarly-sized subproblems have especially nice recurrence formulas which can be 
+asymptotically bounded with a simple formula that is known as the Master theorem.
 
 \begin{theorem}[Master theorem for divide-and-conquer recurrences]
 TODO
 \end{theorem}
-
-Goals
-\begin{itemize}
-\item TODO
-\end{itemize}
