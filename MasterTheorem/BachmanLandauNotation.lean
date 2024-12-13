@@ -5,84 +5,65 @@ import MasterTheorem.AsymptoticGrowth
 variable {R F : Type} [LinearOrderedCommRing R] [LinearOrderedField F]
 
 def O (g : R → F) := 
-  { f : R → F | AsymptoticallyNonZero g ∧ AsymptoticallyBoundedAboveBy f g }
+  { f : R → F | AsympNonZero g ∧ AsympBoundedAbove f g }
 
 def Ω (g : R → F) := 
-  { f : R → F | AsymptoticallyNonZero g ∧ AsymptoticallyBoundedBelowBy f g }
+  { f : R → F | AsympNonZero g ∧ AsympBoundedBelow f g }
 
 def Θ (g : R → F) := 
-  { f : R → F | AsymptoticallyNonZero g ∧ AsymptoticallyBoundedBy f g }
+  { f : R → F | AsympNonZero g ∧ AsympBounded f g }
 
 def o (g : R → F) := 
-  { f : R → F | AsymptoticallyNonZero g ∧ AsymptoticallyDominatedBy f g }
+  { f : R → F | AsympNonZero g ∧ AsympDominated f g }
 
 def ω (g : R → F) := 
-  { f : R → F | AsymptoticallyNonZero g ∧ AsymptoticallyDominates f g }
+  { f : R → F | AsympNonZero g ∧ AsympDominates f g }
 
 section BasicRelations
 
 variable {f g : R → F}
 
-theorem o_implies_O (h : f ∈ o g) : f ∈ O g := by
-  unfold o at h
-  unfold O
+theorem o_imp_O (h : f ∈ o g) : f ∈ O g := by
   rcases h with ⟨hg, hd⟩
-  constructor
-  . assumption
-  . exact asymp_dominated_implies_bounded_above hd
+  have hbound := asymp_dominated_imp_bounded_above hd
+  constructor <;> tauto
 
-theorem ω_implies_Ω (h : f ∈ ω g) : f ∈ Ω g := by
-  unfold ω at h
-  unfold Ω
+theorem ω_imp_Ω (h : f ∈ ω g) : f ∈ Ω g := by
   rcases h with ⟨hg, hd⟩
-  constructor
-  . assumption
-  . exact asymp_dominates_implies_bounded_below hd
+  have hbound := asymp_dominates_imp_bounded_below hd
+  constructor <;> tauto
 
 theorem O_and_Ω_equiv_Θ : f ∈ O g ∧ f ∈ Ω g ↔ f ∈ Θ g := by
-  unfold O
-  unfold Ω
-  unfold Θ
-  constructor
-  . intro h
-    rcases h with ⟨⟨hg, hO⟩, ⟨_, hΩ⟩⟩
-    constructor
-    . assumption
-    . exact asymp_bounded_above_and_below_equiv_bounded.1 (And.intro hO hΩ)
-  . intro h
-    rcases h with ⟨_, h⟩
+  constructor <;> intro h
+  . rcases h with ⟨⟨hg, hO⟩, ⟨_, hΩ⟩⟩
+    have hbound := asymp_bounded_above_and_below_equiv_bounded.1 (And.intro hO hΩ)
+    constructor <;> tauto
+  . rcases h with ⟨_, h⟩
     have hbound := asymp_bounded_above_and_below_equiv_bounded.2 h
-    constructor <;> constructor
-    . assumption
-    . exact And.left hbound
-    . assumption
-    . exact And.right hbound
+    constructor <;> constructor <;> tauto
 
-theorem Θ_implies_not_o (hΘ : f ∈ Θ g) : ¬f ∈ o g := by
+theorem not_Θ_and_o : ¬(f ∈ Θ g ∧ f ∈ o g) := by
+  intro h
+  rcases h with ⟨⟨hg, hΘ⟩, ⟨_, ho⟩⟩ 
+  exact not_asymp_bounded_and_dominated hg (And.intro hΘ ho)
+
+theorem not_Θ_and_ω : ¬(f ∈ Θ g ∧ f ∈ ω g) := by
+  intro h
+  rcases h with ⟨⟨hg, hΘ⟩, ⟨_, hω⟩⟩ 
+  exact not_asymp_bounded_and_dominates hg (And.intro hΘ hω)
+
+theorem Θ_imp_not_o (hΘ : f ∈ Θ g) : ¬f ∈ o g := by
   intro ho
-  unfold Θ at hΘ
-  unfold o at ho
-  rcases hΘ with ⟨hg, hΘ⟩
-  rcases ho with ⟨_, ho⟩
-  exact asymp_bounded_implies_not_dominated hg hΘ ho
+  exact not_Θ_and_o (And.intro hΘ ho)
 
-theorem Θ_implies_not_ω (hΘ : f ∈ Θ g) : ¬f ∈ ω g := by
+theorem Θ_imp_not_ω (hΘ : f ∈ Θ g) : ¬f ∈ ω g := by
   intro hω
-  unfold Θ at hΘ
-  unfold ω at hω
-  rcases hΘ with ⟨hg, hΘ⟩
-  rcases hω with ⟨_, hω⟩
-  exact asymp_bounded_implies_not_dominates hg hΘ hω
+  exact not_Θ_and_ω (And.intro hΘ hω)
 
 theorem not_o_and_ω : ¬(f ∈ o g ∧ f ∈ ω g) := by
   intro h
-  rcases h with ⟨ho, hω⟩
-  unfold o at ho
-  unfold ω at hω
-  rcases ho with ⟨hg, ho⟩
-  rcases hω with ⟨_, hω⟩
-  apply not_asymp_dominates_and_dominated hg
-  constructor <;> assumption
+  rcases h with ⟨⟨hg, ho⟩, ⟨_, hω⟩⟩
+  exact not_asymp_dominates_and_dominated hg (And.intro hω ho)
 
 end BasicRelations
 

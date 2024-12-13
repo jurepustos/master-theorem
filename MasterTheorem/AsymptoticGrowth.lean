@@ -4,27 +4,29 @@ import Mathlib.Order.Defs
 import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
 
-def AsymptoticallyNonZero {R₁ R₂ : Type} [LinearOrderedCommRing R₁] [LinearOrderedRing R₂] (f : R₁ → R₂) :=
+def AsympNonZero {R₁ R₂ : Type} [LinearOrderedCommRing R₁] [LinearOrderedRing R₂] (f : R₁ → R₂) :=
   ∃ N, ∀ n > N, f n ≠ 0
 
 variable {R F : Type} [LinearOrderedCommRing R] [LinearOrderedField F]
 
-def AsymptoticallyBoundedBelowBy (f g : R → F) := 
+def AsympBoundedBelow (f g : R → F) := 
   ∃ k > 0, ∃ N, ∀ n > N, |f n| ≥ k * |g n|
 
-def AsymptoticallyBoundedAboveBy (f g : R → F) := 
+def AsympBoundedAbove (f g : R → F) := 
   ∃ k > 0, ∃ N, ∀ n > N, |f n| ≤ k * |g n|
 
-def AsymptoticallyDominates (f g : R → F) := 
+def AsympDominates (f g : R → F) := 
   ∀ k > 0, ∃ N, ∀ n > N, |f n| ≥ k * |g n|
 
-def AsymptoticallyDominatedBy (f g : R → F) := 
+def AsympDominated (f g : R → F) := 
   ∀ k > 0, ∃ N, ∀ n > N, |f n| ≤ k * |g n|
 
-def AsymptoticallyBoundedBy (f g : R → F) :=
+def AsympBounded (f g : R → F) :=
   ∃ k₁ > 0, ∃ k₂ > 0, ∃ N, ∀ n > N, k₁ * |g n| ≤ |f n| ∧ |f n| ≤ k₂ * |g n|
 
 variable {f g : R → F}
+
+section Max
 
 private lemma le_three_max_left {L : Type} [LinearOrder L] (a b c : L) : a ≤ a ⊔ b ⊔ c := by
   rw [max_assoc]
@@ -38,23 +40,25 @@ private lemma le_three_max_right {L : Type} [LinearOrder L] (a b c : L) : c ≤ 
   rw [max_comm]
   apply le_max_left
 
-theorem asymp_dominated_implies_bounded_above (h : AsymptoticallyDominatedBy f g) : AsymptoticallyBoundedAboveBy f g := by
-  unfold AsymptoticallyBoundedAboveBy
-  unfold AsymptoticallyDominatedBy at h
+end Max
+
+lemma asymp_dominated_imp_bounded_above (h : AsympDominated f g) : AsympBoundedAbove f g := by
+  unfold AsympBoundedAbove
+  unfold AsympDominated at h
   specialize h 1 (by linarith)
   use 1
   constructor
   . linarith
   . exact h
 
-theorem asymp_dominates_implies_bounded_below (h : AsymptoticallyDominates f g) : AsymptoticallyBoundedBelowBy f g := by
+lemma asymp_dominates_imp_bounded_below (h : AsympDominates f g) : AsympBoundedBelow f g := by
   specialize h 1 (by linarith)
   use 1
   constructor
   . linarith
   . exact h
 
-lemma asymp_bounded_above_and_below_implies_bounded (ha : AsymptoticallyBoundedAboveBy f g) (hb : AsymptoticallyBoundedBelowBy f g) : AsymptoticallyBoundedBy f g := by
+lemma asymp_bounded_above_and_below_imp_bounded (ha : AsympBoundedAbove f g) (hb : AsympBoundedBelow f g) : AsympBounded f g := by
   rcases ha with ⟨k₁, k₁_pos, N₁, ha⟩ 
   rcases hb with ⟨k₂, k₂_pos, N₂, hb⟩ 
   use k₂
@@ -69,7 +73,7 @@ lemma asymp_bounded_above_and_below_implies_bounded (ha : AsymptoticallyBoundedA
       . exact hb n (lt_of_le_of_lt (le_max_right N₁ N₂) n_gt_N)
       . exact ha n (lt_of_le_of_lt (le_max_left N₁ N₂) n_gt_N)
 
-lemma asymp_bounded_implies_bounded_above_and_below (h : AsymptoticallyBoundedBy f g) : AsymptoticallyBoundedAboveBy f g ∧ AsymptoticallyBoundedBelowBy f g := by
+lemma asymp_bounded_imp_bounded_above_and_below (h : AsympBounded f g) : AsympBoundedAbove f g ∧ AsympBoundedBelow f g := by
   rcases h with ⟨k₁, k₁_pos, k₂, k₂_pos, N, h⟩
   constructor
   . use k₂
@@ -85,18 +89,18 @@ lemma asymp_bounded_implies_bounded_above_and_below (h : AsymptoticallyBoundedBy
       intro n hn
       exact And.left (h n hn)
 
-theorem asymp_bounded_above_and_below_equiv_bounded : AsymptoticallyBoundedAboveBy f g ∧ AsymptoticallyBoundedBelowBy f g ↔ AsymptoticallyBoundedBy f g := by
+theorem asymp_bounded_above_and_below_equiv_bounded : AsympBoundedAbove f g ∧ AsympBoundedBelow f g ↔ AsympBounded f g := by
   constructor
-  . exact And.elim asymp_bounded_above_and_below_implies_bounded
-  . exact asymp_bounded_implies_bounded_above_and_below
+  . exact And.elim asymp_bounded_above_and_below_imp_bounded
+  . exact asymp_bounded_imp_bounded_above_and_below
 
-theorem not_asymp_bounded_and_dominated (hg : AsymptoticallyNonZero g) : ¬(AsymptoticallyBoundedBy f g ∧ AsymptoticallyDominatedBy f g) := by
+theorem not_asymp_bounded_and_dominated (hg : AsympNonZero g) : ¬(AsympBounded f g ∧ AsympDominated f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
   -- unfold definitions to make it clearer
-  unfold AsymptoticallyBoundedBy at hb
-  unfold AsymptoticallyDominatedBy at hd
-  unfold AsymptoticallyNonZero at hg
+  unfold AsympBounded at hb
+  unfold AsympDominated at hd
+  unfold AsympNonZero at hg
 
   -- unwrap the existential quantifiers
   rcases hb with ⟨k₁, k₁_pos, k₂, k₂_pos, N₁, hb⟩
@@ -136,31 +140,31 @@ theorem not_asymp_bounded_and_dominated (hg : AsymptoticallyNonZero g) : ¬(Asym
   linarith
 
 -- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not dominated by g.
-lemma asymp_bounded_implies_not_dominated (hg : AsymptoticallyNonZero g) (hb : AsymptoticallyBoundedBy f g) : ¬AsymptoticallyDominatedBy f g := by
+lemma asymp_bounded_imp_not_dominated (hg : AsympNonZero g) (hb : AsympBounded f g) : ¬AsympDominated f g := by
   intro hd
   apply not_asymp_bounded_and_dominated hg
   constructor <;> assumption
 
-lemma asymp_dominated_implies_not_bounded (hg : AsymptoticallyNonZero g) (hd : AsymptoticallyDominatedBy f g) : ¬AsymptoticallyBoundedBy f g := by 
+lemma asymp_dominated_imp_not_bounded (hg : AsympNonZero g) (hd : AsympDominated f g) : ¬AsympBounded f g := by 
   intro hb
   apply not_asymp_bounded_and_dominated hg
   constructor <;> assumption
 
-theorem asymp_dominated_implies_not_bounded_below (hg : AsymptoticallyNonZero g) (hd : AsymptoticallyDominatedBy f g) : ¬AsymptoticallyBoundedBelowBy f g := by 
+theorem asymp_dominated_imp_not_bounded_below (hg : AsympNonZero g) (hd : AsympDominated f g) : ¬AsympBoundedBelow f g := by 
   intro hbbelow
   apply not_asymp_bounded_and_dominated hg
   constructor
-  . have hbabove := asymp_dominated_implies_bounded_above hd
+  . have hbabove := asymp_dominated_imp_bounded_above hd
     exact asymp_bounded_above_and_below_equiv_bounded.1 (And.intro hbabove hbbelow)
   . assumption    
 
-theorem not_asymp_bounded_and_dominates (hg : AsymptoticallyNonZero g) : ¬(AsymptoticallyBoundedBy f g ∧ AsymptoticallyDominates f g) := by
+theorem not_asymp_bounded_and_dominates (hg : AsympNonZero g) : ¬(AsympBounded f g ∧ AsympDominates f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
   -- unfold definitions to make it clearer
-  unfold AsymptoticallyBoundedBy at hb
-  unfold AsymptoticallyDominates at hd
-  unfold AsymptoticallyNonZero at hg
+  unfold AsympBounded at hb
+  unfold AsympDominates at hd
+  unfold AsympNonZero at hg
 
   rcases hg with ⟨N₁, hg⟩
   rcases hb with ⟨k₁, k₁_pos, k₂, k₂_pos, N₂, hb⟩
@@ -193,30 +197,31 @@ theorem not_asymp_bounded_and_dominates (hg : AsymptoticallyNonZero g) : ¬(Asym
   have G_pos : G > 0 := Ne.lt_of_le hg_abs G_nonneg
   linarith
 
-lemma asymp_bounded_implies_not_dominates (hg : AsymptoticallyNonZero g) (hb : AsymptoticallyBoundedBy f g) : ¬AsymptoticallyDominates f g := by
-  intro hb
-  apply not_asymp_bounded_and_dominates hg
-  constructor <;> assumption
-
-lemma asymp_dominates_implies_not_bounded (hg : AsymptoticallyNonZero g) (hd : AsymptoticallyDominates f g) : ¬AsymptoticallyBoundedBy f g := by
+lemma asymp_bounded_imp_not_dominates (hg : AsympNonZero g) (hb : AsympBounded f g) : ¬AsympDominates f g := by
   intro hd
   apply not_asymp_bounded_and_dominates hg
   constructor <;> assumption
 
-theorem asymp_dominates_implies_not_bounded_above (hg : AsymptoticallyNonZero g) (hd : AsymptoticallyDominates f g) : ¬AsymptoticallyBoundedAboveBy f g := by 
+lemma asymp_dominates_imp_not_bounded (hg : AsympNonZero g) (hd : AsympDominates f g) : ¬AsympBounded f g := by
+  revert hd
+  contrapose
+  simp
+  exact asymp_bounded_imp_not_dominates hg
+
+theorem asymp_dominates_imp_not_bounded_above (hg : AsympNonZero g) (hd : AsympDominates f g) : ¬AsympBoundedAbove f g := by 
   intro hbabove
   apply not_asymp_bounded_and_dominates hg
   constructor
-  . have hbbelow := asymp_dominates_implies_bounded_below hd
+  . have hbbelow := asymp_dominates_imp_bounded_below hd
     exact asymp_bounded_above_and_below_equiv_bounded.1 (And.intro hbabove hbbelow)
   . assumption
 
-theorem not_asymp_dominates_and_dominated (hg: AsymptoticallyNonZero g): ¬(AsymptoticallyDominates f g ∧ AsymptoticallyDominatedBy f g) := by
+theorem not_asymp_dominates_and_dominated (hg: AsympNonZero g): ¬(AsympDominates f g ∧ AsympDominated f g) := by
   intro h 
   rcases h with ⟨ha, hb⟩
-  unfold AsymptoticallyDominates at ha
-  unfold AsymptoticallyDominatedBy at hb
-  unfold AsymptoticallyNonZero at hg
+  unfold AsympDominates at ha
+  unfold AsympDominated at hb
+  unfold AsympNonZero at hg
 
   specialize ha 2 (by linarith)
   specialize hb 1 (by linarith)
@@ -224,7 +229,7 @@ theorem not_asymp_dominates_and_dominated (hg: AsymptoticallyNonZero g): ¬(Asym
   rcases hb with ⟨N₂, hb⟩
   rcases hg with ⟨N₃, hg⟩
 
-  generalize hN : max N₁ (max N₂ N₃) = N
+  generalize hN : N₁ ⊔ N₂ ⊔ N₃ = N
 
   specialize ha (N + 1) (by linarith [le_three_max_left N₁ N₂ N₃])
   specialize hb (N + 1) (by linarith [le_three_max_middle N₁ N₂ N₃])

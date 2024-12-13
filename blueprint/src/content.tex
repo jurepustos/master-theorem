@@ -31,7 +31,7 @@ $g$ for functions $R \to F$.
 
 \begin{definition}
     \label{def:asymp_bounded_above}
-    \lean{AsymptoticallyBoundedAboveBy}
+    \lean{AsympBoundedAbove}
     \leanok
     $f(x)$ is asymptotically bounded above by $g(x)$ if there exist $x_0$ and $k > 0$ 
     such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
@@ -46,7 +46,7 @@ $g$ for functions $R \to F$.
 
 \begin{definition}
     \label{def:asymp_bounded_below}
-    \lean{AsymptoticallyBoundedBelowBy}
+    \lean{AsympBoundedBelow}
     \leanok
     $f(x)$ is asymptotically bounded below by $g(x)$ if there exist $x_0$ and $k > 0$ 
     such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
@@ -61,7 +61,7 @@ $g$ for functions $R \to F$.
 
 \begin{definition}
     \label{def:asymp_bounded}
-    \lean{AsymptoticallyBoundedBy}
+    \lean{AsympBounded}
     \leanok
     $f(x)$ is asymptotically bounded by $g(x)$ if there exist $x_0$, $k\_1 > 0$ 
     and $k\_2$ such that $k\_1*|g(x)| \le |f(x)| \le k\_2*|g(x)|$ for all $x \ge x_0$.
@@ -76,7 +76,7 @@ $g$ for functions $R \to F$.
 
 \begin{definition}
     \label{def:asymp_dominated}
-    \lean{AsymptoticallyDominatedBy}
+    \lean{AsympDominated}
     \leanok
     Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically dominated by $g(x)$ if 
     for all $k > 0$ there exists $x_0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
@@ -91,7 +91,7 @@ $g$ for functions $R \to F$.
 
 \begin{definition}
     \label{def:asymp_dominates}
-    \lean{AsymptoticallyDominates}
+    \lean{AsympDominates}
     \leanok
     $f(x)$ is asymptotically dominates $g(x)$ if for all $k > 0$ there exists $x_0$ 
     such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$.
@@ -120,13 +120,13 @@ TODO
 
 \subsection{Relations between asymptotic sets}
 
-\begin{theorem}
-    \label{thm:asymp_dominated_implies_bounded_above}
-    \lean{asymp_dominated_implies_bounded_above}
+\begin{lemma}
+    \label{lemma:asymp_dominated_imp_bounded_above}
+    \lean{asymp_dominated_imp_bounded_above}
     \leanok
     \uses{def:asymp_dominated, def:asymp_bounded_above}
     If $f(x)$ is dominated by $g(x)$, then it's also bounded above by $g(x)$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
     \leanok 
@@ -136,38 +136,39 @@ TODO
     The desired result then follows directly.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:small_o_implies_big_o}
-    \lean{o_implies_O}
+\begin{lemma}
+    \label{lemma:small_o_imp_big_o}
+    \lean{o_imp_O}
     \leanok
     \uses{def:small_o, def:big_o}
     If $f(x) \in o(g(x))$, then $f(x) \in O(f(x))$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_dominated_implies_bounded_above}
+    \uses{lemma:asymp_dominated_imp_bounded_above}
     Since $o(g(x))$ and $O(f(x))$, we can simply use Theorem 
-    \ref{thm:asymp_dominated_implies_bounded_above}.
+    \ref{lemma:asymp_dominated_imp_bounded_above}.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_dominates_implies_bounded_below}
-    \lean{asymp_dominates_implies_bounded_below}
+\begin{lemma}
+    \label{lemma:asymp_dominates_imp_bounded_below}
+    \lean{asymp_dominates_imp_bounded_below}
     \leanok
     \uses{def:asymp_dominates, def:asymp_bounded_below}
     If $f(x)$ dominates $g(x)$, then it's bounded below by $g(x)$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
     \leanok
-    The proof is completely analogous to the proof of Theorem 
-    \ref{thm:asymp_dominated_implies_bounded_above}, again using the value $1$ for $k$.
+    The proof is entirely analogous to the proof of Theorem 
+    \ref{lemma:asymp_dominated_imp_bounded_above}, again using the value 
+    $1$ for $k$.
 \end{proof}
 
 \begin{theorem}
-    \label{thm:small_omega_implies_big_omega}
-    \lean{ω_implies_Ω}
+    \label{thm:small_omega_imp_big_omega}
+    \lean{ω_imp_Ω}
     \leanok
     \uses{def:small_omega, def:big_omega}
     If $f(x) \in \omega(g(x))$, then $f(x) \in \Omega(g(x))$.
@@ -175,9 +176,9 @@ TODO
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_dominates_implies_bounded_below}
+    \uses{lemma:asymp_dominates_imp_bounded_below}
     The proof is a simple application of Theorem 
-    \ref{thm:asymp_dominates_implies_bounded_below}.
+    \ref{lemma:asymp_dominates_imp_bounded_below}.
 \end{proof}
 
 \begin{theorem}
@@ -190,7 +191,16 @@ TODO
 
 \begin{proof}
     \leanok
-    TODO
+    First, assume $f(x)$ is bounded above and below by $g(x)$. There is a constant
+    $k\_1 > 0$ such that $|f(x)| \le k\_1 |g(x)|$ for all $x > x\_0$ for some $x\_0$.
+    Analogously, there is a constant $k\_2 > 0$ such that $|f(x)| \ge k\_2 |g(x)|$ 
+    for all $x > x\_1$ for some $x\_1$. For $f(x)$ to be properly bounded by $g(x)$ 
+    we need a single constant $x\_2$ - we take $x\_2 = \max{\{x\_1, x\_2\}}$. Since 
+    $x\_2 \ge x\_0$ and $x\_2 \ge x\_1$, we have $|f(x) \le k\_1 |g(x)|$ and 
+    $|f(x)| \ge k\_2 |g(x)|$ for all $x > x\_2$, which means that $f(x)$ is bounded
+    by $g(x)$.
+
+    Conversely, assume $f(x)$ is bounded by $g(x)$.
 \end{proof}
 
 \begin{theorem}
@@ -208,6 +218,18 @@ TODO
     \ref{thm:asymp_bounded_above_and_below_equiv_bounded}.
 \end{proof}
 
+\begin{lemma}
+    \label{thm:asymp_bounded_imp_not_dominated}
+    \lean{asymp_bounded_imp_not_dominated}
+    \leanok
+    If $f(x)$ is bounded by $g(x)$, then $f(x)$ is not dominated by $g(x)$.
+\end{lemma}
+
+\begin{proof}
+    TODO 
+\end{proof}
+    
+
 
 \section{The Master theorem}
 
@@ -216,11 +238,10 @@ than not a non-trivial task. For a recursive algorithm, its time complexity can 
 written as a recurrence formula, which is generally not easy, sometimes even impossible 
 to solve with a closed formula. In some cases, though, it turns out that we can find 
 asymptotic bounds of the solution, despite not being able to necessarily find the 
-precise solution to the recurrence.
-
-Divide-and-conquer algorithms, i.e. algorithms that work by recursively splitting the input 
-problem into similarly-sized subproblems have especially nice recurrence formulas which can be 
-asymptotically bounded with a simple formula that is known as the Master theorem.
+precise solution to the recurrence. One class of such cases is the class of 
+divide-and-conquer algorithms, i.e. algorithms that work by recursively splitting the input 
+problem into similarly-sized subproblems. Those have especially nice recurrence formulas 
+which can be asymptotically bounded with an elegant formula that is known as the Master theorem.
 
 \begin{theorem}[Master theorem for divide-and-conquer recurrences]
 TODO
