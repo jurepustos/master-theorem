@@ -1,11 +1,13 @@
 import Mathlib.Algebra.Order.Ring.Abs
-
 import MasterTheorem.AsymptoticGrowth
 
 variable {R F : Type} [LinearOrderedCommRing R] [LinearOrderedField F]
 
 def O (g : R → F) := 
   { f : R → F | AsympNonZero g ∧ AsympBoundedAbove f g }
+
+def O' {α β γ: Type*} [LE α] [LE β] [HMul γ β η] (g : R → F) := 
+  { f : α → β | AsympBoundedAbove' f g }
 
 def Ω (g : R → F) := 
   { f : R → F | AsympNonZero g ∧ AsympBoundedBelow f g }
