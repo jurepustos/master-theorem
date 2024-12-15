@@ -61,9 +61,9 @@ variable {α β γ : Type*} [HMul γ β β] {f g : α → β}
 
 section PartialOrdered
 
-variable [PartialOrder α] [PartialOrder β] [PartialOrder γ] 
+variable [PartialOrder α] [PartialOrder β] [LinearOrderedSemiring γ] 
 
-lemma asymp_dominated_imp_bounded_above [Zero γ] [γ_one : One γ] [ZeroLEOneClass γ] [NeZero γ_one.1] (h : AsympDominated γ f g) : AsympBoundedAbove γ f g := by
+lemma asymp_dominated_imp_bounded_above (h : AsympDominated γ f g) : AsympBoundedAbove γ f g := by
   unfold AsympBoundedAbove
   unfold AsympDominated at h
   specialize h 1 
@@ -72,14 +72,14 @@ lemma asymp_dominated_imp_bounded_above [Zero γ] [γ_one : One γ] [ZeroLEOneCl
   . exact one_pos
   . exact h one_pos
 
-lemma asymp_dominates_imp_bounded_below [Zero γ] [γ_one : One γ] [ZeroLEOneClass γ] [NeZero γ_one.1] (h : AsympDominates γ f g) : AsympBoundedBelow γ f g := by
+lemma asymp_dominates_imp_bounded_below (h : AsympDominates γ f g) : AsympBoundedBelow γ f g := by
   specialize h 1
   use 1
   constructor
   . exact one_pos
   . exact h one_pos
 
-lemma asymp_bounded_above_and_below_imp_bounded [Zero γ] [One γ] (ha : AsympBoundedAbove γ f g) (hb : AsympBoundedBelow γ f g) : AsympBounded γ f g := by
+lemma asymp_bounded_above_and_below_imp_bounded (ha : AsympBoundedAbove γ f g) (hb : AsympBoundedBelow γ f g) : AsympBounded γ f g := by
   rcases ha with ⟨k₁, k₁_pos, N₁, ha⟩ 
   rcases hb with ⟨k₂, k₂_pos, N₂, hb⟩ 
   constructor
@@ -92,7 +92,7 @@ lemma asymp_bounded_above_and_below_imp_bounded [Zero γ] [One γ] (ha : AsympBo
     . assumption
     . use N₂
 
-lemma asymp_bounded_imp_bounded_above_and_below [Zero γ] (h : AsympBounded γ f g) : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g := by
+lemma asymp_bounded_imp_bounded_above_and_below (h : AsympBounded γ f g) : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g := by
   rcases h with ⟨⟨k₁, k₁_pos, N₁, ha⟩, ⟨k₂, k₁_pos, N₂, hb⟩⟩
   constructor
   . use k₁
@@ -104,7 +104,7 @@ lemma asymp_bounded_imp_bounded_above_and_below [Zero γ] (h : AsympBounded γ f
     . assumption
     . use N₂
 
-theorem asymp_bounded_above_and_below_equiv_bounded [Zero γ] [One γ] : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
+theorem asymp_bounded_above_and_below_equiv_bounded : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
   constructor
   . exact And.elim asymp_bounded_above_and_below_imp_bounded
   . exact asymp_bounded_imp_bounded_above_and_below
