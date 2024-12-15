@@ -63,15 +63,21 @@ section PartialOrdered
 
 variable [PartialOrder α] [PartialOrder β] [PartialOrder γ] 
 
-lemma asymp_dominated_imp_bounded_above [Zero γ] [One γ] (h : AsympDominated γ f g) : AsympBoundedAbove γ f g := by
+lemma asymp_dominated_imp_bounded_above [Zero γ] [γ_one : One γ] [ZeroLEOneClass γ] [NeZero γ_one.1] (h : AsympDominated γ f g) : AsympBoundedAbove γ f g := by
   unfold AsympBoundedAbove
   unfold AsympDominated at h
   specialize h 1 
   use 1
+  constructor
+  . exact one_pos
+  . exact h one_pos
 
-lemma asymp_dominates_imp_bounded_below [Zero γ] [One γ] (h : AsympDominates γ f g) : AsympBoundedBelow γ f g := by
+lemma asymp_dominates_imp_bounded_below [Zero γ] [γ_one : One γ] [ZeroLEOneClass γ] [NeZero γ_one.1] (h : AsympDominates γ f g) : AsympBoundedBelow γ f g := by
   specialize h 1
   use 1
+  constructor
+  . exact one_pos
+  . exact h one_pos
 
 lemma asymp_bounded_above_and_below_imp_bounded [Zero γ] [One γ] (ha : AsympBoundedAbove γ f g) (hb : AsympBoundedBelow γ f g) : AsympBounded γ f g := by
   rcases ha with ⟨k₁, k₁_pos, N₁, ha⟩ 
