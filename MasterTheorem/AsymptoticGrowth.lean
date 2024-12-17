@@ -169,6 +169,12 @@ lemma asymp_bounded_imp_not_dominated [PosSMulMono γ β] [SMulPosStrictMono γ 
   intro hd
   exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
 
+lemma asymp_bounded_below_imp_not_dominated [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) (h : AsympBoundedBelow γ f g) : ¬AsympDominated γ f g := by
+  intro hd
+  have ha := asymp_dominated_imp_bounded_above hd
+  have hb := asymp_bounded_above_and_below_imp_bounded ha h
+  exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
+
 lemma asymp_dominated_imp_not_bounded [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBounded γ f g := by 
   intro hb
   exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
