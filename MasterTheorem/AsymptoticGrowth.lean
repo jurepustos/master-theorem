@@ -115,9 +115,9 @@ end PartialOrdered
 
 section LinearOrdered
 
-variable [LinearOrder α] [LinearOrderedRing β] [LinearOrderedField γ] [Module γ β] [PosSMulMono γ β] [PosSMulReflectLE γ β] [SMulPosStrictMono γ β]
+variable [LinearOrder α] [LinearOrderedRing β] [γ_linOrdField : LinearOrderedField γ] [Module γ β] 
 
-theorem not_asymp_bounded_and_dominated (hg : AsympPositive g) : ¬(AsympBounded γ f g ∧ AsympDominated γ f g) := by
+theorem not_asymp_bounded_and_dominated [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) : ¬(AsympBounded γ f g ∧ AsympDominated γ f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
 
@@ -165,24 +165,23 @@ theorem not_asymp_bounded_and_dominated (hg : AsympPositive g) : ¬(AsympBounded
   exact not_le_of_gt contra2 contra1
 
 -- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not dominated by g.
-lemma asymp_bounded_imp_not_dominated (hg : AsympPositive g) (hb : AsympBounded γ f g) : ¬AsympDominated γ f g := by
+lemma asymp_bounded_imp_not_dominated [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) (hb : AsympBounded γ f g) : ¬AsympDominated γ f g := by
   intro hd
   exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
 
-lemma asymp_dominated_imp_not_bounded (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBounded γ f g := by 
+lemma asymp_dominated_imp_not_bounded [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBounded γ f g := by 
   intro hb
   exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
 
-theorem asymp_dominated_imp_not_bounded_below (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBoundedBelow γ f g := by 
+theorem asymp_dominated_imp_not_bounded_below [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBoundedBelow γ f g := by 
   intro hb
   have ha := asymp_dominated_imp_bounded_above hd
   have h := asymp_bounded_above_and_below_imp_bounded ha hb
   exact not_asymp_bounded_and_dominated hg (And.intro h hd)
 
-theorem not_asymp_bounded_and_dominates (hg : AsympPositive g) : ¬(AsympBounded β f g ∧ AsympDominates β f g) := by
+theorem not_asymp_bounded_and_dominates [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) : ¬(AsympBounded γ f g ∧ AsympDominates γ f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
-
   rcases hg with ⟨N₁, hg⟩
   rcases hb with ⟨⟨k₁, k₁_pos, N₂, ha⟩, _⟩
 
@@ -194,7 +193,7 @@ theorem not_asymp_bounded_and_dominates (hg : AsympPositive g) : ¬(AsympBounded
   rw [hk₂] at k₂_pos
   specialize hd k₂ k₂_pos
   rcases hd with ⟨N₃, hd⟩
-  rw [← hk₂] at k₂_pos
+  rw [← hk₂] at k₂_pos hd
 
   -- define an N that is large enough
   generalize hN : N₁ ⊔ N₂ ⊔ N₃ = N
@@ -207,45 +206,39 @@ theorem not_asymp_bounded_and_dominates (hg : AsympPositive g) : ¬(AsympBounded
   specialize ha (le_three_max_middle N₁ N₂ N₃)
   specialize hd (le_three_max_right N₁ N₂ N₃)
   rw [hN] at ha hd hg
+  simp at ha hd
 
-  have hd2 : (k₁ + 1) * g N ≤ f N := by {
-    apply (le_inv_mul_iff₀' k₂_inv_pos).1
-    rw [hk₂]
-    assumption
-  }
+  have hd2 : (k₁ + 1) • g N ≤ f N := (le_inv_smul_iff_of_pos k₂_inv_pos).1 hd
 
   simp at *
   have contra1 := le_trans hd2 ha
-  have contra2 : k₁ * g N < (k₁⁻¹ + 1) * g N := by linarith
-  linarith
+  have contra2 : k₁ • g N < (k₁ + 1) • g N := smul_lt_smul_of_pos_right (by linarith) hg
+  exact not_le_of_gt contra2 contra1
 
-lemma asymp_bounded_imp_not_dominates (hg : AsympPositive g) (hb : AsympBounded β f g) : ¬AsympDominates β f g := by
+lemma asymp_bounded_imp_not_dominates [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) (hb : AsympBounded γ f g) : ¬AsympDominates γ f g := by
   intro hd
-  apply not_asymp_bounded_and_dominates hg
-  constructor <;> assumption
+  exact not_asymp_bounded_and_dominates hg (And.intro hb hd)
 
-lemma asymp_dominates_imp_not_bounded (hg : AsympPositive g) (hd : AsympDominates β f g) : ¬AsympBounded β f g := by
+lemma asymp_dominates_imp_not_bounded [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) (hd : AsympDominates γ f g) : ¬AsympBounded γ f g := by
   revert hd
   contrapose
   simp
   exact asymp_bounded_imp_not_dominates hg
 
-theorem asymp_dominates_imp_not_bounded_above (hg : AsympPositive g) (hd : AsympDominates β f g) : ¬AsympBoundedAbove β f g := by 
-  intro hbabove
-  apply not_asymp_bounded_and_dominates hg
-  constructor
-  . have hbbelow := asymp_dominates_imp_bounded_below hd
-    exact asymp_bounded_above_and_below_equiv_bounded.1 (And.intro hbabove hbbelow)
-  . assumption
+theorem asymp_dominates_imp_not_bounded_above [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPositive g) (hd : AsympDominates γ f g) : ¬AsympBoundedAbove γ f g := by 
+  intro ha
+  have hb := asymp_dominates_imp_bounded_below hd
+  have h := asymp_bounded_above_and_below_imp_bounded ha hb
+  exact not_asymp_bounded_and_dominates hg (And.intro h hd)
 
-theorem not_asymp_dominates_and_dominated (hg: AsympPositive g): ¬(AsympDominates β f g ∧ AsympDominated β f g) := by
+theorem not_asymp_dominates_and_dominated [PosSMulStrictMono γ β] [SMulPosStrictMono γ β] (hg: AsympPositive g): ¬(AsympDominates γ f g ∧ AsympDominated γ f g) := by
   intro h 
   rcases h with ⟨ha, hb⟩
-  unfold AsympDominates at ha
-  unfold AsympDominated at hb
-  unfold AsympPositive at hg
 
-  specialize ha (1 / 2) (by linarith)
+  generalize hk : (γ_linOrdField.natCast 2)⁻¹ = k
+  have k_pos : k > 0 := by linarith
+  simp at hk
+  specialize ha k (by linarith)
   specialize hb 1 one_pos
   rcases ha with ⟨N₁, ha⟩
   rcases hb with ⟨N₂, hb⟩
@@ -263,7 +256,16 @@ theorem not_asymp_dominates_and_dominated (hg: AsympPositive g): ¬(AsympDominat
   rw [hN] at ha hb hg
 
   simp at *
-  linarith
+  have k_lt_one : k < 1 := by linarith
+  have gN_gt_half_fN : g N > k • f N := by {
+    /- rw [← hk]     -/
+    apply (lt_inv_smul_iff_of_pos k_pos).1
+    rw [← hk, inv_inv]
+    have gN_lt_two_gN := smul_lt_smul_of_pos_right (@one_lt_two γ _ _ _ _ _) hg
+    rw [one_smul] at gN_lt_two_gN
+    exact lt_of_le_of_lt hb gN_lt_two_gN
+  }
+  exact not_le_of_gt gN_gt_half_fN ha 
 
 end LinearOrdered
 
