@@ -1,11 +1,13 @@
 import Mathlib.Algebra.Order.Ring.Abs
 import Mathlib.Tactic.Linarith
 import Mathlib.Algebra.Group.Defs
+import Mathlib.Algebra.Order.Group.Action
 import Mathlib.Algebra.Module.Defs
+import Mathlib.Algebra.Order.Module.Defs
 import Mathlib.Order.Defs
 import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
-import Mathlib.Tactic.Ring
+import Mathlib.Tactic.LinearCombination
 
 section Definitions
 
@@ -15,13 +17,13 @@ def AsympNonZero {α β : Type*} [LE α] [Zero β] (f : α → β) :=
 def AsympPositive {α β : Type*} [LE α] [LT β] [Zero β] (f : α → β) :=
   ∃ N, ∀ n ≥ N, f n > 0
 
-variable {α β : Type*} [LE α] [LE β] (γ : Type*) [LT γ] [Zero γ] [HMul γ β β]  
+variable {α β : Type*} [LE α] [LE β] (γ : Type*) [LT γ] [Zero γ] [SMul γ β]  
 
 def EventuallyLessThan (f g : α → β) :=
   ∃ N, ∀ n ≥ N, f n ≤ g n
 
 def AsympBoundedAbove (f g : α → β) := 
-  ∃ k : γ, k > 0 ∧ EventuallyLessThan f (fun n ↦ k * g n)
+  ∃ k : γ, k > 0 ∧ EventuallyLessThan f (fun n ↦ k • g n)
 
 def AsympBoundedBelow (f g : α → β) :=
   AsympBoundedAbove γ g f
@@ -30,7 +32,7 @@ def AsympBounded (f g : α → β) :=
   AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g
 
 def AsympDominated (f g : α → β) :=
-  ∀ k : γ, k > 0 → EventuallyLessThan f (fun n ↦ k * g n)
+  ∀ k : γ, k > 0 → EventuallyLessThan f (fun n ↦ k • g n)
 
 def AsympDominates (f g : α → β) :=
   AsympDominated γ g f
@@ -57,11 +59,11 @@ end Max
 
 section BasicRelations
 
-variable {α β γ : Type*} [HMul γ β β] {f g : α → β}
+variable {α β γ : Type*} {f g : α → β}
 
 section PartialOrdered
 
-variable [PartialOrder α] [PartialOrder β] [LinearOrderedSemiring γ] 
+variable [PartialOrder α] [PartialOrder β] [LinearOrderedSemiring γ] [SMul γ β]
 
 lemma asymp_dominated_imp_bounded_above (h : AsympDominated γ f g) : AsympBoundedAbove γ f g := by
   unfold AsympBoundedAbove
@@ -113,9 +115,9 @@ end PartialOrdered
 
 section LinearOrdered
 
-variable [LinearOrder α] [LinearOrderedField β]
+variable [LinearOrder α] [LinearOrderedRing β] [LinearOrderedField γ] [Module γ β] [PosSMulMono γ β] [PosSMulReflectLE γ β] [SMulPosStrictMono γ β]
 
-theorem not_asymp_bounded_and_dominated (hg : AsympPositive g) : ¬(AsympBounded β f g ∧ AsympDominated β f g) := by
+theorem not_asymp_bounded_and_dominated (hg : AsympPositive g) : ¬(AsympBounded γ f g ∧ AsympDominated γ f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
 
@@ -124,9 +126,9 @@ theorem not_asymp_bounded_and_dominated (hg : AsympPositive g) : ¬(AsympBounded
   rcases hg with ⟨N₂, hg⟩
 
   -- set k to a useful value and get the N out
-  generalize hk₂ : k₁⁻¹ / 2 = k₂
+  generalize hk₂ : k₁⁻¹ * 2⁻¹ = k₂
   have k₁_inv_pos : k₁⁻¹ > 0 := inv_pos.2 k₁_pos
-  have k₂_pos : k₂> 0 := by linarith
+  have k₂_pos : k₂ > 0 := by linarith
   unfold AsympDominated at hd
   specialize hd k₂ k₂_pos
   rcases hd with ⟨N₃, hd⟩
@@ -144,37 +146,38 @@ theorem not_asymp_bounded_and_dominated (hg : AsympPositive g) : ¬(AsympBounded
   specialize hd (le_three_max_right N₁ N₂ N₃)
   rw [hN] at hb hd hg
 
-  have hb2 : k₁⁻¹ * g N ≤ f N := by {
-    apply (le_inv_mul_iff₀ k₁_inv_pos).1 
-    rw [inv_inv]
-    assumption
+  simp at hb hd
+  have hb2 : k₁⁻¹ • g N ≤ f N := by {
+    apply (inv_smul_le_iff_of_pos k₁_pos).2 
+    exact hb
   }
 
+  have k₂_lt_k₁_inv : k₂ < k₁⁻¹ := by {
+    rw [← hk₂, inv_mul_eq_div, inv_div_comm]
+    exact half_lt_self_iff.2 k₁_inv_pos
+  }
+  rw [← hk₂] at k₂_lt_k₁_inv
+
   -- create a conflicting pair of inequalities and finish the proof
-  have half_kG_lt_kG : k₁⁻¹ * g N / 2 < k₁⁻¹ * g N := half_lt_self (mul_pos k₁_inv_pos hg)
   have contra1 := le_trans hb2 hd
-  have contra2 : (k₁⁻¹ / 2) * g N < k₁⁻¹ * g N := by linarith
+  have contra2 : (k₁⁻¹ * 2⁻¹) • g N < k₁⁻¹ • g N := smul_lt_smul_of_pos_right k₂_lt_k₁_inv hg
   rw [← hk₂] at contra1
-  linarith
+  exact not_le_of_gt contra2 contra1
 
 -- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not dominated by g.
-lemma asymp_bounded_imp_not_dominated (hg : AsympPositive g) (hb : AsympBounded β f g) : ¬AsympDominated β f g := by
+lemma asymp_bounded_imp_not_dominated (hg : AsympPositive g) (hb : AsympBounded γ f g) : ¬AsympDominated γ f g := by
   intro hd
-  apply not_asymp_bounded_and_dominated hg
-  constructor <;> assumption
+  exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
 
-lemma asymp_dominated_imp_not_bounded (hg : AsympPositive g) (hd : AsympDominated β f g) : ¬AsympBounded β f g := by 
+lemma asymp_dominated_imp_not_bounded (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBounded γ f g := by 
   intro hb
-  apply not_asymp_bounded_and_dominated hg 
-  constructor <;> assumption
+  exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
 
-theorem asymp_dominated_imp_not_bounded_below (hg : AsympPositive g) (hd : AsympDominated β f g) : ¬AsympBoundedBelow β f g := by 
-  intro hbbelow
-  apply not_asymp_bounded_and_dominated hg 
-  constructor
-  . have hbabove := asymp_dominated_imp_bounded_above hd
-    exact asymp_bounded_above_and_below_equiv_bounded.1 (And.intro hbabove hbbelow)
-  . assumption
+theorem asymp_dominated_imp_not_bounded_below (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBoundedBelow γ f g := by 
+  intro hb
+  have ha := asymp_dominated_imp_bounded_above hd
+  have h := asymp_bounded_above_and_below_imp_bounded ha hb
+  exact not_asymp_bounded_and_dominated hg (And.intro h hd)
 
 theorem not_asymp_bounded_and_dominates (hg : AsympPositive g) : ¬(AsympBounded β f g ∧ AsympDominates β f g) := by
   intro h
