@@ -120,12 +120,12 @@ section LinearOrdered
 
 variable [LinearOrder α] [PartialOrder β] [AddCommMonoid β] [LinearOrderedField γ] [Module γ β] [SMulPosStrictMono γ β] 
 
-theorem not_asymp_bounded_and_dominated (hg : AsympPositive g) : ¬(AsympBounded γ f g ∧ AsympDominated γ f g) := by
+theorem not_asymp_bounded_below_and_dominated (hg : AsympPositive g) : ¬(AsympBoundedBelow γ f g ∧ AsympDominated γ f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
 
   -- unwrap the existential quantifiers
-  rcases hb with ⟨_, ⟨k₁, k₁_pos, N₁, hb⟩⟩
+  rcases hb with ⟨k₁, k₁_pos, N₁, hb⟩
   rcases hg with ⟨N₂, hg⟩
 
   -- set k to a useful value and get the N out
@@ -157,31 +157,19 @@ theorem not_asymp_bounded_and_dominated (hg : AsympPositive g) : ¬(AsympBounded
   exact not_le_of_gt contra2 contra1
 
 -- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not dominated by g.
-lemma asymp_bounded_imp_not_dominated (hg : AsympPositive g) (hb : AsympBounded γ f g) : ¬AsympDominated γ f g := by
+lemma asymp_bounded_below_imp_not_dominated (hg : AsympPositive g) (hb : AsympBoundedBelow γ f g) : ¬AsympDominated γ f g := by
   intro hd
-  exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
+  exact not_asymp_bounded_below_and_dominated hg (And.intro hb hd)
 
-lemma asymp_bounded_below_imp_not_dominated (hg : AsympPositive g) (h : AsympBoundedBelow γ f g) : ¬AsympDominated γ f g := by
-  intro hd
-  have ha := asymp_dominated_imp_bounded_above hd
-  have hb := asymp_bounded_above_and_below_imp_bounded ha h
-  exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
-
-lemma asymp_dominated_imp_not_bounded (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBounded γ f g := by 
+lemma asymp_dominated_imp_not_bounded_below (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBoundedBelow γ f g := by 
   intro hb
-  exact not_asymp_bounded_and_dominated hg (And.intro hb hd)
+  exact not_asymp_bounded_below_and_dominated hg (And.intro hb hd)
 
-theorem asymp_dominated_imp_not_bounded_below (hg : AsympPositive g) (hd : AsympDominated γ f g) : ¬AsympBoundedBelow γ f g := by 
-  intro hb
-  have ha := asymp_dominated_imp_bounded_above hd
-  have h := asymp_bounded_above_and_below_imp_bounded ha hb
-  exact not_asymp_bounded_and_dominated hg (And.intro h hd)
-
-theorem not_asymp_bounded_and_dominates (hg : AsympPositive g) : ¬(AsympBounded γ f g ∧ AsympDominates γ f g) := by
+theorem not_asymp_bounded_above_and_dominates (hg : AsympPositive g) : ¬(AsympBoundedAbove γ f g ∧ AsympDominates γ f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
   rcases hg with ⟨N₁, hg⟩
-  rcases hb with ⟨⟨k₁, k₁_pos, N₂, ha⟩, _⟩
+  rcases hb with ⟨k₁, k₁_pos, N₂, ha⟩
 
   -- use a favorable value for k
   generalize hk₂ : k₁ + 1 = k₂
@@ -208,21 +196,15 @@ theorem not_asymp_bounded_and_dominates (hg : AsympPositive g) : ¬(AsympBounded
   have contra2 : k₁ • g N < (k₁ + 1) • g N := smul_lt_smul_of_pos_right (by linarith) hg
   exact not_le_of_gt contra2 contra1
 
-lemma asymp_bounded_imp_not_dominates (hg : AsympPositive g) (hb : AsympBounded γ f g) : ¬AsympDominates γ f g := by
+lemma asymp_bounded_above_imp_not_dominates (hg : AsympPositive g) (hb : AsympBoundedAbove γ f g) : ¬AsympDominates γ f g := by
   intro hd
-  exact not_asymp_bounded_and_dominates hg (And.intro hb hd)
+  exact not_asymp_bounded_above_and_dominates hg (And.intro hb hd)
 
-lemma asymp_dominates_imp_not_bounded (hg : AsympPositive g) (hd : AsympDominates γ f g) : ¬AsympBounded γ f g := by
+lemma asymp_dominates_imp_not_bounded_above (hg : AsympPositive g) (hd : AsympDominates γ f g) : ¬AsympBoundedAbove γ f g := by
   revert hd
   contrapose
   simp
-  exact asymp_bounded_imp_not_dominates hg
-
-theorem asymp_dominates_imp_not_bounded_above (hg : AsympPositive g) (hd : AsympDominates γ f g) : ¬AsympBoundedAbove γ f g := by 
-  intro ha
-  have hb := asymp_dominates_imp_bounded_below hd
-  have h := asymp_bounded_above_and_below_imp_bounded ha hb
-  exact not_asymp_bounded_and_dominates hg (And.intro h hd)
+  exact asymp_bounded_above_imp_not_dominates hg
 
 theorem not_asymp_dominates_and_dominated (hg: AsympPositive g): ¬(AsympDominates γ f g ∧ AsympDominated γ f g) := by
   intro h 
