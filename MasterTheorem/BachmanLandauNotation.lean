@@ -36,7 +36,7 @@ variable [PartialOrder α] [PartialOrder β] [LinearOrderedSemiring γ] [SMul γ
 
 theorem o_imp_O (h : f ∈ @o _ _ γ _ _ _ _ _ g) : f ∈ @O _ _ γ _ _ _ _ _ g := by
   have hd : AsympRightDom γ f g := h
-  have hbound := asymp_dominated_imp_bounded_above hd
+  have hbound := asymp_right_dom_imp_bounded_above hd
   rcases hbound with ⟨k, k_pos, hbound⟩
   use k
 
@@ -74,9 +74,9 @@ variable [LinearOrder α] [LinearOrderedRing β] [LinearOrderedField γ] [Module
 theorem not_Θ_and_o [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPos g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g ∧ f ∈ @o _ _ γ _ _ _ _ _ g) := by
   intro hb
   rcases hb with ⟨hΘ, ho⟩ 
-  have hbound : AsympBounded γ f g := hΘ
+  have hbound : AsympBoundedBelow γ f g := hΘ.2
   have hdom : AsympRightDom γ f g := ho
-  exact not_asymp_bounded_and_dominated hg (And.intro hbound hdom)
+  exact not_asymp_bounded_below_and_right_dom hg (And.intro hbound hdom)
 
 theorem Θ_imp_not_o [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPos g) (hΘ : f ∈ @Θ _ _ γ _ _ _ _ _ g) : ¬f ∈ @o _ _ γ _ _ _ _ _ g := by
   intro ho
@@ -86,7 +86,7 @@ theorem Ω_imp_not_o [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPo
   intro ho
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
-  exact asymp_bounded_below_imp_not_dominated hg hb hd
+  exact asymp_bounded_below_imp_not_right_dom hg hb hd
 
 theorem o_imp_not_Θ [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPos g) (ho : f ∈ @o _ _ γ _ _ _ _ _ g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g) := by
   intro hΘ
@@ -96,14 +96,14 @@ theorem o_imp_not_Ω [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPo
   intro hΩ
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
-  exact asymp_dominated_imp_not_bounded_below hg hd hb
+  exact asymp_right_dom_imp_not_bounded_below hg hd hb
 
 theorem not_Θ_and_ω [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPos g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g ∧ f ∈ @ω _ _ γ _ _ _ _ _ g) := by
   intro h
   rcases h with ⟨hΘ, hω⟩
-  have hb : AsympBounded γ f g := hΘ
+  have hb : AsympBoundedAbove γ f g := hΘ.1
   have hd : AsympLeftDom γ f g := hω
-  exact not_asymp_bounded_and_left_dom hg (And.intro hb hd)
+  exact not_asymp_bounded_above_and_left_dom hg (And.intro hb hd)
 
 theorem Θ_imp_not_ω [PosSMulMono γ β] [SMulPosStrictMono γ β] (hg : AsympPos g)(hΘ : f ∈ @Θ _ _ γ _ _ _ _ _ g) : ¬f ∈ @ω _ _ γ _ _ _ _ _ g := by
   intro hω
@@ -114,7 +114,7 @@ theorem not_o_and_ω [PosSMulStrictMono γ β] [SMulPosStrictMono γ β] (hg : A
   rcases h with ⟨ho, hω⟩
   have ha : AsympRightDom γ f g := ho
   have hb : AsympLeftDom γ f g := hω
-  exact not_asymp_left_dom_and_dominated hg (And.intro hb ha)
+  exact not_asymp_left_dom_and_right_dom hg (And.intro hb ha)
 
 end LinearOrdered
 
