@@ -400,37 +400,48 @@ end Pos
 
 section Neg
 
-theorem asymp_bounded_neg_mul [Preorder α] [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] [AddRightMono β] [AddLeftMono β] [AddLeftStrictMono γ] [PosMulStrictMono γ] [PosSMulMono γ β] [PosSMulReflectLE γ β] (hc : c < 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
-  rcases h with ⟨⟨k₁, k₁_pos, ha⟩, ⟨k₂, k₂_pos, hb⟩⟩
+variable [Preorder α] [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] 
+         [AddLeftStrictMono γ] [PosMulStrictMono γ] [PosSMulMono γ β] [PosSMulReflectLE γ β] 
+
+theorem asymp_bounded_above_neg_mul (hc : c < 0) (h : AsympBoundedAbove γ f g) : AsympBoundedBelow γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
+  rcases h with ⟨k, k_pos, h⟩  
+  use -c * k
+  constructor
+  . exact mul_pos (neg_pos_of_neg hc) k_pos
+  . rw [← asymp_le_asymp_ge_iff, mul_smul_asymp_le]
+    suffices AsympGE (fun n ↦ c • f n) (fun n ↦ c • k • g n) by {
+      rcases this with ⟨N, h⟩
+      use N
+      intro n hn
+      specialize h n hn
+      simp
+      simp at h
+      exact h
+    }
+    exact asymp_le_neg_mul hc h
+
+theorem asymp_bounded_below_neg_mul (hc : c < 0) (h : AsympBoundedBelow γ f g) : AsympBoundedAbove γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
+  rcases h with ⟨k, k_pos, h⟩  
+  use -c * k
+  constructor
+  . exact mul_pos (neg_pos_of_neg hc) k_pos
+  . rw [asymp_le_mul_smul, asymp_le_asymp_ge_iff]
+    suffices AsympLE (fun n ↦ c • f n) (fun n ↦ c • k • g n) by {
+      rcases this with ⟨N, h⟩
+      use N
+      intro n hn
+      specialize h n hn
+      simp
+      simp at h
+      exact h
+    }
+    exact asymp_ge_neg_mul hc h
+
+theorem asymp_bounded_neg_mul (hc : c < 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
+  rcases h with ⟨ha, hb⟩
   constructor 
-  . use -c * k₂
-    constructor
-    . exact mul_pos (neg_pos_of_neg hc) k₂_pos
-    . rw [asymp_le_mul_smul, asymp_le_asymp_ge_iff]
-      suffices AsympLE (fun n ↦ c • f n) (fun n ↦ c • k₂ • g n) by {
-        rcases this with ⟨N, h⟩
-        use N
-        intro n hn
-        specialize h n hn
-        simp
-        simp at h
-        exact h
-      }
-      exact asymp_ge_neg_mul hc hb
-  . use -c * k₁
-    constructor
-    . exact mul_pos (neg_pos_of_neg hc) k₁_pos
-    . rw [← asymp_le_asymp_ge_iff, mul_smul_asymp_le]
-      suffices AsympGE (fun n ↦ c • f n) (fun n ↦ c • k₁ • g n) by {
-        rcases this with ⟨N, h⟩
-        use N
-        intro n hn
-        specialize h n hn
-        simp
-        simp at h
-        exact h
-      }
-      exact asymp_le_neg_mul hc ha
+  . exact asymp_bounded_below_neg_mul hc hb
+  . exact asymp_bounded_above_neg_mul hc ha
 
 end Neg
 
