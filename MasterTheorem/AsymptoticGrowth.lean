@@ -11,39 +11,100 @@ import Mathlib.Tactic.LinearCombination
 
 section Definitions
 
+private def AsympProperty {α : Type*} [LE α] (p : α → Prop) :=
+  ∃ N, ∀ n ≥ N, p n
+
 def AsympNonZero {α β : Type*} [LE α] [Zero β] (f : α → β) :=
-  ∃ N, ∀ n ≥ N, f n ≠ 0
+  AsympProperty (fun n ↦ f n ≠ 0)
 
 def AsympPos {α β : Type*} [LE α] [LT β] [Zero β] (f : α → β) :=
-  ∃ N, ∀ n ≥ N, f n > 0
+  AsympProperty (fun n ↦ f n > 0)
 
 def AsympNeg {α β : Type*} [LE α] [LT β] [Zero β] (f : α → β) :=
-  ∃ N, ∀ n ≥ N, f n < 0
+  AsympProperty (fun n ↦ f n < 0)
 
 variable {α β : Type*} [LE α] [LE β] (γ : Type*) [LT γ] [Zero γ] [SMul γ β]  
 
-def EventuallyLessThan (f g : α → β) :=
-  ∃ N, ∀ n ≥ N, f n ≤ g n
+def AsympLessThan (f g : α → β) :=
+  AsympProperty (fun n ↦ f n ≤ g n)
 
-def EventuallyGreaterThan (f g : α → β) :=
-  ∃ N, ∀ n ≥ N, f n ≥ g n
+def AsympGreaterThan (f g : α → β) :=
+  AsympProperty (fun n ↦ f n ≥ g n)
 
 def AsympBoundedAbove (f g : α → β) := 
-  ∃ k : γ, k > 0 ∧ EventuallyLessThan f (fun n ↦ k • g n)
+  ∃ k : γ, k > 0 ∧ AsympLessThan f (fun n ↦ k • g n)
 
 def AsympBoundedBelow (f g : α → β) :=
-  ∃ k : γ, k > 0 ∧ EventuallyGreaterThan f (fun n ↦ k • g n)
+  ∃ k : γ, k > 0 ∧ AsympGreaterThan f (fun n ↦ k • g n)
 
 def AsympBounded (f g : α → β) :=
   AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g
 
 def AsympRightDom (f g : α → β) :=
-  ∀ k : γ, k > 0 → EventuallyLessThan f (fun n ↦ k • g n)
+  ∀ k : γ, k > 0 → AsympLessThan f (fun n ↦ k • g n)
 
 def AsympLeftDom (f g : α → β) :=
-  ∀ k : γ, k > 0 → EventuallyGreaterThan f (fun n ↦ k • g n)
+  ∀ k : γ, k > 0 → AsympGreaterThan f (fun n ↦ k • g n)
 
 end Definitions
+
+section AsympBasic
+
+variable {α β : Type*} [Preorder α]
+
+lemma asymp_le_of_asymp_ge [LE β] {f g : α → β} (h : AsympGreaterThan f g) : AsympLessThan g f := by
+  rcases h with ⟨N, h⟩
+  use N
+
+lemma asymp_ge_of_asymp_le [LE β] {f g : α → β} (h : AsympLessThan f g) : AsympGreaterThan g f := by
+  rcases h with ⟨N, h⟩
+  use N
+
+lemma asymp_neg_of_asymp_pos {f : α → β} [LT β] [AddGroup β] [AddLeftStrictMono β] (h : AsympPos f) : AsympNeg (fun n ↦ -f n) := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  specialize h n hn
+  simp
+  exact h
+  
+lemma asymp_le_pos_mul {γ : Type*} {c : γ} {f g : α → β} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosSMulMono γ β] (hc : c > 0) (h : AsympLessThan f g) : AsympLessThan (fun n ↦ c • f n) (fun n ↦ c • g n) := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  simp
+  specialize h n hn
+  exact smul_le_smul_of_nonneg_left h (le_of_lt hc)
+
+lemma asymp_le_neg_mul {γ : Type*} {c : γ} {f g : α → β} [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] [PosSMulMono γ β] [PosSMulReflectLE γ β] (hc : c < 0) (h : AsympLessThan f g) : AsympGreaterThan (fun n ↦ c • f n) (fun n ↦ c • g n) := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  specialize h n hn
+  simp
+  exact (smul_le_smul_iff_of_neg_left hc).2 h
+
+lemma asymp_le_mul_smul {γ : Type*} {a b : γ} {f g : α → β} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosSMulMono γ β] (h : AsympLessThan f (fun n ↦ a • b • g n)) : AsympLessThan f (fun n ↦ (a * b) • g n) := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  specialize h n hn
+  simp
+  simp at h
+  rw [mul_smul]
+  assumption
+
+lemma mul_smul_asymp_le {γ : Type*} {a b : γ} {f g : α → β} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosSMulMono γ β] (h : AsympLessThan (fun n ↦ a • b • f n) g) : AsympLessThan (fun n ↦ (a * b) • f n) g := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  specialize h n hn
+  simp
+  simp at h
+  rw [mul_smul]
+  assumption
+
+end AsympBasic
 
 section Max
 
@@ -243,10 +304,14 @@ section Properties
 
 section AsympBounded
 
-variable {α β γ : Type*} {f g : α → β} [PartialOrder α] [Preorder β] [PartialOrder γ] 
-         [γ_monoid : MonoidWithZero γ] [MulAction γ β] 
+variable {α β γ : Type*} [LinearOrder α] [Preorder β] [PartialOrder γ] 
+         {f g : α → β} 
 
-theorem asymp_bounded_refl [One α] [ZeroLEOneClass γ] [@NeZero γ γ_monoid.toZero γ_monoid.one] : AsympBounded γ f f := by
+section Refl
+
+variable [One α] [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] [@NeZero γ γ_monoid.toZero γ_monoid.one]
+
+theorem asymp_bounded_refl : AsympBounded γ f f := by
   constructor <;>
   . use 1
     constructor
@@ -255,33 +320,86 @@ theorem asymp_bounded_refl [One α] [ZeroLEOneClass γ] [@NeZero γ γ_monoid.to
       intro _ _
       simp
 
-theorem asymp_bounded_pos_mul [PosSMulMono γ β] [PosMulStrictMono γ] {c : γ} (hc : c > 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) g := by
-  rcases h with ⟨⟨k₁, k₁_pos, N₁, ha⟩, ⟨k₂, k₂_pos, N₂, hb⟩⟩
-  constructor
-  . use c * k₁
-    constructor
-    . exact mul_pos hc k₁_pos
-    . use N₁
-      intro n hn
-      simp
-      specialize ha n hn
-      simp at ha
-      rw [mul_smul]
-      exact smul_le_smul_of_nonneg_left ha (le_of_lt hc)
-  . use c * k₂
-    constructor
-    . exact mul_pos hc k₂_pos
-    . use N₂
-      intro n hn
-      simp
-      specialize hb n hn
-      simp at hb
-      rw [mul_smul] 
-      exact smul_le_smul_of_nonneg_left hb (le_of_lt hc)
+theorem asymp_bounded_above_refl : AsympBoundedAbove γ f f := by
+  exact asymp_bounded_refl.1
 
-theorem asymp_bounded_neg_mul [Neg β] [Neg γ] [PosSMulMono γ β] [PosMulStrictMono γ] {c : γ} (hc : c < 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
-  rcases h with ⟨⟨k₁, k₁_pos, N₁, ha⟩, ⟨k₂, k₂_pos, N₂, hb⟩⟩
-  constructor <;> sorry
+theorem asymp_bounded_below_refl : AsympBoundedBelow γ f f := by
+  exact asymp_bounded_refl.2
+
+end Refl
+
+section Mul
+
+variable {c : γ}
+
+section Pos
+
+variable [MonoidWithZero γ] [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
+
+theorem asymp_bounded_above_pos_mul (hc : c > 0) (h : AsympBoundedAbove γ f g) : AsympBoundedAbove γ (fun n ↦ c • f n) g := by
+  rcases h with ⟨k, k_pos, h⟩ 
+  use c * k
+  constructor
+  . exact mul_pos hc k_pos
+  . apply asymp_le_mul_smul
+    exact asymp_le_pos_mul hc h
+
+theorem asymp_bounded_below_pos_mul (hc : c > 0) (h : AsympBoundedBelow γ f g) : AsympBoundedBelow γ (fun n ↦ c • f n) g := by
+  rcases h with ⟨k, k_pos, h⟩ 
+  use c * k
+  constructor
+  . exact mul_pos hc k_pos
+  . apply asymp_ge_of_asymp_le 
+    apply asymp_le_of_asymp_ge at h
+    apply mul_smul_asymp_le
+    exact asymp_le_pos_mul hc h
+
+theorem asymp_bounded_pos_mul (hc : c > 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) g := by
+  rcases h with ⟨ha, hb⟩
+  constructor
+  . exact asymp_bounded_above_pos_mul hc ha
+  . exact asymp_bounded_below_pos_mul hc hb
+
+end Pos
+
+section Neg
+
+theorem asymp_bounded_neg_mul [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] [AddRightMono β] [AddLeftMono β] [AddLeftStrictMono γ] [PosMulStrictMono γ] [PosSMulMono γ β] [PosSMulReflectLE γ β] (hc : c < 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
+  rcases h with ⟨⟨k₁, k₁_pos, ha⟩, ⟨k₂, k₂_pos, hb⟩⟩
+  have d_pos : -c > 0 := neg_pos_of_neg hc
+  generalize hd : -c = d
+  rw [hd] at d_pos
+  constructor 
+  . use -c * k₂
+    constructor
+    . exact mul_pos (neg_pos_of_neg hc) k₂_pos
+    . rcases hb with ⟨N, hb⟩
+      use N
+      intro n hn
+      specialize hb n hn
+      simp
+      simp at hb
+      rw [mul_smul, ← neg_neg c, hd]      
+      apply neg_le_neg_iff.1
+      rw [neg_smul, neg_smul, neg_neg, neg_neg]
+      exact (smul_le_smul_iff_of_pos_left d_pos).2 hb
+  . use -c * k₁
+    constructor
+    . exact mul_pos (neg_pos_of_neg hc) k₁_pos
+    . rcases ha with ⟨N, ha⟩
+      use N
+      intro n hn
+      specialize ha n hn
+      simp
+      simp at ha
+      rw [mul_smul, ← neg_neg c, hd]
+      apply neg_le_neg_iff.1
+      rw [neg_smul, neg_smul, neg_neg, neg_neg]
+      exact (smul_le_smul_iff_of_pos_left d_pos).2 ha
+
+end Neg
+
+end Mul
 
 section TwoFunctions
 
