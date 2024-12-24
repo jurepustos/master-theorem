@@ -84,25 +84,34 @@ lemma asymp_le_neg_mul {γ : Type*} {c : γ} {f g : α → β} [OrderedAddCommGr
   simp
   exact (smul_le_smul_iff_of_neg_left hc).2 h
 
-lemma asymp_le_mul_smul {γ : Type*} {a b : γ} {f g : α → β} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosSMulMono γ β] (h : AsympLessThan f (fun n ↦ a • b • g n)) : AsympLessThan f (fun n ↦ (a * b) • g n) := by
-  rcases h with ⟨N, h⟩
-  use N
-  intro n hn
-  specialize h n hn
-  simp
-  simp at h
-  rw [mul_smul]
-  assumption
+lemma asymp_le_mul_smul {γ : Type*} {a b : γ} {f g : α → β} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosSMulMono γ β] : AsympLessThan f (fun n ↦ a • b • g n) ↔ AsympLessThan f (fun n ↦ (a * b) • g n) := by
+  constructor <;> (
+    intro h
+    rcases h with ⟨N, h⟩
+    use N
+    intro n hn
+    specialize h n hn
+    simp
+    simp at h
+  )
+  . rw [mul_smul]
+    assumption
+  . rw [← mul_smul]
+    assumption
 
-lemma mul_smul_asymp_le {γ : Type*} {a b : γ} {f g : α → β} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosSMulMono γ β] (h : AsympLessThan (fun n ↦ a • b • f n) g) : AsympLessThan (fun n ↦ (a * b) • f n) g := by
-  rcases h with ⟨N, h⟩
-  use N
-  intro n hn
-  specialize h n hn
-  simp
-  simp at h
-  rw [mul_smul]
-  assumption
+lemma mul_smul_asymp_le {γ : Type*} {a b : γ} {f g : α → β} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosSMulMono γ β] : AsympLessThan (fun n ↦ a • b • f n) g ↔ AsympLessThan (fun n ↦ (a * b) • f n) g := by
+  constructor <;> (
+    intro h
+    rcases h with ⟨N, h⟩
+    use N
+    intro n hn
+    specialize h n hn
+    simp
+    simp at h)
+  . rw [mul_smul]
+    assumption
+  . rw [← mul_smul]
+    assumption
 
 end AsympBasic
 
@@ -351,7 +360,7 @@ theorem asymp_bounded_below_pos_mul (hc : c > 0) (h : AsympBoundedBelow γ f g) 
   . exact mul_pos hc k_pos
   . apply asymp_ge_of_asymp_le 
     apply asymp_le_of_asymp_ge at h
-    apply mul_smul_asymp_le
+    rw [← mul_smul_asymp_le]
     exact asymp_le_pos_mul hc h
 
 theorem asymp_bounded_pos_mul (hc : c > 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) g := by
