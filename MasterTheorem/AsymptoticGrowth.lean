@@ -1,4 +1,3 @@
-import Mathlib.Algebra.Order.Ring.Abs
 import Mathlib.Tactic.Linarith
 import Mathlib.Algebra.Group.Defs
 import Mathlib.Algebra.Order.Group.Action
@@ -7,7 +6,6 @@ import Mathlib.Algebra.Order.Module.Defs
 import Mathlib.Order.Defs
 import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
-import Mathlib.Tactic.LinearCombination
 
 section Definitions
 
@@ -321,7 +319,7 @@ lemma asymp_left_dom_imp_bounded_below (h : AsympLeftDom γ f g) : AsympBoundedB
   . exact one_pos
   . exact h one_pos
 
-lemma asymp_bounded_above_and_below_imp_bounded (ha : AsympBoundedAbove γ f g) (hb : AsympBoundedBelow γ f g) : AsympBounded γ f g := by
+lemma asymp_bounded_above_below_imp (ha : AsympBoundedAbove γ f g) (hb : AsympBoundedBelow γ f g) : AsympBounded γ f g := by
   rcases ha with ⟨k₁, k₁_pos, N₁, ha⟩ 
   rcases hb with ⟨k₂, k₂_pos, N₂, hb⟩ 
   constructor
@@ -334,7 +332,7 @@ lemma asymp_bounded_above_and_below_imp_bounded (ha : AsympBoundedAbove γ f g) 
     . assumption
     . use N₂
 
-lemma asymp_bounded_imp_bounded_above_and_below (h : AsympBounded γ f g) : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g := by
+lemma asymp_bounded_imp_above_below (h : AsympBounded γ f g) : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g := by
   rcases h with ⟨⟨k₁, k₁_pos, N₁, ha⟩, ⟨k₂, k₁_pos, N₂, hb⟩⟩
   constructor
   . use k₁
@@ -346,10 +344,10 @@ lemma asymp_bounded_imp_bounded_above_and_below (h : AsympBounded γ f g) : Asym
     . assumption
     . use N₂
 
-theorem asymp_bounded_above_and_below_equiv_bounded : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
+theorem asymp_bounded_above_below_iff : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
   constructor
-  . exact And.elim asymp_bounded_above_and_below_imp_bounded
-  . exact asymp_bounded_imp_bounded_above_and_below
+  . exact And.elim asymp_bounded_above_below_imp
+  . exact asymp_bounded_imp_above_below
 
 end Simple
 
@@ -357,7 +355,7 @@ section Pos
 
 variable [LinearOrder α] [PartialOrder β] [AddCommMonoid β] [LinearOrderedField γ] [Module γ β] [SMulPosStrictMono γ β] 
 
-theorem not_asymp_bounded_below_and_right_dom (hg : AsympPos g) : ¬(AsympBoundedBelow γ f g ∧ AsympRightDom γ f g) := by
+theorem not_pos_asymp_bounded_below_and_right_dom (hg : AsympPos g) : ¬(AsympBoundedBelow γ f g ∧ AsympRightDom γ f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
 
@@ -393,15 +391,15 @@ theorem not_asymp_bounded_below_and_right_dom (hg : AsympPos g) : ¬(AsympBounde
   exact not_le_of_gt contra2 contra1
 
 -- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not right_dom by g.
-lemma asymp_bounded_below_imp_not_right_dom (hg : AsympPos g) (hb : AsympBoundedBelow γ f g) : ¬AsympRightDom γ f g := by
+theorem pos_asymp_bounded_below_imp_not_right_dom (hg : AsympPos g) (hb : AsympBoundedBelow γ f g) : ¬AsympRightDom γ f g := by
   intro hd
-  exact not_asymp_bounded_below_and_right_dom hg (And.intro hb hd)
+  exact not_pos_asymp_bounded_below_and_right_dom hg (And.intro hb hd)
 
-lemma asymp_right_dom_imp_not_bounded_below (hg : AsympPos g) (hd : AsympRightDom γ f g) : ¬AsympBoundedBelow γ f g := by 
+theorem pos_asymp_right_dom_imp_not_bounded_below (hg : AsympPos g) (hd : AsympRightDom γ f g) : ¬AsympBoundedBelow γ f g := by 
   intro hb
-  exact not_asymp_bounded_below_and_right_dom hg (And.intro hb hd)
+  exact not_pos_asymp_bounded_below_and_right_dom hg (And.intro hb hd)
 
-theorem not_asymp_bounded_above_and_left_dom (hg : AsympPos g) : ¬(AsympBoundedAbove γ f g ∧ AsympLeftDom γ f g) := by
+theorem not_pos_asymp_bounded_above_and_left_dom (hg : AsympPos g) : ¬(AsympBoundedAbove γ f g ∧ AsympLeftDom γ f g) := by
   intro h
   rcases h with ⟨hb, hd⟩
   rcases hg with ⟨N₁, hg⟩
@@ -432,17 +430,17 @@ theorem not_asymp_bounded_above_and_left_dom (hg : AsympPos g) : ¬(AsympBounded
   have contra2 : k₁ • g N < (k₁ + 1) • g N := smul_lt_smul_of_pos_right (by linarith) hg
   exact not_le_of_gt contra2 contra1
 
-lemma asymp_bounded_above_imp_not_left_dom (hg : AsympPos g) (hb : AsympBoundedAbove γ f g) : ¬AsympLeftDom γ f g := by
+theorem pos_asymp_bounded_above_imp_not_left_dom (hg : AsympPos g) (hb : AsympBoundedAbove γ f g) : ¬AsympLeftDom γ f g := by
   intro hd
-  exact not_asymp_bounded_above_and_left_dom hg (And.intro hb hd)
+  exact not_pos_asymp_bounded_above_and_left_dom hg (And.intro hb hd)
 
-lemma asymp_left_dom_imp_not_bounded_above (hg : AsympPos g) (hd : AsympLeftDom γ f g) : ¬AsympBoundedAbove γ f g := by
+theorem pos_asymp_left_dom_imp_not_bounded_above (hg : AsympPos g) (hd : AsympLeftDom γ f g) : ¬AsympBoundedAbove γ f g := by
   revert hd
   contrapose
   simp
-  exact asymp_bounded_above_imp_not_left_dom hg
+  exact pos_asymp_bounded_above_imp_not_left_dom hg
 
-theorem not_asymp_left_dom_and_right_dom (hg: AsympPos g): ¬(AsympLeftDom γ f g ∧ AsympRightDom γ f g) := by
+theorem not_pos_asymp_left_dom_and_right_dom (hg: AsympPos g): ¬(AsympLeftDom γ f g ∧ AsympRightDom γ f g) := by
   intro h 
   rcases h with ⟨ha, hb⟩
 
@@ -474,11 +472,12 @@ end Conversions
 
 section Properties
 
-variable {α β γ : Type*} {f g : α → β} 
+variable {α β γ : Type*}
 
 section Refl
 
-variable [LinearOrder α] [Preorder β] [PartialOrder γ] [One α] [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] [@NeZero γ γ_monoid.toZero γ_monoid.one]
+variable [LinearOrder α] [Preorder β] [PartialOrder γ] [One α] [γ_monoid : MonoidWithZero γ] 
+         [MulAction γ β] [ZeroLEOneClass γ] [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
 
 theorem asymp_bounded_refl : AsympBounded γ f f := by
   constructor <;>
@@ -499,13 +498,13 @@ end Refl
 
 section SMul
 
-variable {c : γ} 
+variable {c : γ} {f g : α → β} 
 
 section Pos
 
 variable [LinearOrder α] [Preorder β] [PartialOrder γ] [MonoidWithZero γ] [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
 
-theorem asymp_bounded_above_pos_smul (hc : c > 0) (h : AsympBoundedAbove γ f g) : AsympBoundedAbove γ (fun n ↦ c • f n) g := by
+lemma asymp_bounded_above_pos_smul (hc : c > 0) (h : AsympBoundedAbove γ f g) : AsympBoundedAbove γ (fun n ↦ c • f n) g := by
   rcases h with ⟨k, k_pos, h⟩ 
   use c * k
   constructor
@@ -513,7 +512,7 @@ theorem asymp_bounded_above_pos_smul (hc : c > 0) (h : AsympBoundedAbove γ f g)
   . rw [asymp_le_mul_smul]
     exact asymp_le_pos_mul hc h
 
-theorem asymp_bounded_below_pos_smul (hc : c > 0) (h : AsympBoundedBelow γ f g) : AsympBoundedBelow γ (fun n ↦ c • f n) g := by
+lemma asymp_bounded_below_pos_smul (hc : c > 0) (h : AsympBoundedBelow γ f g) : AsympBoundedBelow γ (fun n ↦ c • f n) g := by
   rcases h with ⟨k, k_pos, h⟩ 
   use c * k
   constructor
@@ -536,7 +535,7 @@ section Neg
 variable [Preorder α] [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] 
          [AddLeftStrictMono γ] [PosMulStrictMono γ] [PosSMulMono γ β] [PosSMulReflectLE γ β] 
 
-theorem asymp_bounded_above_neg_smul (hc : c < 0) (h : AsympBoundedAbove γ f g) : AsympBoundedBelow γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
+lemma asymp_bounded_above_neg_smul (hc : c < 0) (h : AsympBoundedAbove γ f g) : AsympBoundedBelow γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
   rcases h with ⟨k, k_pos, h⟩  
   use -c * k
   constructor
@@ -553,7 +552,7 @@ theorem asymp_bounded_above_neg_smul (hc : c < 0) (h : AsympBoundedAbove γ f g)
     }
     exact asymp_le_neg_mul hc h
 
-theorem asymp_bounded_below_neg_smul (hc : c < 0) (h : AsympBoundedBelow γ f g) : AsympBoundedAbove γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
+lemma asymp_bounded_below_neg_smul (hc : c < 0) (h : AsympBoundedBelow γ f g) : AsympBoundedAbove γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
   rcases h with ⟨k, k_pos, h⟩  
   use -c * k
   constructor
