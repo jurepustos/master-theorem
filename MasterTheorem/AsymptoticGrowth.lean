@@ -488,12 +488,6 @@ theorem asymp_bounded_refl : AsympBounded γ f f := by
       intro _ _
       simp
 
-theorem asymp_bounded_above_refl : AsympBoundedAbove γ f f := by
-  exact asymp_bounded_refl.1
-
-theorem asymp_bounded_below_refl : AsympBoundedBelow γ f f := by
-  exact asymp_bounded_refl.2
-
 end Refl
 
 section SMul

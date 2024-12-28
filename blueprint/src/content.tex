@@ -22,109 +22,159 @@ complexity theory in Lean 4:
 Bachman-Landau family of notations is the name of a few closely related notations used in 
 algorithm analysis. The most famous of them is the so-called big-O notation. While
 most formulations are defined on functions from naturals or reals to reals, we define 
-them more generally on functions from a linearly ordered commutative ring to a
-linearly ordered field. In the rest of this page, we let $R$ be a linearly ordered 
-commutative ring and $F$ be a linearly ordered field. We will also use symbols $f$ and 
-$g$ for functions $R \to F$.
+them more generally - requirements for the types of the domain and codomain vary between 
+different properties. However, all properties hold for functions from a linearly ordered 
+commutative ring to a linearly ordered field. In the rest of this page, we let $R$ be a linearly 
+ordered commutative ring and $F$ be a linearly ordered field. We will also use symbols $f$, 
+$f\_1$, $f\_2$, $g$, $g\_1$ and $g\_2$ for functions $R \to F$. Also, we let $M$ be 
+a right $R$-module, which often has to only be a (distributive) left multiplicative action
+on $R$.
 
-\subsection{Asymptotic bounds and domination}
+\subsection{Basic asymptotic properties of functions}
+
+
+\begin{definition}
+    \label{def:asymp_pos}
+    \lean{AsympPos}
+    \leanok
+    $f(x)$ is asymptotically positive if there exists $x_0$ such that $f(x) \ge 0$
+    for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_neg}
+    \lean{AsympNeg}
+    \leanok
+    $f(x)$ is asymptotically negative if there exists $x_0$ such that $f(x) \le 0$
+    for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_le}
+    \lean{AsympLE}
+    \leanok
+    $f(x)$ is asymptotically less than $g(x)$ if there exists $x_0$ such that
+    $f(x) \le g(x)$ for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_ge}
+    \lean{AsympGE}
+    \leanok
+    $f(x)$ is asymptotically greater than $g(x)$ if there exists $x_0$ such that
+    $f(x) \ge g(x)$ for all $x \ge x_0$.
+
+\end{definition}
+
+
+\subsection{Asymptotic growth - boundedness and domination}
 
 \begin{definition}
     \label{def:asymp_bounded_above}
     \lean{AsympBoundedAbove}
     \leanok
-    $f(x)$ is asymptotically bounded above by $g(x)$ if there exist $x_0$ and $k > 0$ 
-    such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
-\end{definition}
-
-\begin{definition}(Big O notation)
-    \label{def:big_o}
-    \lean{O}
-    \leanok
-    $f(x) \in O(g(x))$ if it is asymptotically bounded above by $g(x)$.
+    \uses{def:asymp_le}
+    $f(x)$ is asymptotically bounded above by $g(x)$ if there exists a $k > 0$ 
+    such that $f(x)$ is asymptotically less than $k*g(x)$.
 \end{definition}
 
 \begin{definition}
     \label{def:asymp_bounded_below}
     \lean{AsympBoundedBelow}
     \leanok
-    $f(x)$ is asymptotically bounded below by $g(x)$ if there exist $x_0$ and $k > 0$ 
-    such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
-\end{definition}
-
-\begin{definition}(Big Omega notation)
-    \label{def:big_omega}
-    \lean{Ω}
-    \leanok
-    $f(x) \in \Omega(g(x))$ if it is asymptotically bounded below by $g(x)$.
+    \uses{def:asymp_ge}
+    $f(x)$ is asymptotically bounded below by $g(x)$ if there exists $k > 0$ 
+    such that $f(x)$ is asymptotically greater than $k*g(x)$.
 \end{definition}
 
 \begin{definition}
     \label{def:asymp_bounded}
     \lean{AsympBounded}
     \leanok
-    $f(x)$ is asymptotically bounded by $g(x)$ if there exist $x_0$, $k\_1 > 0$ 
-    and $k\_2$ such that $k\_1*|g(x)| \le |f(x)| \le k\_2*|g(x)|$ for all $x \ge x_0$.
+    \uses{def:asymp_bounded_above, def:asymp_bounded_below}
+    $f(x)$ is asymptotically bounded by $g(x)$ if $f(x)$ is asymptotically bounded
+    above and below by $g(x)$.
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_right_dom}
+    \lean{AsympRightDom}
+    \leanok
+    \uses{def:asymp_le}
+    $f(x)$ is asymptotically dominated by $g(x)$ if for all $k > 0$ $f(x)$ is asymptotically 
+    less than $k*g(x)$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_left_dom}
+    \lean{AsympLeftDom}
+    \leanok
+    \uses{def:asymp_ge}
+    $f(x)$ asymptotically dominates $g(x)$ if for all $k > 0$ $(x)$ is asymptotically
+    greater than $k*g(x)$.
+
+\end{definition}
+
+
+\subsection{Asymptotic sets}
+
+\begin{definition}(Big O notation)
+    \label{def:big_o}
+    \lean{O}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    $f(x) \in O(g(x))$ if it is asymptotically bounded above by $g(x)$.
+\end{definition}
+
+\begin{definition}(Big Omega notation)
+    \label{def:big_omega}
+    \lean{Ω}
+    \leanok
+    \uses{def:asymp_bounded_below}
+    $f(x) \in \Omega(g(x))$ if it is asymptotically bounded below by $g(x)$.
 \end{definition}
 
 \begin{definition}(Big Theta notation)
     \label{def:big_theta}
     \lean{Θ}
     \leanok
+    \uses{def:asymp_bounded}
     $f(x) \in \Theta(g(x))$ if it is asymptotically bounded by $g(x)$. 
-\end{definition}
-
-\begin{definition}
-    \label{def:asymp_dominated}
-    \lean{AsympDominated}
-    \leanok
-    Let $f$ and $g$ be functions $R \to F$. $f(x)$ is asymptotically dominated by $g(x)$ if 
-    for all $k > 0$ there exists $x_0$ such that $|f(x)| \le k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Small O notation)
     \label{def:small_o}
     \lean{o}
     \leanok
+    \uses{def:asymp_right_dom}
     $f(x) \in o(g(x))$ if it is asymptotically dominated by $g(x)$.
-\end{definition}
-
-\begin{definition}
-    \label{def:asymp_dominates}
-    \lean{AsympDominates}
-    \leanok
-    $f(x)$ is asymptotically dominates $g(x)$ if for all $k > 0$ there exists $x_0$ 
-    such that $|f(x)| \ge k*|g(x)|$ for all $x \ge x_0$.
 \end{definition}
 
 \begin{definition}(Small Omega notation)
     \label{def:small_omega}
     \lean{ω}
     \leanok
+    \uses{def:asymp_left_dom}
     $f(x) \in \omega(g(x))$ if it asymptotically dominates $g(x)$.
 \end{definition}
 
-%Goals (to be updated as necessary)
-%\begin{itemize}
-%\item definitions of notations $O(f(x))$, $\Omega(f(x))$, $\Theta(f(x))$, $o(f(x))$ and $\omega(f(x))$,
-%\item basic relations between notations (e.g. $o(f(x)) \implies O(f(x))$),
-%\item equivalence relations on asymptotically equivalent instances of each kind of notation,
-%\item equivalences of notations with their limit definitions,
-%\item \textbf{optional:} show properties of certain classes of instances - notably polynomials and exponentials,
-%\item add accompanying examples
-%\end{itemize}
 
 \subsection{Limit definitions}
 
 TODO
 
-\subsection{Relations between asymptotic sets}
+
+\subsection{Relations between asymptotic growth properties}
 
 \begin{lemma}
-    \label{lemma:asymp_dominated_imp_bounded_above}
-    \lean{asymp_dominated_imp_bounded_above}
+    \label{lemma:asymp_right_dom_imp_bounded_above}
+    \lean{asymp_right_dom_imp_bounded_above}
     \leanok
-    \uses{def:asymp_dominated, def:asymp_bounded_above}
+    \uses{def:asymp_right_dom, def:asymp_bounded_above}
     If $f(x)$ is dominated by $g(x)$, then it's also bounded above by $g(x)$.
 \end{lemma}
 
@@ -137,53 +187,23 @@ TODO
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:small_o_imp_big_o}
-    \lean{o_imp_O}
+    \label{lemma:asymp_left_dom_imp_bounded_below}
+    \lean{asymp_left_dom_imp_bounded_below}
     \leanok
-    \uses{def:small_o, def:big_o}
-    If $f(x) \in o(g(x))$, then $f(x) \in O(f(x))$.
-\end{lemma}
-
-\begin{proof}
-    \leanok
-    \uses{lemma:asymp_dominated_imp_bounded_above}
-    Since $o(g(x))$ and $O(f(x))$, we can simply use Theorem 
-    \ref{lemma:asymp_dominated_imp_bounded_above}.
-\end{proof}
-
-\begin{lemma}
-    \label{lemma:asymp_dominates_imp_bounded_below}
-    \lean{asymp_dominates_imp_bounded_below}
-    \leanok
-    \uses{def:asymp_dominates, def:asymp_bounded_below}
+    \uses{def:asymp_left_dom, def:asymp_bounded_below}
     If $f(x)$ dominates $g(x)$, then it's bounded below by $g(x)$.
 \end{lemma}
 
 \begin{proof}
     \leanok
     The proof is entirely analogous to the proof of Theorem 
-    \ref{lemma:asymp_dominated_imp_bounded_above}, again using the value 
+    \ref{lemma:asymp_right_dom_imp_bounded_above}, again using the value 
     $1$ for $k$.
 \end{proof}
 
 \begin{theorem}
-    \label{thm:small_omega_imp_big_omega}
-    \lean{ω_imp_Ω}
-    \leanok
-    \uses{def:small_omega, def:big_omega}
-    If $f(x) \in \omega(g(x))$, then $f(x) \in \Omega(g(x))$.
-\end{theorem}
-
-\begin{proof}
-    \leanok
-    \uses{lemma:asymp_dominates_imp_bounded_below}
-    The proof is a simple application of Theorem 
-    \ref{lemma:asymp_dominates_imp_bounded_below}.
-\end{proof}
-
-\begin{theorem}
-    \label{thm:asymp_bounded_above_and_below_equiv_bounded}
-    \lean{asymp_bounded_above_and_below_equiv_bounded}
+    \label{thm:asymp_bounded_above_below_iff_bounded}
+    \lean{asymp_bounded_above_below_iff_bounded}
     \leanok
     \uses{def:asymp_bounded_above, def:asymp_bounded_below, def:asymp_bounded}
     If $f(x)$ is bounded above and below by $g(x)$, then it's bounded by $g(x)$.
@@ -203,24 +223,9 @@ TODO
     Conversely, assume $f(x)$ is bounded by $g(x)$.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:big_o_and_omega_equiv_theta}
-    \lean{O_and_Ω_equiv_Θ}
-    \leanok
-    \uses{def:big_o, def:big_omega, def:big_theta}
-    $f(x) \in O(g(x))$ and $f(x) \in \Omega(g(x))$ if and only if $f(x) \in \Theta(g(x))$.
-\end{theorem}
-
-\begin{proof}
-    \leanok
-    \uses{thm:asymp_bounded_above_and_below_equiv_bounded}
-    Similarly to previous proofs, the proof is a direct application of Theorem 
-    \ref{thm:asymp_bounded_above_and_below_equiv_bounded}.
-\end{proof}
-
 \begin{lemma}
-    \label{thm:asymp_bounded_imp_not_dominated}
-    \lean{asymp_bounded_imp_not_dominated}
+    \label{thm:asymp_bounded_imp_not_right_dom}
+    \lean{asymp_bounded_imp_not_right_dom}
     \leanok
     If $f(x)$ is bounded by $g(x)$, then $f(x)$ is not dominated by $g(x)$.
 \end{lemma}
@@ -228,7 +233,128 @@ TODO
 \begin{proof}
     TODO 
 \end{proof}
-    
+
+
+\subsection{Relations between asymptotic sets}
+
+\begin{lemma}
+    \label{lemma:small_o_imp_big_o}
+    \lean{o_imp_O}
+    \leanok
+    \uses{def:small_o, def:big_o}
+    If $f(x) \in o(g(x))$, then $f(x) \in O(f(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_dominated_imp_bounded_above}
+    Since $o(g(x))$ and $O(f(x))$, we can simply use Theorem 
+    \ref{lemma:asymp_right_dom_imp_bounded_above}.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:small_omega_imp_big_omega}
+    \lean{ω_imp_Ω}
+    \leanok
+    \uses{def:small_omega, def:big_omega}
+    If $f(x) \in \omega(g(x))$, then $f(x) \in \Omega(g(x))$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_left_dom_imp_bounded_below}
+    The proof is a simple application of Theorem 
+    \ref{lemma:asymp_left_dom_imp_bounded_below}.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:big_o_and_omega_iff_theta}
+    \lean{O_and_Ω_iff_Θ}
+    \leanok
+    \uses{def:big_o, def:big_omega, def:big_theta}
+    $f(x) \in O(g(x))$ and $f(x) \in \Omega(g(x))$ if and only if $f(x) \in \Theta(g(x))$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_bounded_above_below_iff_bounded}
+    Similarly to previous proofs, the proof is a direct application of Theorem 
+    \ref{thm:asymp_bounded_above_below_iff_bounded}.
+\end{proof}
+
+
+\subsection{Properties of asymptotic growth}
+
+\subsubsection{Reflexivity}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_refl}
+    \lean{asymp_bounded_refl}
+    \leanok
+    \uses{def:asymp_bounded}
+    $f(x)$ is asymptotically bounded by itself. 
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{def:asymp_bounded, def:asymp_bounded_above, def:asymp_bounded_below}
+    Proving asymptotic boundedness is equivalent to proving boundedness above and below.
+    Both can be proved the same way - we choose $1_K$ for $K$ and $1_R$ for $N$, then the
+    required asymptotic growth properties follow from definitions of identity elements for 
+    $K$ and $R$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_refl}
+    \lean{asymp_bounded_above_refl}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    $f(x)$ is asymptotically bounded above by itself.
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_refl}
+    This follows directly from \ref{lemma:asymp_bounded_refl}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_below_refl}
+    \lean{asymp_bounded_below_refl}
+    \leanok
+    \uses{def:asymp_bounded_below}
+    $f(x)$ is asymptotically bounded below by itself.
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_refl}
+    This follows directly from \ref{lemma:asymp_bounded_refl}.
+\end{proof}
+
+
+\subsubsection{Scalar multiplicativity}
+
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_pos_smul}
+    \lean{asymp_bounded_above_pos_smul}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    Let $c > 0$. If $f(x)$ is bounded above by $(gx)$, then $c*f(x)$ is also bounded
+    above by $g(x)$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+
+\subsubsection{Additivity}
 
 
 \section{The Master theorem}
