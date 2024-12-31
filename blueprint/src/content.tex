@@ -12,26 +12,12 @@ The primary goal of this project is to formalize some results from computational
 complexity theory in Lean 4:
 \begin{itemize}
 \item the Bachman-Landau family of notations, e.g. big O and other closely related notations,
-\item properties of the Bachman-Landau notations and relations between them,
+\item properties of the Bachman-Landau notations,
 \item the Master theorem for divide-and-conquer recurrences,
 \item and, if time permits, the Akra-Bazzi method which solves a more general class of recurrences
 \end{itemize}
 
-\section{Bachman-Landau notation}
-
-Bachman-Landau family of notations is the name of a few closely related notations used in 
-algorithm analysis. The most famous of them is the so-called big-O notation. While
-most formulations are defined on functions from naturals or reals to reals, we define 
-them more generally - requirements for the types of the domain and codomain vary between 
-different properties. However, all properties hold for functions from a linearly ordered 
-commutative ring to a linearly ordered field. In the rest of this page, we let $R$ be a linearly 
-ordered commutative ring and $F$ be a linearly ordered field. We will also use symbols $f$, 
-$f\_1$, $f\_2$, $g$, $g\_1$ and $g\_2$ for functions $R \to F$. Also, we let $M$ be 
-a right $R$-module, which often has to only be a (distributive) left multiplicative action
-on $R$.
-
-\subsection{Basic asymptotic properties of functions}
-
+\section{Basic asymptotic properties of functions}
 
 \begin{definition}
     \label{def:asymp_pos}
@@ -70,7 +56,7 @@ on $R$.
 \end{definition}
 
 
-\subsection{Asymptotic growth - boundedness and domination}
+\section{Asymptotic growth}
 
 \begin{definition}
     \label{def:asymp_bounded_above}
@@ -119,6 +105,99 @@ on $R$.
 
 \end{definition}
 
+\begin{lemma}
+    \label{lemma:asymp_right_dom_imp_bounded_above}
+    \lean{asymp_right_dom_imp_bounded_above}
+    \leanok
+    \uses{def:asymp_right_dom, def:asymp_bounded_above}
+    If $f(x)$ is dominated by $g(x)$, then it's also bounded above by $g(x)$.
+\end{lemma}
+
+\begin{proof}
+    \leanok 
+    The definitions of $f(x)$ being dominated and bounded above by $g(x)$ only differ
+    in the quantifier before $k$ at the very start (universal for the former, existential
+    for the latter), so it suffices to use any positive value for $k$. We use $1$. 
+    The desired result then follows directly.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_left_dom_imp_bounded_below}
+    \lean{asymp_left_dom_imp_bounded_below}
+    \leanok
+    \uses{def:asymp_left_dom, def:asymp_bounded_below}
+    If $f(x)$ dominates $g(x)$, then it's bounded below by $g(x)$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    The proof is entirely analogous to the proof of Theorem 
+    \ref{lemma:asymp_right_dom_imp_bounded_above}, again using the value 
+    $1$ for $k$.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_bounded_above_below_iff}
+    \lean{asymp_bounded_above_below_iff}
+    \leanok
+    \uses{def:asymp_bounded_above, def:asymp_bounded_below, def:asymp_bounded}
+    If $f(x)$ is bounded above and below by $g(x)$, then it's bounded by $g(x)$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    First, assume $f(x)$ is bounded above and below by $g(x)$. There is a constant
+    $k\_1 > 0$ such that $|f(x)| \le k\_1 |g(x)|$ for all $x > x\_0$ for some $x\_0$.
+    Analogously, there is a constant $k\_2 > 0$ such that $|f(x)| \ge k\_2 |g(x)|$ 
+    for all $x > x\_1$ for some $x\_1$. For $f(x)$ to be properly bounded by $g(x)$ 
+    we need a single constant $x\_2$ - we take $x\_2 = \max{\{x\_1, x\_2\}}$. Since 
+    $x\_2 \ge x\_0$ and $x\_2 \ge x\_1$, we have $|f(x) \le k\_1 |g(x)|$ and 
+    $|f(x)| \ge k\_2 |g(x)|$ for all $x > x\_2$, which means that $f(x)$ is bounded
+    by $g(x)$.
+
+    Conversely, assume $f(x)$ is bounded by $g(x)$.
+\end{proof}
+
+\begin{lemma}
+    \label{thm:asymp_bounded_below_imp_not_right_dom}
+    \lean{pos_asymp_bounded_below_imp_not_right_dom}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_right_dom}
+    Let $f(x)$ be asymptotically positive. If $f(x)$ is bounded below by $g(x)$, then $f(x)$ 
+    is not dominated by $g(x)$.
+\end{lemma}
+
+\begin{proof}
+    TODO 
+\end{proof}
+
+\begin{lemma}
+    \label{thm:asymp_bounded_above_imp_not_left_dom}
+    \lean{pos_asymp_bounded_above_imp_not_left_dom}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_left_dom}
+    Let $f(x)$ be asymptotically positive. If $f(x)$ is bounded below by $g(x)$, then $f(x)$ 
+    does not dominate $g(x)$.
+\end{lemma}
+
+\begin{proof}
+    TODO 
+\end{proof}
+
+
+\section{Bachman-Landau notation}
+
+Bachman-Landau family of notations is the name of a few closely related notations used in 
+algorithm analysis. The most famous of them is the so-called big-O notation. While
+most formulations are defined on functions from naturals or reals to reals, we define 
+them more generally - requirements for the types of the domain and codomain vary between 
+different properties. However, all properties hold for functions from a linearly ordered 
+commutative ring to a linearly ordered field. In the rest of this page, we let $R$ be a linearly 
+ordered commutative ring and $F$ be a linearly ordered field. We will also use symbols $f$, 
+$f\_1$, $f\_2$, $g$, $g\_1$ and $g\_2$ for functions $R \to F$. Also, we let $M$ be 
+a right $R$-module, which often has to only be a (distributive) left multiplicative action
+on $R$.
+
 
 \subsection{Asymptotic sets}
 
@@ -163,78 +242,6 @@ on $R$.
 \end{definition}
 
 
-\subsection{Limit definitions}
-
-TODO
-
-
-\subsection{Relations between asymptotic growth properties}
-
-\begin{lemma}
-    \label{lemma:asymp_right_dom_imp_bounded_above}
-    \lean{asymp_right_dom_imp_bounded_above}
-    \leanok
-    \uses{def:asymp_right_dom, def:asymp_bounded_above}
-    If $f(x)$ is dominated by $g(x)$, then it's also bounded above by $g(x)$.
-\end{lemma}
-
-\begin{proof}
-    \leanok 
-    The definitions of $f(x)$ being dominated and bounded above by $g(x)$ only differ
-    in the quantifier before $k$ at the very start (universal for the former, existential
-    for the latter), so it suffices to use any positive value for $k$. We use $1$. 
-    The desired result then follows directly.
-\end{proof}
-
-\begin{lemma}
-    \label{lemma:asymp_left_dom_imp_bounded_below}
-    \lean{asymp_left_dom_imp_bounded_below}
-    \leanok
-    \uses{def:asymp_left_dom, def:asymp_bounded_below}
-    If $f(x)$ dominates $g(x)$, then it's bounded below by $g(x)$.
-\end{lemma}
-
-\begin{proof}
-    \leanok
-    The proof is entirely analogous to the proof of Theorem 
-    \ref{lemma:asymp_right_dom_imp_bounded_above}, again using the value 
-    $1$ for $k$.
-\end{proof}
-
-\begin{theorem}
-    \label{thm:asymp_bounded_above_below_iff_bounded}
-    \lean{asymp_bounded_above_below_iff_bounded}
-    \leanok
-    \uses{def:asymp_bounded_above, def:asymp_bounded_below, def:asymp_bounded}
-    If $f(x)$ is bounded above and below by $g(x)$, then it's bounded by $g(x)$.
-\end{theorem}
-
-\begin{proof}
-    \leanok
-    First, assume $f(x)$ is bounded above and below by $g(x)$. There is a constant
-    $k\_1 > 0$ such that $|f(x)| \le k\_1 |g(x)|$ for all $x > x\_0$ for some $x\_0$.
-    Analogously, there is a constant $k\_2 > 0$ such that $|f(x)| \ge k\_2 |g(x)|$ 
-    for all $x > x\_1$ for some $x\_1$. For $f(x)$ to be properly bounded by $g(x)$ 
-    we need a single constant $x\_2$ - we take $x\_2 = \max{\{x\_1, x\_2\}}$. Since 
-    $x\_2 \ge x\_0$ and $x\_2 \ge x\_1$, we have $|f(x) \le k\_1 |g(x)|$ and 
-    $|f(x)| \ge k\_2 |g(x)|$ for all $x > x\_2$, which means that $f(x)$ is bounded
-    by $g(x)$.
-
-    Conversely, assume $f(x)$ is bounded by $g(x)$.
-\end{proof}
-
-\begin{lemma}
-    \label{thm:asymp_bounded_imp_not_right_dom}
-    \lean{asymp_bounded_imp_not_right_dom}
-    \leanok
-    If $f(x)$ is bounded by $g(x)$, then $f(x)$ is not dominated by $g(x)$.
-\end{lemma}
-
-\begin{proof}
-    TODO 
-\end{proof}
-
-
 \subsection{Relations between asymptotic sets}
 
 \begin{lemma}
@@ -277,7 +284,7 @@ TODO
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_bounded_above_below_iff_bounded}
+    \uses{thm:asymp_bounded_above_below_iff}
     Similarly to previous proofs, the proof is a direct application of Theorem 
     \ref{thm:asymp_bounded_above_below_iff_bounded}.
 \end{proof}

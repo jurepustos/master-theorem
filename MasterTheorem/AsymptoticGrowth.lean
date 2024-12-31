@@ -68,7 +68,7 @@ section AsympPosNeg
 
 variable {α β : Type*} [LE α] [LT β] [AddGroup β] [AddLeftStrictMono β] {f : α → β} 
 
-lemma asymp_neg_of_asymp_pos (h : AsympPos f) : AsympNeg (fun n ↦ -f n) := by
+lemma asymp_neg_of_pos (h : AsympPos f) : AsympNeg (fun n ↦ -f n) := by
   rcases h with ⟨N, h⟩
   use N
   intro n hn
@@ -76,7 +76,7 @@ lemma asymp_neg_of_asymp_pos (h : AsympPos f) : AsympNeg (fun n ↦ -f n) := by
   simp
   exact h
 
-lemma asymp_pos_of_asymp_neg (h : AsympNeg f) : AsympPos (fun n ↦ -f n) := by
+lemma asymp_pos_of_neg (h : AsympNeg f) : AsympPos (fun n ↦ -f n) := by
   rcases h with ⟨N, h⟩
   use N
   intro n hn
@@ -479,7 +479,7 @@ section Refl
 variable [LinearOrder α] [Preorder β] [PartialOrder γ] [One α] [γ_monoid : MonoidWithZero γ] 
          [MulAction γ β] [ZeroLEOneClass γ] [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
 
-theorem asymp_bounded_refl : AsympBounded γ f f := by
+lemma asymp_bounded_refl : AsympBounded γ f f := by
   constructor <;>
   . use 1
     constructor
@@ -487,6 +487,12 @@ theorem asymp_bounded_refl : AsympBounded γ f f := by
     . use 1
       intro _ _
       simp
+
+lemma asymp_bounded_above_refl : AsympBoundedAbove γ f f := by
+  exact asymp_bounded_refl.1
+
+lemma asymp_bounded_below_refl : AsympBoundedBelow γ f f := by
+  exact asymp_bounded_refl.2
 
 end Refl
 
