@@ -94,12 +94,12 @@ section Refl
 
 variable [Preorder α] [One α] [Preorder β] {f : α → β}
 
-theorem asymp_le_refl : AsympLE f f := by
+lemma asymp_le_refl : AsympLE f f := by
   use 1
   intro n hn
   exact le_refl _
 
-theorem asymp_ge_refl : AsympGE f f := by
+lemma asymp_ge_refl : AsympGE f f := by
   exact asymp_le_refl
 
 end Refl
@@ -108,25 +108,25 @@ section Equivalence
 
 variable [Preorder α] [LE β] {f g : α → β} 
 
-lemma asymp_le_of_asymp_ge (h : AsympGE f g) : AsympLE g f := by
+lemma asymp_le_of_ge (h : AsympGE f g) : AsympLE g f := by
   rcases h with ⟨N, h⟩
   use N
 
-lemma asymp_ge_of_asymp_le (h : AsympLE f g) : AsympGE g f := by
-  exact asymp_le_of_asymp_ge h
+lemma asymp_ge_of_le (h : AsympLE f g) : AsympGE g f := by
+  exact asymp_le_of_ge h
 
-theorem asymp_le_asymp_ge_iff : AsympLE f g ↔ AsympGE g f := by
+theorem asymp_le_ge_iff : AsympLE f g ↔ AsympGE g f := by
   constructor <;> intro h
-  . exact asymp_ge_of_asymp_le h
-  . exact asymp_le_of_asymp_ge h
+  . exact asymp_ge_of_le h
+  . exact asymp_le_of_ge h
 
 end Equivalence
 
 section Add
 
-variable {f₁ f₂ : α → β} [LinearOrder α] [Preorder β]
+variable [LinearOrder α] [Preorder β] {f₁ f₂ : α → β} 
 
-lemma asymp_le_add {g₁ g₂ : α → β} [Add β] [AddLeftMono β] [AddRightMono β] (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (fun n ↦ f₁ n + f₂ n) (fun n ↦ g₁ n + g₂ n) := by
+lemma asymp_le_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α → β} (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (fun n ↦ f₁ n + f₂ n) (fun n ↦ g₁ n + g₂ n) := by
   rcases ha with ⟨N₁, ha⟩
   rcases hb with ⟨N₂, hb⟩
   use N₁ ⊔ N₂
@@ -136,11 +136,11 @@ lemma asymp_le_add {g₁ g₂ : α → β} [Add β] [AddLeftMono β] [AddRightMo
   specialize hb n (le_trans (le_max_right _ _) hn)
   exact add_le_add ha hb
 
-lemma asymp_ge_add {g₁ g₂ : α → β} [Add β] [AddLeftMono β] [AddRightMono β] (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympGE (fun n ↦ f₁ n + f₂ n) (fun n ↦ g₁ n + g₂ n) := by
-  rw [← asymp_le_asymp_ge_iff] at *
+lemma asymp_ge_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α → β} (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympGE (fun n ↦ f₁ n + f₂ n) (fun n ↦ g₁ n + g₂ n) := by
+  rw [← asymp_le_ge_iff] at *
   exact asymp_le_add ha hb
 
-lemma asymp_ge_add_pos {g : α → β} [AddMonoid β] [AddLeftMono β] [AddRightMono β] (hf : AsympPos f₂) (h : AsympGE f₁ g) : AsympGE (fun n ↦ f₁ n + f₂ n) g := by
+lemma asymp_ge_add_pos [AddMonoid β] [AddLeftMono β] [AddRightMono β] {g : α → β} (hf : AsympPos f₂) (h : AsympGE f₁ g) : AsympGE (fun n ↦ f₁ n + f₂ n) g := by
   rcases h with ⟨N₁, h⟩
   rcases hf with ⟨N₂, hf₂⟩
   use N₁ ⊔ N₂
@@ -152,7 +152,7 @@ lemma asymp_ge_add_pos {g : α → β} [AddMonoid β] [AddLeftMono β] [AddRight
   simp at sum
   exact sum
 
-lemma asymp_le_add_neg {g : α → β} [AddMonoid β] [AddLeftMono β] [AddRightMono β] (hf : AsympNeg f₂) (h : AsympLE f₁ g) : AsympLE (fun n ↦ f₁ n + f₂ n) g := by
+lemma asymp_le_add_neg [AddMonoid β] [AddLeftMono β] [AddRightMono β] {g : α → β} (hf : AsympNeg f₂) (h : AsympLE f₁ g) : AsympLE (fun n ↦ f₁ n + f₂ n) g := by
   rcases h with ⟨N₁, h⟩
   rcases hf with ⟨N₂, hf₂⟩
   use N₁ ⊔ N₂
@@ -183,7 +183,7 @@ theorem asymp_le_pos_mul (hc : c > 0) (h : AsympLE f g) : AsympLE (fun n ↦ c �
   exact smul_le_smul_of_nonneg_left h (le_of_lt hc)
 
 theorem asymp_ge_pos_mul (hc : c > 0) (h : AsympGE f g) : AsympGE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
-  apply asymp_ge_of_asymp_le
+  apply asymp_ge_of_le
   exact asymp_le_pos_mul hc h
 
 end Pos
@@ -201,99 +201,13 @@ theorem asymp_le_neg_mul (hc : c < 0) (h : AsympLE f g) : AsympGE (fun n ↦ c �
   exact (smul_le_smul_iff_of_neg_left hc).2 h
 
 theorem asymp_ge_neg_mul (hc : c < 0) (h : AsympGE f g) : AsympLE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
-  apply asymp_le_of_asymp_ge
+  apply asymp_le_of_ge
   exact asymp_le_neg_mul hc h
 
 end Neg
 
-section MulSMul
-
-variable {a b : γ} {f g : α → β} [Preorder β] [MonoidWithZero γ] [MulAction γ β]
-
-lemma asymp_le_mul_smul : AsympLE f (fun n ↦ (a * b) • g n) ↔ AsympLE f (fun n ↦ a • b • g n) := by
-  constructor <;> (
-    intro h
-    rcases h with ⟨N, h⟩
-    use N
-    intro n hn
-    specialize h n hn
-    simp
-    simp at h
-  )
-  . rw [← mul_smul]
-    assumption
-  . rw [mul_smul]
-    assumption
-
-lemma mul_smul_asymp_le : AsympLE (fun n ↦ (a * b) • f n) g ↔ AsympLE (fun n ↦ a • b • f n) g := by
-  constructor <;> (
-    intro h
-    rcases h with ⟨N, h⟩
-    use N
-    intro n hn
-    specialize h n hn
-    simp
-    simp at h)
-  . rw [← mul_smul]
-    assumption
-  . rw [mul_smul]
-    assumption
-
-lemma asymp_ge_mul_smul : AsympGE f (fun n ↦ (a * b) • g n) ↔ AsympGE f (fun n ↦ a • b • g n) := by
-  rw [← asymp_le_asymp_ge_iff]
-  exact mul_smul_asymp_le
-
-lemma mul_smul_asymp_ge : AsympGE (fun n ↦ (a * b) • f n) g ↔ AsympGE (fun n ↦ a • b • f n) g := by
-  rw [← asymp_le_asymp_ge_iff]
-  exact asymp_le_mul_smul
-
-end MulSMul
-
-section AddSMul
-
-variable {a b : γ} [Preorder β] [AddCommMonoid β] [Semiring γ] [Module γ β]
-
-lemma asymp_le_add_smul : AsympLE f (fun n ↦ (a + b) • g n) ↔ AsympLE f (fun n ↦ a • g n + b • g n) := by
-  constructor <;> (
-    intro h
-    rcases h with ⟨N, h⟩
-    use N
-    intro n hn
-    specialize h n hn
-    simp
-    simp at h
-  )
-  . rw [← add_smul]
-    exact h
-  . rw [add_smul]
-    exact h
-
-lemma add_smul_asymp_le : AsympLE (fun n ↦ (a + b) • f n) g ↔ AsympLE (fun n ↦ a • f n + b • f n) g := by
-  constructor <;> (
-    intro h
-    rcases h with ⟨N, h⟩
-    use N
-    intro n hn
-    specialize h n hn
-    simp
-    simp at h
-  )
-  . rw [← add_smul]
-    exact h
-  . rw [add_smul]
-    exact h
-
-lemma asymp_ge_add_smul : AsympGE f (fun n ↦ (a + b) • g n) ↔ AsympGE f (fun n ↦ a • g n + b • g n) := by
-  rw [← asymp_le_asymp_ge_iff]
-  exact add_smul_asymp_le
-
-lemma add_smul_asymp_ge : AsympGE (fun n ↦ (a + b) • f n) g ↔ AsympGE (fun n ↦ a • f n + b • f n) g := by
-  rw [← asymp_le_asymp_ge_iff]
-  exact asymp_le_add_smul
-
-end AddSMul
-
 end SMul
+
 
 end AsympLEGE
 
@@ -509,7 +423,7 @@ lemma asymp_bounded_above_pos_smul (hc : c > 0) (h : AsympBoundedAbove γ f g) :
   use c * k
   constructor
   . exact mul_pos hc k_pos
-  . rw [asymp_le_mul_smul]
+  . simp [mul_smul]
     exact asymp_le_pos_mul hc h
 
 lemma asymp_bounded_below_pos_smul (hc : c > 0) (h : AsympBoundedBelow γ f g) : AsympBoundedBelow γ (fun n ↦ c • f n) g := by
@@ -517,9 +431,9 @@ lemma asymp_bounded_below_pos_smul (hc : c > 0) (h : AsympBoundedBelow γ f g) :
   use c * k
   constructor
   . exact mul_pos hc k_pos
-  . rw [← asymp_le_asymp_ge_iff]
-    rw [← asymp_le_asymp_ge_iff] at h
-    rw [mul_smul_asymp_le]
+  . rw [← asymp_le_ge_iff]
+    rw [← asymp_le_ge_iff] at h
+    simp [mul_smul]
     exact asymp_le_pos_mul hc h
 
 theorem asymp_bounded_pos_smul (hc : c > 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) g := by
@@ -540,15 +454,11 @@ lemma asymp_bounded_above_neg_smul (hc : c < 0) (h : AsympBoundedAbove γ f g) :
   use -c * k
   constructor
   . exact mul_pos (neg_pos_of_neg hc) k_pos
-  . rw [← asymp_le_asymp_ge_iff, mul_smul_asymp_le]
+  . rw [← asymp_le_ge_iff]
+    simp [mul_smul]
     suffices AsympGE (fun n ↦ c • f n) (fun n ↦ c • k • g n) by {
       rcases this with ⟨N, h⟩
       use N
-      intro n hn
-      specialize h n hn
-      simp
-      simp at h
-      exact h
     }
     exact asymp_le_neg_mul hc h
 
@@ -557,15 +467,11 @@ lemma asymp_bounded_below_neg_smul (hc : c < 0) (h : AsympBoundedBelow γ f g) :
   use -c * k
   constructor
   . exact mul_pos (neg_pos_of_neg hc) k_pos
-  . rw [asymp_le_mul_smul, asymp_le_asymp_ge_iff]
+  . simp [mul_smul]
+    rw [asymp_le_ge_iff]
     suffices AsympLE (fun n ↦ c • f n) (fun n ↦ c • k • g n) by {
       rcases this with ⟨N, h⟩
       use N
-      intro n hn
-      specialize h n hn
-      simp
-      simp at h
-      exact h
     }
     exact asymp_ge_neg_mul hc h
 
@@ -590,7 +496,7 @@ lemma asymp_bounded_above_add (ha : AsympBoundedAbove γ f₁ g) (hb : AsympBoun
   use k₁ + k₂
   constructor
   . use lt_add_of_lt_of_pos k₁_pos k₂_pos
-  . rw [asymp_le_add_smul]
+  . simp [add_smul]
     exact asymp_le_add ha hb
 
 lemma asymp_bounded_below_add (ha : AsympBoundedBelow γ f₁ g) (hb : AsympBoundedBelow γ f₂ g) : AsympBoundedBelow γ (fun n ↦ f₁ n + f₂ n) g := by
@@ -599,7 +505,7 @@ lemma asymp_bounded_below_add (ha : AsympBoundedBelow γ f₁ g) (hb : AsympBoun
   use k₁ + k₂
   constructor
   . use lt_add_of_lt_of_pos k₁_pos k₂_pos
-  . rw [asymp_ge_add_smul]
+  . simp [add_smul]
     exact asymp_ge_add ha hb
 
 theorem asymp_bounded_add (ha : AsympBounded γ f₁ g) (hb : AsympBounded γ f₂ g) : AsympBounded γ (fun n ↦ f₁ n + f₂ n) g := by
