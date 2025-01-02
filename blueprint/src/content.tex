@@ -56,6 +56,220 @@ complexity theory in Lean 4:
 \end{definition}
 
 
+\subsection{Positivity and negativity}
+
+\begin{lemma}
+    \label{lemma:asymp_neg_of_pos}
+    \lean{asymp_neg_of_pos}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_neg}
+    If $f(x)$ is asymptotically negative, then $-f(x)$ is asymptotically positive.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_pos_of_neg}
+    \lean{asymp_pos_of_neg}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_neg}
+    If $f(x)$ is asymptotically positive, then $-f(x)$ is asymptotically negative.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+
+\subsection{Reflexivity}
+
+\begin{lemma}
+    \label{lemma:asymp_le_refl}
+    \lean{asymp_le_refl}
+    \leanok
+    \uses{def:asymp_le}
+    $f(x)$ is asymptotically less than $f(x)$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_refl}
+    \lean{asymp_ge_refl}
+    \leanok
+    \uses{def:asymp_ge}
+    $f(x)$ is asymptotically greater than $f(x)$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_le_of_ge}
+    \lean{asymp_le_of_ge}
+    \leanok
+    \uses{def:asymp_le, def:asymp_ge}
+    TODO
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+
+\subsection{Equivalence}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_of_le}
+    \lean{asymp_ge_of_le}
+    \leanok
+    \uses{def:asymp_le, def:asymp_ge}
+    TODO
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_le_ge_iff}
+    \lean{asymp_le_ge_iff}
+    \leanok
+    \uses{def:asymp_le, def:asymp_ge}
+    TODO
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_le_of_ge, lemma:asymp_ge_of_le}
+    TODO
+\end{proof}
+
+
+\subsection{Additivity}
+
+\begin{lemma}
+    \label{lemma:asymp_le_add}
+    \lean{asymp_le_add}
+    \leanok
+    \uses{def:asymp_le}
+    TODO
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_add}
+    \lean{asymp_ge_add}
+    \leanok
+    \uses{def:asymp_ge}
+    TODO
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_add_pos}
+    \lean{asymp_ge_add_pos}
+    \leanok
+    \uses{def:asymp_ge}
+    TODO
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_le_add_neg}
+    \lean{asymp_le_add_neg}
+    \leanok
+    \uses{def:asymp_ge}
+    TODO
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+
+\subsection{Scalar multiplicativity}
+
+\begin{theorem}
+    \label{thm:asymp_le_pos_mul}
+    \lean{asymp_le_pos_mul}
+    \leanok
+    \uses{def:asymp_le}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_ge_pos_mul}
+    \lean{asymp_ge_pos_mul}
+    \leanok
+    \uses{def:asymp_ge}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_le_neg_mul}
+    \lean{asymp_le_neg_mul}
+    \leanok
+    \uses{def:asymp_le}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_ge_neg_mul}
+    \lean{asymp_ge_pos_mul}
+    \leanok
+    \uses{def:asymp_ge}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+
 \section{Asymptotic growth}
 
 \begin{definition}
@@ -135,7 +349,6 @@ complexity theory in Lean 4:
     \ref{lemma:asymp_right_dom_imp_bounded_above}, again using the value 
     $1$ for $k$.
 \end{proof}
-
 \begin{theorem}
     \label{thm:asymp_bounded_above_below_iff}
     \lean{asymp_bounded_above_below_iff}
