@@ -17,13 +17,14 @@ complexity theory in Lean 4:
 \item and, if time permits, the Akra-Bazzi method which solves a more general class of recurrences
 \end{itemize}
 
+
 \section{Basic asymptotic properties of functions}
 
 \begin{definition}
     \label{def:asymp_pos}
     \lean{AsympPos}
     \leanok
-    $f(x)$ is asymptotically positive if there exists $x_0$ such that $f(x) \ge 0$
+    $f$ is asymptotically positive if there exists $x_0$ such that $f(x) \ge 0$
     for all $x \ge x_0$.
 
 \end{definition}
@@ -32,7 +33,7 @@ complexity theory in Lean 4:
     \label{def:asymp_neg}
     \lean{AsympNeg}
     \leanok
-    $f(x)$ is asymptotically negative if there exists $x_0$ such that $f(x) \le 0$
+    $f$ is asymptotically negative if there exists $x_0$ such that $f(x) \le 0$
     for all $x \ge x_0$.
 
 \end{definition}
@@ -41,7 +42,7 @@ complexity theory in Lean 4:
     \label{def:asymp_le}
     \lean{AsympLE}
     \leanok
-    $f(x)$ is asymptotically less than $g(x)$ if there exists $x_0$ such that
+    $f$ is asymptotically less than $g$ if there exists $x_0$ such that
     $f(x) \le g(x)$ for all $x \ge x_0$.
 
 \end{definition}
@@ -50,7 +51,7 @@ complexity theory in Lean 4:
     \label{def:asymp_ge}
     \lean{AsympGE}
     \leanok
-    $f(x)$ is asymptotically greater than $g(x)$ if there exists $x_0$ such that
+    $f$ is asymptotically greater than $g$ if there exists $x_0$ such that
     $f(x) \ge g(x)$ for all $x \ge x_0$.
 
 \end{definition}
@@ -63,12 +64,13 @@ complexity theory in Lean 4:
     \lean{asymp_neg_of_pos}
     \leanok
     \uses{def:asymp_pos, def:asymp_neg}
-    If $f(x)$ is asymptotically negative, then $-f(x)$ is asymptotically positive.
+    If $f$ is asymptotically negative, then $-f$ is asymptotically positive.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    By definition of asymptotic positivity, there exists an $x\_0$ such that $f(x) > 0$
+    for all $x > x\_0$. It follows that $-f(x) > 0$, which is what is needed.
 \end{proof}
 
 \begin{lemma}
@@ -76,12 +78,13 @@ complexity theory in Lean 4:
     \lean{asymp_pos_of_neg}
     \leanok
     \uses{def:asymp_pos, def:asymp_neg}
-    If $f(x)$ is asymptotically positive, then $-f(x)$ is asymptotically negative.
+    If $f$ is asymptotically positive, then $-f$ is asymptotically negative.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    By definition of asymptotic negativity, there exists an $x\_0$ such that $f(x) < 0$
+    for all $x > x\_0$. It follows that $-f(x) < 0$, which is what is needed.
 \end{proof}
 
 
@@ -92,12 +95,12 @@ complexity theory in Lean 4:
     \lean{asymp_le_refl}
     \leanok
     \uses{def:asymp_le}
-    $f(x)$ is asymptotically less than $f(x)$.
+    $f$ is asymptotically less than $f$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    By reflexivity of $\le$, we have $f(x) \le f(x)$ for any given $x$.
 \end{proof}
 
 \begin{lemma}
@@ -105,58 +108,59 @@ complexity theory in Lean 4:
     \lean{asymp_ge_refl}
     \leanok
     \uses{def:asymp_ge}
-    $f(x)$ is asymptotically greater than $f(x)$.
+    $f$ is asymptotically greater than $f$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
-\end{proof}
-
-\begin{lemma}
-    \label{lemma:asymp_le_of_ge}
-    \lean{asymp_le_of_ge}
-    \leanok
-    \uses{def:asymp_le, def:asymp_ge}
-    TODO
-
-\end{lemma}
-
-\begin{proof}
-    \leanok
-    TODO
+    By reflexivity of $\ge$, we have $f(x) \ge f(x)$ for any given $x$.
 \end{proof}
 
 
 \subsection{Equivalence}
 
 \begin{lemma}
+    \label{lemma:asymp_le_of_ge}
+    \lean{asymp_le_of_ge}
+    \leanok
+    \uses{def:asymp_le, def:asymp_ge}
+    Let $f$ be asymptotically less than $g$. Then $g$ is asymptotically
+    greater than $f$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    Since $f(x) \le g(x)$ for all $x > x\_0$, we have $g(x) \ge f(x)$.
+\end{proof}
+
+\begin{lemma}
     \label{lemma:asymp_ge_of_le}
     \lean{asymp_ge_of_le}
     \leanok
     \uses{def:asymp_le, def:asymp_ge}
-    TODO
-
+    Let $f$ be asymptotically greater than $g$. Then $g$ is asymptotically
+    less than $f$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    Since $f(x) \ge g(x)$ for all $x > x\_0$, we have $g(x) \le f(x)$.
 \end{proof}
 
-\begin{lemma}
-    \label{lemma:asymp_le_ge_iff}
+\begin{theorem}
+    \label{thm:asymp_le_ge_iff}
     \lean{asymp_le_ge_iff}
     \leanok
     \uses{def:asymp_le, def:asymp_ge}
-    TODO
-
-\end{lemma}
+    $f$ is asymptotically less than $g$ if and only if $g$ is asymptotically
+    greater than $f$.
+\end{theorem}
 
 \begin{proof}
     \leanok
     \uses{lemma:asymp_le_of_ge, lemma:asymp_ge_of_le}
-    TODO
+    Lemma \ref{lemma:asymp_le_of_ge} and Lemma \ref{lemma:asymp_ge_of_le} are both directions
+    respectively.
 \end{proof}
 
 
@@ -167,12 +171,19 @@ complexity theory in Lean 4:
     \lean{asymp_le_add}
     \leanok
     \uses{def:asymp_le}
-    TODO
+    Let $f\_1$ be asymptotically less than $g\_1$ and $f\_2$ be asymptotically less
+    than $g\_2$. Then $f\_1 + f\_2$ is asymptotically less than $g\_1 + g\_2$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    Let $x\_0$ be such that $f\_1(x) \le g\_1(x)$ for all $x > x\_0$ and let $y\_0$ be
+    such that $f\_2(y) \le g\_2(y)$ for all $y > y\_0$. Those exist due to assumptions.
+    Now let $z\_0 = \max \{ x\_0, y\_0 \}$. By transitivity, $f\_1(z) \le g\_1(z)$ and 
+    $f\_2(z) \le g\_2(z)$ for all $z > z\_0$. By additivity, we can merge both 
+    inequalities by adding both terms on the left side and both terms on the right side.
+    We thus get $f\_1(z) + f\_2(z) \le g\_1(z) + g\_2(z)$, which by definition and 
+    and extensionality means that $f\_1 + f\_2$ is asymptotically less than $g\_1 + g\_2$.
 \end{proof}
 
 \begin{lemma}
@@ -180,93 +191,116 @@ complexity theory in Lean 4:
     \lean{asymp_ge_add}
     \leanok
     \uses{def:asymp_ge}
-    TODO
+    Let $f\_1$ be asymptotically greater than $g\_1$ and $f\_2$ be asymptotically greater
+    than $g\_2$. Then $f\_1 + f\_2$ is asymptotically greater than $g\_1 + g\_2$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    \uses{thm:asymp_le_ge_iff, def:asymp_le, lemma:asymp_le_add}
+    By Theorem \ref{thm:asymp_le_ge_iff}, $g\_1$ and $g\_2$ are asymptotically less 
+    than $f\_1$ and $f\_2$ respectively. It suffices to show that $g\_1 + g\_2$ is
+    asymptotically less than $f\_1 + f\_2$, which is precisely the result of
+    Lemma \ref{lemma:asymp_le_add}.
 \end{proof}
 
 \begin{lemma}
     \label{lemma:asymp_ge_add_pos}
     \lean{asymp_ge_add_pos}
     \leanok
-    \uses{def:asymp_ge}
-    TODO
+    \uses{def:asymp_pos, def:asymp_ge}
+    Let $f\_1$ be asymptotically positive. Let also $f\_2$ be asymptotically greater 
+    than $g$. Then $f\_1 + f\_2$ is asymptotically greater than $g$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    By definition, there exists some $x\_0$ such that $f\_1(x) > 0$ for all $x > x\_0$.
+    We also have $f\_2(y) \ge g(y)$ for all $y > y\_0$ for some $y\_0$. Let
+    $z\_0 = \max \{ x\_0, y\_0, \}$. We now have, for all $z > z\_0$ both $f\_1(z) > 0$
+    and $f\_2(z) \ge g(z)$. By additivity, we have $f\_1(z) + f\_2(z) \ge g(z)$. 
 \end{proof}
 
 \begin{lemma}
     \label{lemma:asymp_le_add_neg}
     \lean{asymp_le_add_neg}
     \leanok
-    \uses{def:asymp_ge}
-    TODO
+    \uses{def:asymp_neg, def:asymp_ge}
+    Let $f\_1$ be asymptotically negative. Let also $f\_2$ be asymptotically less 
+    than $g$. Then $f\_1 + f\_2$ is asymptotically less than $g$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    By definition, there exists some $x\_0$ such that $f\_1(x) < 0$ for all $x > x\_0$.
+    We also have $f\_2(y) \le g(y)$ for all $y > y\_0$ for some $y\_0$. Let
+    $z\_0 = \max \{ x\_0, y\_0, \}$. We now have, for all $z > z\_0$ both $f\_1(z) < 0$
+    and $f\_2(z) \le g(z)$. By additivity, we have $f\_1(z) + f\_2(z) \le g(z)$. 
 \end{proof}
 
 
 \subsection{Scalar multiplicativity}
 
-\begin{theorem}
-    \label{thm:asymp_le_pos_mul}
-    \lean{asymp_le_pos_mul}
+\begin{lemma}
+    \label{lemma:asymp_le_pos_smul}
+    \lean{asymp_le_pos_smul}
     \leanok
     \uses{def:asymp_le}
-    TODO
-\end{theorem}
+    Let $c > 0$ and let $f$ be asymptotically less than $g$. Then $c \bu f$ is asymptotically
+    less than $c \bu g$.
+\end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    This is a simple consequence of scalar multiplication by a positive constant.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_ge_pos_mul}
-    \lean{asymp_ge_pos_mul}
+\begin{lemma}
+    \label{lemma:asymp_ge_pos_smul}
+    \lean{asymp_ge_pos_smul}
     \leanok
     \uses{def:asymp_ge}
-    TODO
-\end{theorem}
+    Let $c > 0$ and let $f$ be asymptotically greater than $g$. Then $c \bu f$ is asymptotically
+    greater than $c \bu g$.
+\end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_pos_smul}
+    By applying Theorem \ref{thm:asymp_le_ge_iff}, the proof boils down to proving that
+    $c \bu g$ is asymptotically less than $c \bu f$, which is precisely shown
+    by Lemma \ref{lemma:asymp_le_pos_smul}.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_le_neg_mul}
-    \lean{asymp_le_neg_mul}
+\begin{lemma}
+    \label{lemma:asymp_le_neg_smul}
+    \lean{asymp_le_neg_smul}
     \leanok
-    \uses{def:asymp_le}
-    TODO
-\end{theorem}
+    \uses{def:asymp_neg, def:asymp_le, def:asymp_ge}
+    Let $c < 0$ and let $f$ be asymptotically less than $g$. Then $c \bu f$ is asymptotically
+    greater than $c \bu g$.
+\end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    This is a simple consequence of the fact that if $f(x) \le g(x)$, then for a $c < 0$
+    we have $c \bu f(x) \ge c \bu g(x)$.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_ge_neg_mul}
-    \lean{asymp_ge_pos_mul}
+\begin{lemma}
+    \label{lemma:asymp_ge_neg_smul}
+    \lean{asymp_ge_neg_smul}
     \leanok
-    \uses{def:asymp_ge}
-    TODO
-\end{theorem}
+    \uses{def:asymp_neg, def:asymp_ge, def:asymp_le}
+    Let $c < 0$ and let $f$ be asymptotically greater than $g$. Then $c \bu f$ is asymptotically
+    less than $c \bu g$.
+\end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_neg_smul}
+    Similar to above, the proof is a direct application of Theorem \ref{thm:asymp_le_ge_iff}
+    and Lemma \ref{lemma:asymp_le_neg_smul}.
 \end{proof}
 
 
@@ -277,8 +311,8 @@ complexity theory in Lean 4:
     \lean{AsympBoundedAbove}
     \leanok
     \uses{def:asymp_le}
-    $f(x)$ is asymptotically bounded above by $g(x)$ if there exists a $k > 0$ 
-    such that $f(x)$ is asymptotically less than $k*g(x)$.
+    $f$ is asymptotically bounded above by $g$ if there exists a $k > 0$ 
+    such that $f$ is asymptotically less than $k*g$.
 \end{definition}
 
 \begin{definition}
@@ -286,8 +320,8 @@ complexity theory in Lean 4:
     \lean{AsympBoundedBelow}
     \leanok
     \uses{def:asymp_ge}
-    $f(x)$ is asymptotically bounded below by $g(x)$ if there exists $k > 0$ 
-    such that $f(x)$ is asymptotically greater than $k*g(x)$.
+    $f$ is asymptotically bounded below by $g$ if there exists $k > 0$ 
+    such that $f$ is asymptotically greater than $k*g$.
 \end{definition}
 
 \begin{definition}
@@ -295,8 +329,8 @@ complexity theory in Lean 4:
     \lean{AsympBounded}
     \leanok
     \uses{def:asymp_bounded_above, def:asymp_bounded_below}
-    $f(x)$ is asymptotically bounded by $g(x)$ if $f(x)$ is asymptotically bounded
-    above and below by $g(x)$.
+    $f$ is asymptotically bounded by $g$ if $f$ is asymptotically bounded
+    above and below by $g$.
 \end{definition}
 
 \begin{definition}
@@ -304,8 +338,8 @@ complexity theory in Lean 4:
     \lean{AsympRightDom}
     \leanok
     \uses{def:asymp_le}
-    $f(x)$ is asymptotically dominated by $g(x)$ if for all $k > 0$ $f(x)$ is asymptotically 
-    less than $k*g(x)$.
+    $f$ is asymptotically dominated by $g$ if for all $k > 0$ $f$ is asymptotically 
+    less than $k*g$.
 
 \end{definition}
 
@@ -314,8 +348,8 @@ complexity theory in Lean 4:
     \lean{AsympLeftDom}
     \leanok
     \uses{def:asymp_ge}
-    $f(x)$ asymptotically dominates $g(x)$ if for all $k > 0$ $(x)$ is asymptotically
-    greater than $k*g(x)$.
+    $f$ asymptotically dominates $g$ if for all $k > 0$ $(x)$ is asymptotically
+    greater than $k*g$.
 
 \end{definition}
 
@@ -324,12 +358,12 @@ complexity theory in Lean 4:
     \lean{asymp_right_dom_imp_bounded_above}
     \leanok
     \uses{def:asymp_right_dom, def:asymp_bounded_above}
-    If $f(x)$ is dominated by $g(x)$, then it's also bounded above by $g(x)$.
+    If $f$ is dominated by $g$, then it's also bounded above by $g$.
 \end{lemma}
 
 \begin{proof}
     \leanok 
-    The definitions of $f(x)$ being dominated and bounded above by $g(x)$ only differ
+    The definitions of $f$ being dominated and bounded above by $g$ only differ
     in the quantifier before $k$ at the very start (universal for the former, existential
     for the latter), so it suffices to use any positive value for $k$. We use $1$. 
     The desired result then follows directly.
@@ -340,7 +374,7 @@ complexity theory in Lean 4:
     \lean{asymp_left_dom_imp_bounded_below}
     \leanok
     \uses{def:asymp_left_dom, def:asymp_bounded_below}
-    If $f(x)$ dominates $g(x)$, then it's bounded below by $g(x)$.
+    If $f$ dominates $g$, then it's bounded below by $g$.
 \end{lemma}
 
 \begin{proof}
@@ -354,21 +388,21 @@ complexity theory in Lean 4:
     \lean{asymp_bounded_above_below_iff}
     \leanok
     \uses{def:asymp_bounded_above, def:asymp_bounded_below, def:asymp_bounded}
-    If $f(x)$ is bounded above and below by $g(x)$, then it's bounded by $g(x)$.
+    If $f$ is bounded above and below by $g$, then it's bounded by $g$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    First, assume $f(x)$ is bounded above and below by $g(x)$. There is a constant
+    First, assume $f$ is bounded above and below by $g$. There is a constant
     $k\_1 > 0$ such that $|f(x)| \le k\_1 |g(x)|$ for all $x > x\_0$ for some $x\_0$.
     Analogously, there is a constant $k\_2 > 0$ such that $|f(x)| \ge k\_2 |g(x)|$ 
-    for all $x > x\_1$ for some $x\_1$. For $f(x)$ to be properly bounded by $g(x)$ 
-    we need a single constant $x\_2$ - we take $x\_2 = \max{\{x\_1, x\_2\}}$. Since 
+    for all $x > x\_1$ for some $x\_1$. For $f$ to be properly bounded by $g$ 
+    we need a single constant $x\_2$. We take $x\_2 = \max{\{x\_1, x\_2\}}$. Since 
     $x\_2 \ge x\_0$ and $x\_2 \ge x\_1$, we have $|f(x) \le k\_1 |g(x)|$ and 
-    $|f(x)| \ge k\_2 |g(x)|$ for all $x > x\_2$, which means that $f(x)$ is bounded
-    by $g(x)$.
+    $|f(x)| \ge k\_2 |g(x)|$ for all $x > x\_2$, which means that $f$ is bounded
+    by $g$.
 
-    Conversely, assume $f(x)$ is bounded by $g(x)$.
+    Conversely, assume $f$ is bounded by $g$.
 \end{proof}
 
 \begin{lemma}
@@ -376,8 +410,8 @@ complexity theory in Lean 4:
     \lean{pos_asymp_bounded_below_imp_not_right_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_right_dom}
-    Let $f(x)$ be asymptotically positive. If $f(x)$ is bounded below by $g(x)$, then $f(x)$ 
-    is not dominated by $g(x)$.
+    Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
+    is not dominated by $g$.
 \end{lemma}
 
 \begin{proof}
@@ -389,8 +423,8 @@ complexity theory in Lean 4:
     \lean{pos_asymp_bounded_above_imp_not_left_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_left_dom}
-    Let $f(x)$ be asymptotically positive. If $f(x)$ is bounded below by $g(x)$, then $f(x)$ 
-    does not dominate $g(x)$.
+    Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
+    does not dominate $g$.
 \end{lemma}
 
 \begin{proof}
@@ -408,8 +442,8 @@ different properties. However, all properties hold for functions from a linearly
 commutative ring to a linearly ordered field. In the rest of this page, we let $R$ be a linearly 
 ordered commutative ring and $F$ be a linearly ordered field. We will also use symbols $f$, 
 $f\_1$, $f\_2$, $g$, $g\_1$ and $g\_2$ for functions $R \to F$. Also, we let $M$ be 
-a right $R$-module, which often has to only be a (distributive) left multiplicative action
-on $R$.
+a right $R$-module, although it is often only required be a (distributive) left multiplicative 
+action on $R$.
 
 
 \subsection{Asymptotic sets}
@@ -499,7 +533,7 @@ on $R$.
     \leanok
     \uses{thm:asymp_bounded_above_below_iff}
     Similarly to previous proofs, the proof is a direct application of Theorem 
-    \ref{thm:asymp_bounded_above_below_iff_bounded}.
+    \ref{thm:asymp_bounded_above_below_iff}.
 \end{proof}
 
 

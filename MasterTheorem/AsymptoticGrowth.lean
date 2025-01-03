@@ -7,7 +7,7 @@ import Mathlib.Order.Defs
 import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
 
-section Definitions
+section Defs
 
 private def AsympProperty {α : Type*} [LE α] (p : α → Prop) :=
   ∃ N, ∀ n ≥ N, p n
@@ -20,6 +20,12 @@ def AsympPos {α β : Type*} [LE α] [LT β] [Zero β] (f : α → β) :=
 
 def AsympNeg {α β : Type*} [LE α] [LT β] [Zero β] (f : α → β) :=
   AsympProperty (fun n ↦ f n < 0)
+
+def AsympNonneg {α β : Type*} [LE α] [LE β] [Zero β] (f : α → β) :=
+  AsympProperty (fun n ↦ f n ≥ 0)
+
+def AsympNonpos {α β : Type*} [LE α] [LE β] [Zero β] (f : α → β) :=
+  AsympProperty (fun n ↦ f n ≤ 0)
 
 variable {α β : Type*} [LE α] [LE β] (γ : Type*) [LT γ] [Zero γ] [SMul γ β]  
 
@@ -44,9 +50,10 @@ def AsympRightDom (f g : α → β) :=
 def AsympLeftDom (f g : α → β) :=
   ∀ k : γ, k > 0 → AsympGE f (fun n ↦ k • g n)
 
-end Definitions
+end Defs
 
-section Max
+
+section ThreeMax
 
 variable {α : Type*} [LinearOrder α]
 
@@ -62,13 +69,37 @@ private lemma le_three_max_right (a b c : α) : c ≤ a ⊔ b ⊔ c := by
   rw [max_comm]
   apply le_max_left
 
-end Max
+end ThreeMax
+
+
+section FourMax
+
+variable {α : Type*} [LinearOrder α]
+
+private lemma le_four_max_fst (a b c d : α) : a ≤ a ⊔ b ⊔ c ⊔ d := by
+  rw [max_assoc]
+  apply le_three_max_left 
+
+private lemma le_four_max_snd (a b c d : α) : b ≤ a ⊔ b ⊔ c ⊔ d := by
+  rw [max_assoc, max_assoc, max_comm]
+  apply le_three_max_left
+
+private lemma le_four_max_thrd (a b c d : α) : c ≤ a ⊔ b ⊔ c ⊔ d := by
+  rw [max_assoc, max_comm]
+  apply le_three_max_left
+
+private lemma le_four_max_frth (a b c d : α) : d ≤ a ⊔ b ⊔ c ⊔ d := by
+  rw [max_comm]
+  apply le_max_left
+
+end FourMax
+
 
 section AsympPosNeg
 
-variable {α β : Type*} [LE α] [LT β] [AddGroup β] [AddLeftStrictMono β] {f : α → β} 
+variable {α β : Type*} [LE α] [AddGroup β] {f : α → β} 
 
-lemma asymp_neg_of_pos (h : AsympPos f) : AsympNeg (fun n ↦ -f n) := by
+lemma asymp_neg_of_pos [LT β] [AddLeftStrictMono β] (h : AsympPos f) : AsympNeg (-f) := by
   rcases h with ⟨N, h⟩
   use N
   intro n hn
@@ -76,15 +107,33 @@ lemma asymp_neg_of_pos (h : AsympPos f) : AsympNeg (fun n ↦ -f n) := by
   simp
   exact h
 
-lemma asymp_pos_of_neg (h : AsympNeg f) : AsympPos (fun n ↦ -f n) := by
+lemma asymp_pos_of_neg [LT β] [AddLeftStrictMono β] (h : AsympNeg f) : AsympPos (-f) := by
   rcases h with ⟨N, h⟩
   use N
   intro n hn
   specialize h n hn
   simp
   exact h
+
+lemma asymp_nonneg_of_nonpos [LE β] [AddLeftMono β] (h : AsympNonpos f) : AsympNonneg (-f) := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  specialize h n hn
+  simp
+  exact h
+
+lemma asymp_nonpos_of_nonneg [LE β] [AddLeftMono β] (h : AsympNonneg f) : AsympNonpos (-f) := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  specialize h n hn
+  simp
+  exact h
+
 
 end AsympPosNeg
+
 
 section AsympLEGE
 
@@ -92,10 +141,10 @@ variable {α β : Type*}
 
 section Refl
 
-variable [Preorder α] [One α] [Preorder β] {f : α → β}
+variable [LE α] [Inhabited α] [Preorder β] {f : α → β}
 
 lemma asymp_le_refl : AsympLE f f := by
-  use 1
+  use default
   intro n hn
   exact le_refl _
 
@@ -103,6 +152,7 @@ lemma asymp_ge_refl : AsympGE f f := by
   exact asymp_le_refl
 
 end Refl
+
 
 section Equivalence
 
@@ -122,11 +172,12 @@ theorem asymp_le_ge_iff : AsympLE f g ↔ AsympGE g f := by
 
 end Equivalence
 
+
 section Add
 
 variable [LinearOrder α] [Preorder β] {f₁ f₂ : α → β} 
 
-lemma asymp_le_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α → β} (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (fun n ↦ f₁ n + f₂ n) (fun n ↦ g₁ n + g₂ n) := by
+lemma asymp_le_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α → β} (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (f₁ + f₂) (g₁ + g₂) := by
   rcases ha with ⟨N₁, ha⟩
   rcases hb with ⟨N₂, hb⟩
   use N₁ ⊔ N₂
@@ -136,11 +187,11 @@ lemma asymp_le_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α �
   specialize hb n (le_trans (le_max_right _ _) hn)
   exact add_le_add ha hb
 
-lemma asymp_ge_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α → β} (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympGE (fun n ↦ f₁ n + f₂ n) (fun n ↦ g₁ n + g₂ n) := by
+lemma asymp_ge_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α → β} (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympGE (f₁ + f₂) (g₁ + g₂) := by
   rw [← asymp_le_ge_iff] at *
   exact asymp_le_add ha hb
 
-lemma asymp_ge_add_pos [AddMonoid β] [AddLeftMono β] [AddRightMono β] {g : α → β} (hf : AsympPos f₂) (h : AsympGE f₁ g) : AsympGE (fun n ↦ f₁ n + f₂ n) g := by
+lemma asymp_ge_add_pos [AddMonoid β] [AddLeftMono β] [AddRightMono β] {g : α → β} (hf : AsympPos f₂) (h : AsympGE f₁ g) : AsympGE (f₁ + f₂) g := by
   rcases h with ⟨N₁, h⟩
   rcases hf with ⟨N₂, hf₂⟩
   use N₁ ⊔ N₂
@@ -152,7 +203,7 @@ lemma asymp_ge_add_pos [AddMonoid β] [AddLeftMono β] [AddRightMono β] {g : α
   simp at sum
   exact sum
 
-lemma asymp_le_add_neg [AddMonoid β] [AddLeftMono β] [AddRightMono β] {g : α → β} (hf : AsympNeg f₂) (h : AsympLE f₁ g) : AsympLE (fun n ↦ f₁ n + f₂ n) g := by
+lemma asymp_le_add_neg [AddMonoid β] [AddLeftMono β] [AddRightMono β] {g : α → β} (hf : AsympNeg f₂) (h : AsympLE f₁ g) : AsympLE (f₁ + f₂) g := by
   rcases h with ⟨N₁, h⟩
   rcases hf with ⟨N₂, hf₂⟩
   use N₁ ⊔ N₂
@@ -166,6 +217,7 @@ lemma asymp_le_add_neg [AddMonoid β] [AddLeftMono β] [AddRightMono β] {g : α
 
 end Add
 
+
 section SMul
 
 variable {γ : Type*} {f g : α → β} [Preorder α] 
@@ -174,7 +226,7 @@ section Pos
 
 variable {c : γ} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosSMulMono γ β] 
   
-theorem asymp_le_pos_mul (hc : c > 0) (h : AsympLE f g) : AsympLE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
+lemma asymp_le_pos_smul (hc : c > 0) (h : AsympLE f g) : AsympLE (c • f) (c • g) := by
   rcases h with ⟨N, h⟩
   use N
   intro n hn
@@ -182,17 +234,18 @@ theorem asymp_le_pos_mul (hc : c > 0) (h : AsympLE f g) : AsympLE (fun n ↦ c �
   specialize h n hn
   exact smul_le_smul_of_nonneg_left h (le_of_lt hc)
 
-theorem asymp_ge_pos_mul (hc : c > 0) (h : AsympGE f g) : AsympGE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
-  apply asymp_ge_of_le
-  exact asymp_le_pos_mul hc h
+lemma asymp_ge_pos_smul (hc : c > 0) (h : AsympGE f g) : AsympGE (c • f) (c • g) := by
+  rw [← asymp_le_ge_iff]
+  exact asymp_le_pos_smul hc h
 
 end Pos
+
 
 section Neg
 
 variable {c : γ} [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] [PosSMulMono γ β] [PosSMulReflectLE γ β] 
 
-theorem asymp_le_neg_mul (hc : c < 0) (h : AsympLE f g) : AsympGE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
+theorem asymp_le_neg_smul (hc : c < 0) (h : AsympLE f g) : AsympGE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
   rcases h with ⟨N, h⟩
   use N
   intro n hn
@@ -200,16 +253,45 @@ theorem asymp_le_neg_mul (hc : c < 0) (h : AsympLE f g) : AsympGE (fun n ↦ c �
   simp
   exact (smul_le_smul_iff_of_neg_left hc).2 h
 
-theorem asymp_ge_neg_mul (hc : c < 0) (h : AsympGE f g) : AsympLE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
-  apply asymp_le_of_ge
-  exact asymp_le_neg_mul hc h
+theorem asymp_ge_neg_smul (hc : c < 0) (h : AsympGE f g) : AsympLE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
+  rw [asymp_le_ge_iff]
+  exact asymp_le_neg_smul hc h
 
 end Neg
 
 end SMul
 
 
+section Mul
+
+variable [LinearOrder α] [Preorder β] [MonoidWithZero β]
+
+lemma asymp_le_nonneg_mul [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₂ : AsympNonneg f₂) (hg₁ : AsympNonneg g₁) (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
+  rcases ha with ⟨N₁, ha⟩
+  rcases hb with ⟨N₂, hb⟩
+  rcases hf₂ with ⟨N₃, hf₂⟩
+  rcases hg₁ with ⟨N₄, hg₁⟩
+  use N₁ ⊔ N₂ ⊔ N₃ ⊔ N₄
+  intro n hn
+  specialize ha n (le_trans (le_four_max_fst _ _ _ _) hn)
+  specialize hb n (le_trans (le_four_max_snd _ _ _ _) hn)
+  specialize hf₂ n (le_trans (le_four_max_thrd _ _ _ _) hn)
+  specialize hg₁ n (le_trans (le_four_max_frth _ _ _ _) hn)
+  exact mul_le_mul ha hb hf₂ hg₁
+
+lemma asymp_ge_nonneg_mul [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₂ : AsympNonneg f₂) (hg₁ : AsympNonneg g₁) (ha : AsympGE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympGE (f₁ * f₂) (g₁ * g₂) := by 
+  sorry
+
+lemma asymp_le_nonneg_mul [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonpos f₁) (hg₂ : AsympNonpos g₂) (ha : AsympGE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympGE (f₁ * f₂) (g₁ * g₂) := by 
+  sorry
+
+lemma asymp_ge_nonneg_mul [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonpos f₁) (hg₂ : AsympNonpos g₂) (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
+  sorry
+
+end Mul
+
 end AsympLEGE
+
 
 section Conversions
 
@@ -264,6 +346,7 @@ theorem asymp_bounded_above_below_iff : AsympBoundedAbove γ f g ∧ AsympBounde
   . exact asymp_bounded_imp_above_below
 
 end Simple
+
 
 section Pos
 
@@ -384,6 +467,7 @@ end Pos
 
 end Conversions
 
+
 section Properties
 
 variable {α β γ : Type*}
@@ -409,6 +493,7 @@ lemma asymp_bounded_below_refl : AsympBoundedBelow γ f f := by
   exact asymp_bounded_refl.2
 
 end Refl
+
 
 section SMul
 
@@ -443,6 +528,7 @@ theorem asymp_bounded_pos_smul (hc : c > 0) (h : AsympBounded γ f g) : AsympBou
   . exact asymp_bounded_below_pos_smul hc hb
 
 end Pos
+
 
 section Neg
 
@@ -485,12 +571,13 @@ end Neg
 
 end SMul
 
+
 section Add
 
 variable {α β γ : Type*} [LinearOrder α] [Preorder β] [AddCommMonoid β] [AddLeftMono β] 
          [LinearOrderedSemiring γ] [Module γ β] {f₁ f₂ g : α → β} 
 
-lemma asymp_bounded_above_add (ha : AsympBoundedAbove γ f₁ g) (hb : AsympBoundedAbove γ f₂ g) : AsympBoundedAbove γ (fun n ↦ f₁ n + f₂ n) g := by
+lemma asymp_bounded_above_add (ha : AsympBoundedAbove γ f₁ g) (hb : AsympBoundedAbove γ f₂ g) : AsympBoundedAbove γ (f₁ + f₂) g := by
   rcases ha with ⟨k₁, k₁_pos, ha⟩
   rcases hb with ⟨k₂, k₂_pos, hb⟩
   use k₁ + k₂
@@ -499,7 +586,7 @@ lemma asymp_bounded_above_add (ha : AsympBoundedAbove γ f₁ g) (hb : AsympBoun
   . simp [add_smul]
     exact asymp_le_add ha hb
 
-lemma asymp_bounded_below_add (ha : AsympBoundedBelow γ f₁ g) (hb : AsympBoundedBelow γ f₂ g) : AsympBoundedBelow γ (fun n ↦ f₁ n + f₂ n) g := by
+lemma asymp_bounded_below_add (ha : AsympBoundedBelow γ f₁ g) (hb : AsympBoundedBelow γ f₂ g) : AsympBoundedBelow γ (f₁ + f₂) g := by
   rcases ha with ⟨k₁, k₁_pos, ha⟩
   rcases hb with ⟨k₂, k₂_pos, hb⟩
   use k₁ + k₂
@@ -508,43 +595,43 @@ lemma asymp_bounded_below_add (ha : AsympBoundedBelow γ f₁ g) (hb : AsympBoun
   . simp [add_smul]
     exact asymp_ge_add ha hb
 
-theorem asymp_bounded_add (ha : AsympBounded γ f₁ g) (hb : AsympBounded γ f₂ g) : AsympBounded γ (fun n ↦ f₁ n + f₂ n) g := by
+theorem asymp_bounded_add (ha : AsympBounded γ f₁ g) (hb : AsympBounded γ f₂ g) : AsympBounded γ (f₁ + f₂) g := by
   rcases ha with ⟨ha₁, ha₂⟩
   rcases hb with ⟨hb₁, hb₂⟩
   constructor
   . exact asymp_bounded_above_add ha₁ hb₁
   . exact asymp_bounded_below_add ha₂ hb₂
 
-lemma asymp_bounded_below_add_pos (hf : AsympPos f₂) (h : AsympBoundedBelow γ f₁ g) : AsympBoundedBelow γ (fun n ↦ f₁ n + f₂ n) g := by
+lemma asymp_bounded_below_add_pos (hf : AsympPos f₂) (h : AsympBoundedBelow γ f₁ g) : AsympBoundedBelow γ (f₁ + f₂) g := by
   rcases h with ⟨k, k_pos, h⟩
   use k
   constructor
   . exact k_pos
   . exact asymp_ge_add_pos hf h
 
-lemma asymp_bounded_above_add_neg (hf : AsympNeg f₂) (h : AsympBoundedAbove γ f₁ g) : AsympBoundedAbove γ (fun n ↦ f₁ n + f₂ n) g := by
+lemma asymp_bounded_above_add_neg (hf : AsympNeg f₂) (h : AsympBoundedAbove γ f₁ g) : AsympBoundedAbove γ (f₁ + f₂) g := by
   rcases h with ⟨k, k_pos, h⟩
   use k
   constructor
   . exact k_pos
   . exact asymp_le_add_neg hf h
 
-theorem asymp_bounded_add_pos_above (hf : AsympPos f₂) (ha : AsympBounded γ f₁ g) (hb : AsympBoundedAbove γ f₂ g) : AsympBounded γ (fun n ↦ f₁ n + f₂ n) g := by
+theorem asymp_bounded_add_pos_above (hf : AsympPos f₂) (ha : AsympBounded γ f₁ g) (hb : AsympBoundedAbove γ f₂ g) : AsympBounded γ (f₁ + f₂) g := by
   rcases ha with ⟨ha₁, ha₂⟩
   constructor
   . exact asymp_bounded_above_add ha₁ hb
   . exact asymp_bounded_below_add_pos hf ha₂
 
-theorem asymp_bounded_add_neg_below (hf : AsympNeg f₂) (ha : AsympBounded γ f₁ g) (hb : AsympBoundedBelow γ f₂ g) : AsympBounded γ (fun n ↦ f₁ n + f₂ n) g := by
+theorem asymp_bounded_add_neg_below (hf : AsympNeg f₂) (ha : AsympBounded γ f₁ g) (hb : AsympBoundedBelow γ f₂ g) : AsympBounded γ (f₁ + f₂) g := by
   rcases ha with ⟨ha₁, ha₂⟩
   constructor
   . exact asymp_bounded_above_add_neg hf ha₁
   . exact asymp_bounded_below_add ha₂ hb
 
-theorem asymp_bounded_add_pos_right_dom (hf : AsympPos f₂) (ha : AsympBounded γ f₁ g) (hb : AsympRightDom γ f₂ g) : AsympBounded γ (fun n ↦ f₁ n + f₂ n) g :=
+theorem asymp_bounded_add_pos_right_dom (hf : AsympPos f₂) (ha : AsympBounded γ f₁ g) (hb : AsympRightDom γ f₂ g) : AsympBounded γ (f₁ + f₂) g :=
   asymp_bounded_add_pos_above hf ha (asymp_right_dom_imp_bounded_above hb)
 
-theorem asymp_bounded_add_neg_left_dom (hf : AsympNeg f₂) (ha : AsympBounded γ f₁ g) (hb : AsympLeftDom γ f₂ g) : AsympBounded γ (fun n ↦ f₁ n + f₂ n) g :=
+theorem asymp_bounded_add_neg_left_dom (hf : AsympNeg f₂) (ha : AsympBounded γ f₁ g) (hb : AsympLeftDom γ f₂ g) : AsympBounded γ (f₁ + f₂) g :=
   asymp_bounded_add_neg_below hf ha (asymp_left_dom_imp_bounded_below hb)
 
 end Add

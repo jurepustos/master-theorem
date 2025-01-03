@@ -28,6 +28,7 @@ def ω (g : α → β) :=
 
 end Defs
 
+
 section Conversions
 
 variable {α β γ : Type*} {f g : α → β} 
@@ -67,6 +68,7 @@ theorem O_and_Ω_iff_Θ : f ∈ @O _ _ γ _ _ _ _ _ g ∧ f ∈ @Ω _ _ γ _ _ _
   . exact Θ_imp_O_Ω h
 
 end Simple
+
 
 section Pos
 
@@ -121,6 +123,7 @@ end Pos
 
 end Conversions
 
+
 section Properties
 
 variable {α β γ : Type*}
@@ -141,6 +144,7 @@ theorem Ω_refl : f ∈ @Ω _ _ γ _ _ _ _ _ f := by
 
 end Refl
 
+
 section SMul
 
 variable {c : γ} {f g : α → β} 
@@ -160,6 +164,7 @@ theorem Θ_pos_smul (hc : c > 0) (h : f ∈ @Θ _ _ γ _ _ _ _ _ g) : (fun n ↦
 
 end Pos
 
+
 section Neg
 
 variable [Preorder α] [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] 
@@ -177,6 +182,7 @@ theorem Θ_neg_smul (hc : c < 0) (h : f ∈ @Θ _ _ γ _ _ _ _ _ g) : (fun n ↦
 end Neg
 
 end SMul
+
 
 section Add
 
