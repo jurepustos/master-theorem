@@ -1,4 +1,5 @@
 import Mathlib.Tactic.Linarith
+import Mathlib.Algebra.Ring.Pi
 import Mathlib.Algebra.Group.Defs
 import Mathlib.Algebra.Order.Group.Action
 import Mathlib.Algebra.Module.Defs
@@ -131,6 +132,19 @@ lemma asymp_nonpos_of_nonneg [LE β] [AddLeftMono β] (h : AsympNonneg f) : Asym
   simp
   exact h
 
+lemma asymp_nonpos_of_neg [Preorder β] [AddLeftMono β] (h : AsympNeg f) : AsympNonpos f := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  specialize h n hn
+  exact le_of_lt h
+
+lemma asymp_nonneg_of_pos [Preorder β] [AddLeftMono β] (h : AsympPos f) : AsympNonneg f := by
+  rcases h with ⟨N, h⟩
+  use N
+  intro n hn
+  specialize h n hn
+  exact le_of_lt h
 
 end AsympPosNeg
 
@@ -264,29 +278,20 @@ end SMul
 
 section Mul
 
-variable [LinearOrder α] [Preorder β] [MonoidWithZero β]
+variable [LinearOrder α] [Preorder β]
 
-lemma asymp_le_nonneg_mul [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₂ : AsympNonneg f₂) (hg₁ : AsympNonneg g₁) (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
+lemma asymp_le_nonneg_mul_nonneg [MonoidWithZero β] [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonneg f₁) (hf₂ : AsympNonneg f₂) (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
   rcases ha with ⟨N₁, ha⟩
   rcases hb with ⟨N₂, hb⟩
-  rcases hf₂ with ⟨N₃, hf₂⟩
-  rcases hg₁ with ⟨N₄, hg₁⟩
+  rcases hf₁ with ⟨N₃, hf₁⟩
+  rcases hf₂ with ⟨N₄, hf₂⟩
   use N₁ ⊔ N₂ ⊔ N₃ ⊔ N₄
   intro n hn
   specialize ha n (le_trans (le_four_max_fst _ _ _ _) hn)
   specialize hb n (le_trans (le_four_max_snd _ _ _ _) hn)
-  specialize hf₂ n (le_trans (le_four_max_thrd _ _ _ _) hn)
-  specialize hg₁ n (le_trans (le_four_max_frth _ _ _ _) hn)
-  exact mul_le_mul ha hb hf₂ hg₁
-
-lemma asymp_ge_nonneg_mul [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₂ : AsympNonneg f₂) (hg₁ : AsympNonneg g₁) (ha : AsympGE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympGE (f₁ * f₂) (g₁ * g₂) := by 
-  sorry
-
-lemma asymp_le_nonneg_mul [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonpos f₁) (hg₂ : AsympNonpos g₂) (ha : AsympGE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympGE (f₁ * f₂) (g₁ * g₂) := by 
-  sorry
-
-lemma asymp_ge_nonneg_mul [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonpos f₁) (hg₂ : AsympNonpos g₂) (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
-  sorry
+  specialize hf₁ n (le_trans (le_four_max_thrd _ _ _ _) hn)
+  specialize hf₂ n (le_trans (le_four_max_frth _ _ _ _) hn)
+  exact mul_le_mul ha hb hf₂ (le_trans hf₁ ha)
 
 end Mul
 
@@ -509,7 +514,7 @@ lemma asymp_bounded_above_pos_smul (hc : c > 0) (h : AsympBoundedAbove γ f g) :
   constructor
   . exact mul_pos hc k_pos
   . simp [mul_smul]
-    exact asymp_le_pos_mul hc h
+    exact asymp_le_pos_smul hc h
 
 lemma asymp_bounded_below_pos_smul (hc : c > 0) (h : AsympBoundedBelow γ f g) : AsympBoundedBelow γ (fun n ↦ c • f n) g := by
   rcases h with ⟨k, k_pos, h⟩ 
@@ -519,7 +524,7 @@ lemma asymp_bounded_below_pos_smul (hc : c > 0) (h : AsympBoundedBelow γ f g) :
   . rw [← asymp_le_ge_iff]
     rw [← asymp_le_ge_iff] at h
     simp [mul_smul]
-    exact asymp_le_pos_mul hc h
+    exact asymp_le_pos_smul hc h
 
 theorem asymp_bounded_pos_smul (hc : c > 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) g := by
   rcases h with ⟨ha, hb⟩
@@ -546,7 +551,7 @@ lemma asymp_bounded_above_neg_smul (hc : c < 0) (h : AsympBoundedAbove γ f g) :
       rcases this with ⟨N, h⟩
       use N
     }
-    exact asymp_le_neg_mul hc h
+    exact asymp_le_neg_smul hc h
 
 lemma asymp_bounded_below_neg_smul (hc : c < 0) (h : AsympBoundedBelow γ f g) : AsympBoundedAbove γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
   rcases h with ⟨k, k_pos, h⟩  
@@ -559,7 +564,7 @@ lemma asymp_bounded_below_neg_smul (hc : c < 0) (h : AsympBoundedBelow γ f g) :
       rcases this with ⟨N, h⟩
       use N
     }
-    exact asymp_ge_neg_mul hc h
+    exact asymp_ge_neg_smul hc h
 
 theorem asymp_bounded_neg_smul (hc : c < 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
   rcases h with ⟨ha, hb⟩
