@@ -246,8 +246,8 @@ complexity theory in Lean 4:
     \lean{asymp_le_pos_smul}
     \leanok
     \uses{def:asymp_le}
-    Let $c > 0$ and let $f$ be asymptotically less than $g$. Then $c \bu f$ is asymptotically
-    less than $c \bu g$.
+    Let $c > 0$ and let $f$ be asymptotically less than $g$. Then $c \cdot f$ is asymptotically
+    less than $c \cdot g$.
 \end{lemma}
 
 \begin{proof}
@@ -260,15 +260,15 @@ complexity theory in Lean 4:
     \lean{asymp_ge_pos_smul}
     \leanok
     \uses{def:asymp_ge}
-    Let $c > 0$ and let $f$ be asymptotically greater than $g$. Then $c \bu f$ is asymptotically
-    greater than $c \bu g$.
+    Let $c > 0$ and let $f$ be asymptotically greater than $g$. Then $c \cdot f$ is asymptotically
+    greater than $c \cdot g$.
 \end{lemma}
 
 \begin{proof}
     \leanok
     \uses{thm:asymp_le_ge_iff, lemma:asymp_le_pos_smul}
     By applying Theorem \ref{thm:asymp_le_ge_iff}, the proof boils down to proving that
-    $c \bu g$ is asymptotically less than $c \bu f$, which is precisely shown
+    $c \cdot g$ is asymptotically less than $c \cdot f$, which is precisely shown
     by Lemma \ref{lemma:asymp_le_pos_smul}.
 \end{proof}
 
@@ -277,14 +277,14 @@ complexity theory in Lean 4:
     \lean{asymp_le_neg_smul}
     \leanok
     \uses{def:asymp_neg, def:asymp_le, def:asymp_ge}
-    Let $c < 0$ and let $f$ be asymptotically less than $g$. Then $c \bu f$ is asymptotically
-    greater than $c \bu g$.
+    Let $c < 0$ and let $f$ be asymptotically less than $g$. Then $c \cdot f$ is asymptotically
+    greater than $c \cdot g$.
 \end{lemma}
 
 \begin{proof}
     \leanok
     This is a simple consequence of the fact that if $f(x) \le g(x)$, then for a $c < 0$
-    we have $c \bu f(x) \ge c \bu g(x)$.
+    we have $c \cdot f(x) \ge c \cdot g(x)$.
 \end{proof}
 
 \begin{lemma}
@@ -292,8 +292,8 @@ complexity theory in Lean 4:
     \lean{asymp_ge_neg_smul}
     \leanok
     \uses{def:asymp_neg, def:asymp_ge, def:asymp_le}
-    Let $c < 0$ and let $f$ be asymptotically greater than $g$. Then $c \bu f$ is asymptotically
-    less than $c \bu g$.
+    Let $c < 0$ and let $f$ be asymptotically greater than $g$. Then $c \cdot f$ is asymptotically
+    less than $c \cdot g$.
 \end{lemma}
 
 \begin{proof}
