@@ -280,7 +280,7 @@ section Mul
 
 variable [LinearOrder α] [Preorder β]
 
-lemma asymp_le_nonneg_mul_nonneg [MonoidWithZero β] [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonneg f₁) (hf₂ : AsympNonneg f₂) (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
+lemma asymp_le_nonneg_mul [MonoidWithZero β] [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonneg f₁) (hf₂ : AsympNonneg f₂) (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
   rcases ha with ⟨N₁, ha⟩
   rcases hb with ⟨N₂, hb⟩
   rcases hf₁ with ⟨N₃, hf₁⟩
@@ -292,6 +292,24 @@ lemma asymp_le_nonneg_mul_nonneg [MonoidWithZero β] [MulPosMono β] [PosMulMono
   specialize hf₁ n (le_trans (le_four_max_thrd _ _ _ _) hn)
   specialize hf₂ n (le_trans (le_four_max_frth _ _ _ _) hn)
   exact mul_le_mul ha hb hf₂ (le_trans hf₁ ha)
+
+lemma asymp_ge_nonpos_mul [Semiring β] [ExistsAddOfLE β] [AddRightMono β] [AddRightReflectLE β] [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonpos f₁) (hf₂ : AsympNonpos f₂) (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
+  rcases ha with ⟨N₁, ha⟩
+  rcases hb with ⟨N₂, hb⟩
+  rcases hf₁ with ⟨N₃, hf₁⟩
+  rcases hf₂ with ⟨N₄, hf₂⟩
+  use N₁ ⊔ N₂ ⊔ N₃ ⊔ N₄
+  intro n hn
+  specialize ha n (le_trans (le_four_max_fst _ _ _ _) hn)
+  specialize hb n (le_trans (le_four_max_snd _ _ _ _) hn)
+  specialize hf₁ n (le_trans (le_four_max_thrd _ _ _ _) hn)
+  specialize hf₂ n (le_trans (le_four_max_frth _ _ _ _) hn)
+  have hg₁ : g₁ n ≤ 0 := le_trans ha hf₁
+  have hg₂ : g₂ n ≤ 0 := le_trans hb hf₂
+
+  simp
+  simp at ha hb
+  exact mul_le_mul_of_nonpos_of_nonpos ha hb hg₁ hf₂
 
 end Mul
 
