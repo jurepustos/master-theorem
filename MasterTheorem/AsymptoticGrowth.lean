@@ -658,4 +658,35 @@ theorem asymp_bounded_add_neg_left_dom (hf : AsympNeg f₂) (ha : AsympBounded �
 
 end Add
 
+
+section Mul
+
+variable [LinearOrder α] [Preorder β] [Semiring β] [Preorder γ] [Ring γ] [MulAction γ β]
+
+theorem asymp_bounded_above_nonneg_mul [MulPosMono β] [PosMulMono β] [PosMulStrictMono γ] [IsScalarTower γ (α → β) (α → β)] [IsScalarTower γ γ (α → β)] [SMulCommClass γ (α → β) (α → β)] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonneg f₁) (hf₂ : AsympNonneg f₂) (ha : AsympBoundedAbove γ f₁ g₁) (hb : AsympBoundedAbove γ f₂ g₂) : AsympBoundedAbove γ (f₁ * f₂) (g₁ * g₂) := by
+  rcases ha with ⟨k₁, k₁_pos, ha⟩
+  rcases hb with ⟨k₂, k₂_pos, hb⟩
+  use k₁ * k₂
+  constructor
+  . exact mul_pos k₁_pos k₂_pos
+  . suffices AsympLE (f₁ * f₂) (k₁ • g₁ * k₂ • g₂) by {
+      rw [smul_mul_smul_comm k₁ g₁ k₂ g₂] at this 
+      exact this
+    } 
+    exact asymp_le_nonneg_mul hf₁ hf₂ ha hb
+
+theorem asymp_bounded_below_nonpos_mul [ExistsAddOfLE β] [AddRightMono β] [AddRightReflectLE β] [MulPosMono β] [PosMulMono β] [PosMulStrictMono γ] [IsScalarTower γ (α → β) (α → β)] [IsScalarTower γ γ (α → β)] [SMulCommClass γ (α → β) (α → β)] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonpos f₁) (hf₂ : AsympNonpos f₂) (ha : AsympBoundedBelow γ f₁ g₁) (hb : AsympBoundedBelow γ f₂ g₂) : AsympBoundedAbove γ (f₁ * f₂) (g₁ * g₂) := by
+  rcases ha with ⟨k₁, k₁_pos, ha⟩
+  rcases hb with ⟨k₂, k₂_pos, hb⟩
+  use k₁ * k₂
+  constructor
+  . exact mul_pos k₁_pos k₂_pos
+  . suffices AsympLE (f₁ * f₂) (k₁ • g₁ * k₂ • g₂) by {
+      rw [smul_mul_smul_comm k₁ g₁ k₂ g₂] at this 
+      exact this
+    } 
+    exact asymp_ge_nonpos_mul hf₁ hf₂ ha hb
+
+end Mul
+
 end Properties
