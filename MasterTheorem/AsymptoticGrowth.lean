@@ -5,7 +5,6 @@ import Mathlib.Algebra.Order.Group.Action
 import Mathlib.Algebra.Module.Defs
 import Mathlib.Algebra.Order.Module.Defs
 import Mathlib.Order.Defs
-import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
 
 section Defs
@@ -280,7 +279,7 @@ section Mul
 
 variable [LinearOrder α] [Preorder β]
 
-lemma asymp_le_nonneg_mul [MonoidWithZero β] [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonneg f₁) (hf₂ : AsympNonneg f₂) (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
+theorem asymp_le_nonneg_mul [MonoidWithZero β] [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonneg f₁) (hf₂ : AsympNonneg f₂) (ha : AsympLE f₁ g₁) (hb : AsympLE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
   rcases ha with ⟨N₁, ha⟩
   rcases hb with ⟨N₂, hb⟩
   rcases hf₁ with ⟨N₃, hf₁⟩
@@ -293,7 +292,7 @@ lemma asymp_le_nonneg_mul [MonoidWithZero β] [MulPosMono β] [PosMulMono β] {f
   specialize hf₂ n (le_trans (le_four_max_frth _ _ _ _) hn)
   exact mul_le_mul ha hb hf₂ (le_trans hf₁ ha)
 
-lemma asymp_ge_nonpos_mul [Semiring β] [ExistsAddOfLE β] [AddRightMono β] [AddRightReflectLE β] [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonpos f₁) (hf₂ : AsympNonpos f₂) (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
+theorem asymp_ge_nonpos_mul [Semiring β] [ExistsAddOfLE β] [AddRightMono β] [AddRightReflectLE β] [MulPosMono β] [PosMulMono β] {f₁ f₂ g₁ g₂ : α → β} (hf₁ : AsympNonpos f₁) (hf₂ : AsympNonpos f₂) (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : AsympLE (f₁ * f₂) (g₁ * g₂) := by 
   rcases ha with ⟨N₁, ha⟩
   rcases hb with ⟨N₂, hb⟩
   rcases hf₁ with ⟨N₃, hf₁⟩

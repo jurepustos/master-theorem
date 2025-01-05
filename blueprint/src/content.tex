@@ -24,7 +24,7 @@ complexity theory in Lean 4:
     \label{def:asymp_pos}
     \lean{AsympPos}
     \leanok
-    $f$ is asymptotically positive if there exists $x_0$ such that $f(x) \ge 0$
+    $f$ is asymptotically positive if there exists $x_0$ such that $f(x) > 0$
     for all $x \ge x_0$.
 
 \end{definition}
@@ -32,6 +32,24 @@ complexity theory in Lean 4:
 \begin{definition}
     \label{def:asymp_neg}
     \lean{AsympNeg}
+    \leanok
+    $f$ is asymptotically negative if there exists $x_0$ such that $f(x) < 0$
+    for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_nonpos}
+    \lean{AsympNonpos}
+    \leanok
+    $f$ is asymptotically nonpositive if there exists $x_0$ such that $f(x) \ge 0$
+    for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_nonneg}
+    \lean{AsympNonneg}
     \leanok
     $f$ is asymptotically negative if there exists $x_0$ such that $f(x) \le 0$
     for all $x \ge x_0$.
@@ -301,6 +319,44 @@ complexity theory in Lean 4:
     \uses{thm:asymp_le_ge_iff, lemma:asymp_le_neg_smul}
     Similar to above, the proof is a direct application of Theorem \ref{thm:asymp_le_ge_iff}
     and Lemma \ref{lemma:asymp_le_neg_smul}.
+\end{proof}
+
+
+\subsection{Multiplicativity}
+
+\begin{theorem}
+    \label{thm:asymp_le_nonneg_mul}
+    \lean{asymp_le_nonneg_mul}
+    \leanok
+    \uses{def:asymp_nonneg, def:asymp_le}
+    Let $f\_1$ and $f\_2$ be asymptotically nonnegative functions. If f$\_1$ is asymptotically
+    less than $g\_1$ and $f\_2$ is asymptotically less than $g\_2$, then $f\_1 * f\_2$
+    is asymptotically less than $g\_1 * g\_2$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    Asymptotic properties give constants $x\_i, 0 \le i \le 3$, above which each property holds.
+    We take $x_M = \max_{0 \le i \le 3} x_i$ as the constant of the needed property. 
+    For all $x > x_M$, all given asymptotic properties hold, so the wanted property holds
+    by properties of the inequality relation.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_ge_nonpos_mul}
+    \lean{asymp_ge_nonpos_mul}
+    \leanok
+    \uses{def:asymp_nonpos, def:asymp_ge, def:asymp_le}
+    Let $f\_1$ and $f\_2$ be asymptotically nonpositive functions. If f$\_1$ is asymptotically
+    greater than $g\_1$ and $f\_2$ is asymptotically greater than $g\_2$, then $f\_1 * f\_2$
+    is asymptotically less than $g\_1 * g\_2$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    Analogously to above, the proof comes from taking the maximum of asymptotic constants 
+    as the asymptotic constant for the wanted property. This time, however, the inequality
+    flips due to nonpositive terms.
 \end{proof}
 
 
