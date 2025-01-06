@@ -50,13 +50,11 @@ lemma ω_imp_Ω (h : f ∈ @ω _ _ γ _ _ _ _ _ g) : f ∈ @Ω _ _ γ _ _ _ _ _ 
   use k
 
 lemma O_Ω_imp_Θ (hO : f ∈ @O _ _ γ _ _ _ _ _ g) (hΩ : f ∈ @Ω _ _ γ _ _ _ _ _ g) : f ∈ @Θ _ _ γ _ _ _ _ _ g := by
-  have ha : AsympBoundedAbove γ f g := hO
-  have hb : AsympBoundedBelow γ f g := hΩ
-  have hbound := asymp_bounded_above_below_imp ha hb
+  have hbound := asymp_bounded_above_below_iff.1 (And.intro hO hΩ)
   constructor <;> tauto
 
 lemma Θ_imp_O_Ω (hΘ : f ∈ @Θ _ _ γ _ _ _ _ _ g) : f ∈ @O _ _ γ _ _ _ _ _ g ∧ f ∈ @Ω _ _ γ _ _ _ _ _ g := by
-  have hbound := asymp_bounded_imp_above_below hΘ
+  have hbound := asymp_bounded_above_below_iff.2 hΘ
   rcases hbound with ⟨⟨k₁, _⟩, ⟨k₂, _⟩⟩
   constructor 
   . use k₁
@@ -117,7 +115,7 @@ theorem not_pos_o_and_ω [PosSMulStrictMono γ β] (hg : AsympPos g) : ¬(f ∈ 
   rcases h with ⟨ho, hω⟩
   have ha : AsympRightDom γ f g := ho
   have hb : AsympLeftDom γ f g := hω
-  exact not_pos_asymp_left_dom_and_right_dom hg (And.intro hb ha)
+  exact not_pos_asymp_left_and_right_dom hg (And.intro hb ha)
 
 end Pos
 

@@ -355,8 +355,9 @@ complexity theory in Lean 4:
 \begin{proof}
     \leanok
     Analogously to above, the proof comes from taking the maximum of asymptotic constants 
-    as the asymptotic constant for the wanted property. This time, however, the inequality
-    flips due to nonpositive terms.
+    as the asymptotic lower bound for nonpositivity. This time, however, the inequality
+    flips due to nonpositive terms in $f\_1(n) * f\_2(n) \le g\_1(n) * g\_2(n)$, since 
+    $n$ is larger than all of the asymptotic lower bounds.
 \end{proof}
 
 
@@ -421,7 +422,7 @@ complexity theory in Lean 4:
     \leanok 
     The definitions of $f$ being dominated and bounded above by $g$ only differ
     in the quantifier before $k$ at the very start (universal for the former, existential
-    for the latter), so it suffices to use any positive value for $k$. We use $1$. 
+    for the latter), so it suffices to use any positive value for $k$. We can use $1$. 
     The desired result then follows directly.
 \end{proof}
 
@@ -435,53 +436,109 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    The proof is entirely analogous to the proof of Theorem 
-    \ref{lemma:asymp_right_dom_imp_bounded_above}, again using the value 
-    $1$ for $k$.
+    The proof is entirely analogous to the previous proof.
 \end{proof}
+
 \begin{theorem}
     \label{thm:asymp_bounded_above_below_iff}
     \lean{asymp_bounded_above_below_iff}
     \leanok
     \uses{def:asymp_bounded_above, def:asymp_bounded_below, def:asymp_bounded}
-    If $f$ is bounded above and below by $g$, then it's bounded by $g$.
+    $f$ is asymptotically bounded above and below by $g$ if and only if $f$ is 
+    asymptotically bounded by $g$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    First, assume $f$ is bounded above and below by $g$. There is a constant
-    $k\_1 > 0$ such that $|f(x)| \le k\_1 |g(x)|$ for all $x > x\_0$ for some $x\_0$.
-    Analogously, there is a constant $k\_2 > 0$ such that $|f(x)| \ge k\_2 |g(x)|$ 
-    for all $x > x\_1$ for some $x\_1$. For $f$ to be properly bounded by $g$ 
-    we need a single constant $x\_2$. We take $x\_2 = \max{\{x\_1, x\_2\}}$. Since 
-    $x\_2 \ge x\_0$ and $x\_2 \ge x\_1$, we have $|f(x) \le k\_1 |g(x)|$ and 
-    $|f(x)| \ge k\_2 |g(x)|$ for all $x > x\_2$, which means that $f$ is bounded
-    by $g$.
-
-    Conversely, assume $f$ is bounded by $g$.
+    Both directions follow directly from the definition of asymptotic boundedness. 
 \end{proof}
 
 \begin{lemma}
-    \label{thm:asymp_bounded_below_imp_not_right_dom}
+    \label{lemma:not_pos_asymp_bounded_below_and_right_dom}
+    \lean{not_pos_asymp_bounded_below_and_right_dom}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_right_dom}
+    TODO
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:pos_asymp_bounded_below_imp_not_right_dom}
     \lean{pos_asymp_bounded_below_imp_not_right_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_right_dom}
     Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
     is not dominated by $g$.
-\end{lemma}
+\end{theorem}
 
 \begin{proof}
+    \leanok
+    TODO 
+\end{proof}
+
+\begin{theorem}
+    \label{thm:pos_asymp_right_dom_imp_not_bounded_below}
+    \lean{pos_asymp_right_dom_imp_not_bounded_below}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_right_dom}
+    Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
+    is not dominated by $g$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
     TODO 
 \end{proof}
 
 \begin{lemma}
-    \label{thm:asymp_bounded_above_imp_not_left_dom}
+    \label{lemma:not_pos_asymp_bounded_above_and_left_dom}
+    \lean{not_pos_asymp_bounded_above_and_left_dom}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_left_dom}
+    TODO
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO 
+\end{proof}
+
+\begin{theorem}
+    \label{thm:pos_asymp_bounded_above_imp_not_left_dom}
     \lean{pos_asymp_bounded_above_imp_not_left_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_left_dom}
     Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
     does not dominate $g$.
-\end{lemma}
+\end{theorem}
+
+\begin{proof}
+    TODO 
+\end{proof}
+
+\begin{theorem}
+    \label{thm:pos_asymp_left_dom_imp_not_bounded_above}
+    \lean{pos_asymp_left_dom_imp_not_bounded_above}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_left_dom}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    TODO 
+\end{proof}
+
+\begin{theorem}
+    \label{thm:not_pos_asymp_left_and_right_dom}
+    \lean{not_pos_asymp_left_and_right_dom}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_left_dom, def:asymp_right_dom}
+    TODO
+\end{theorem}
 
 \begin{proof}
     TODO 
