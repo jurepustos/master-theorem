@@ -131,6 +131,39 @@ theorem asymp_le_ge_iff : AsympLE f g ↔ AsympGE g f := by
 end Equivalence
 
 
+section PosNeg
+
+variable [LinearOrder α] [Preorder β] [Zero β] {f g : α → β}
+
+lemma asymp_pos_of_pos_le (hf : AsympPos f) (h : AsympLE f g) : AsympPos g := by
+  rcases hf with ⟨N₁, hf⟩
+  rcases h with ⟨N₂, h⟩
+  use N₁ ⊔ N₂
+  intro n hn
+  specialize hf n (le_trans (le_max_left N₁ N₂) hn)
+  specialize h n (le_trans (le_max_right N₁ N₂) hn)
+  exact lt_of_lt_of_le hf h
+
+lemma asymp_neg_of_le_neg (hg : AsympNeg g) (h : AsympLE f g) : AsympNeg f := by
+  rcases hg with ⟨N₁, hg⟩
+  rcases h with ⟨N₂, h⟩
+  use N₁ ⊔ N₂
+  intro n hn
+  specialize hg n (le_trans (le_max_left N₁ N₂) hn)
+  specialize h n (le_trans (le_max_right N₁ N₂) hn)
+  exact lt_of_le_of_lt h hg
+
+lemma asymp_neg_of_neg_ge (hf : AsympNeg f) (h : AsympGE f g) : AsympNeg g := by
+  rw [← asymp_le_ge_iff] at h
+  exact asymp_neg_of_le_neg hf h
+
+lemma asymp_pos_of_ge_pos (hg : AsympPos g) (h : AsympGE f g) : AsympPos f := by
+  rw [← asymp_le_ge_iff] at h
+  exact asymp_pos_of_pos_le hg h
+
+end PosNeg
+
+
 section Add
 
 variable [LinearOrder α] [Preorder β] {f₁ f₂ : α → β} 

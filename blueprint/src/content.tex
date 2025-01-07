@@ -1,7 +1,3 @@
-% In this file you should put the actual content of the blueprint.
-% It will be used both by the web and the print version.
-% It should *not* include the \begin{document}
-%
 % If you want to split the blueprint content into several files then
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
@@ -56,8 +52,8 @@ complexity theory in Lean 4:
 
 \end{definition}
 
-\begin{definition}
-    \label{def:asymp_le}
+\begin{definition} 
+    \label{def:asymp_le} 
     \lean{AsympLE}
     \leanok
     $f$ is asymptotically less than $g$ if there exists $x_0$ such that
@@ -75,7 +71,7 @@ complexity theory in Lean 4:
 \end{definition}
 
 
-\subsection{Positivity and negativity}
+\section{Asymptotic positivity and negativity}
 
 \begin{lemma}
     \label{lemma:asymp_neg_of_pos}
@@ -103,6 +99,75 @@ complexity theory in Lean 4:
     \leanok
     By definition of asymptotic negativity, there exists an $x\_0$ such that $f(x) < 0$
     for all $x > x\_0$. It follows that $-f(x) < 0$, which is what is needed.
+\end{proof}
+
+
+\section{Asymptotic inequality}
+
+\subsection{Positivity and negativity}
+
+\begin{lemma}
+    \label{lemma:asymp_pos_of_pos_le}
+    \lean{asymp_pos_of_pos_le}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_le}
+    Let $f$ be asymptotically positive and let it be asymptotically less than $g$.
+    Then $g$ is asymptotically positive.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    Assume with no loss of generality that $f(x) > 0$ for all $x > x\_0$ and that
+    $f(y) \le g(y)$ for all $y > y\_0$. Let $z\_0 = \max \{ x\_0, y\_0 \}$. By transitivity
+    of the inequality relations, we have $g(z) > 0$ for all $z > z\_0$. 
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_neg_of_le_neg}
+    \lean{asymp_neg_of_le_neg}
+    \leanok
+    \uses{def:asymp_neg, def:asymp_le}
+    Let $f$ be asymptotically less than $g$ and let $g$ be asymptotically negative.
+    Then $f$ is asymptotically negative.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    Assume with no loss of generality that $g(x) < 0$ for all $x > x\_0$ and that
+    $f(y) \le g(y)$ for all $y > y\_0$. Let $z\_0 = \max \{ x\_0, y\_0 \}$. By transitivity
+    of the inequality relations, we have $f(z) < 0$ for all $z > z\_0$. 
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_pos_of_ge_pos}
+    \lean{asymp_pos_of_ge_pos}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_ge}
+    Let $f$ be asymptotically greater than $g$ and let $g$ be asymptotically negative.
+    Then $g$ is asymptotically negative.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_pos_of_ge_pos}
+    By Theorem \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
+    \ref{lemma:asymp_pos_of_ge_pos}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_neg_of_neg_ge}
+    \lean{asymp_neg_of_neg_ge}
+    \leanok
+    \uses{def:asymp_neg, def:asymp_ge}
+    Let $f$ be asymptotically negative and let it be asymptotically greater than $g$.
+    Then $g$ is asymptotically negative.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_neg_of_neg_ge}
+    By Theorem \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
+    \ref{lemma:asymp_neg_of_neg_ge}.
 \end{proof}
 
 
@@ -454,11 +519,12 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:not_pos_asymp_bounded_below_and_right_dom}
-    \lean{not_pos_asymp_bounded_below_and_right_dom}
+    \label{lemma:not_asymp_pos_bounded_below_and_right_dom}
+    \lean{not_asymp_pos_bounded_below_and_right_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_right_dom}
-    TODO
+    Let $g$ be asymptotically positive. Then $f$ is not both asymptotically bounded 
+    below and asymptotically dominated by $g$.
 \end{lemma}
 
 \begin{proof}
@@ -467,12 +533,12 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{theorem}
-    \label{thm:pos_asymp_bounded_below_imp_not_right_dom}
-    \lean{pos_asymp_bounded_below_imp_not_right_dom}
+    \label{thm:asymp_pos_bounded_below_imp_not_right_dom}
+    \lean{asymp_pos_bounded_below_imp_not_right_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_right_dom}
-    Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
-    is not dominated by $g$.
+    Let $f$ be asymptotically positive. If $f$ is asymptotically bounded below by $g$, 
+    then $f$ is not asymptotically dominated by $g$.
 \end{theorem}
 
 \begin{proof}
@@ -481,12 +547,12 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{theorem}
-    \label{thm:pos_asymp_right_dom_imp_not_bounded_below}
-    \lean{pos_asymp_right_dom_imp_not_bounded_below}
+    \label{thm:asymp_pos_right_dom_imp_not_bounded_below}
+    \lean{asymp_pos_right_dom_imp_not_bounded_below}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_right_dom}
-    Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
-    is not dominated by $g$.
+    Let $f$ be asymptotically positive. If $f$ is asymptotically bounded below by $g$, 
+    then $f$ is not asymptotically dominated by $g$.
 \end{theorem}
 
 \begin{proof}
@@ -495,11 +561,12 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:not_pos_asymp_bounded_above_and_left_dom}
-    \lean{not_pos_asymp_bounded_above_and_left_dom}
+    \label{lemma:not_asymp_pos_bounded_above_and_left_dom}
+    \lean{not_asymp_pos_bounded_above_and_left_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_left_dom}
-    TODO
+    Let $g$ be asymptotically positive. Then it does not hold that both $f$ is asymptotically 
+    bounded above by $g$ and $f$ asymptotically dominate $g$.
 \end{lemma}
 
 \begin{proof}
@@ -508,8 +575,8 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{theorem}
-    \label{thm:pos_asymp_bounded_above_imp_not_left_dom}
-    \lean{pos_asymp_bounded_above_imp_not_left_dom}
+    \label{thm:asymp_pos_bounded_above_imp_not_left_dom}
+    \lean{asymp_pos_bounded_above_imp_not_left_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_left_dom}
     Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
@@ -521,8 +588,8 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{theorem}
-    \label{thm:pos_asymp_left_dom_imp_not_bounded_above}
-    \lean{pos_asymp_left_dom_imp_not_bounded_above}
+    \label{thm:asymp_pos_left_dom_imp_not_bounded_above}
+    \lean{asymp_pos_left_dom_imp_not_bounded_above}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_left_dom}
     TODO
@@ -533,11 +600,12 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{theorem}
-    \label{thm:not_pos_asymp_left_and_right_dom}
-    \lean{not_pos_asymp_left_and_right_dom}
+    \label{thm:not_asymp_pos_left_and_right_dom}
+    \lean{not_asymp_pos_left_and_right_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_left_dom, def:asymp_right_dom}
-    TODO
+    Let $g$ be asymptotically positive. Then it is not true that both $f$ is asymptotically
+    dominated by $g$ and that $f$ dominates $g$.
 \end{theorem}
 
 \begin{proof}

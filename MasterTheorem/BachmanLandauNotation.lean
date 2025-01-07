@@ -77,7 +77,7 @@ theorem not_pos_Θ_and_o (hg : AsympPos g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g ∧
   rcases hb with ⟨⟨_, hΩ⟩, ho⟩ 
   have hbound : AsympBoundedBelow γ f g := hΩ
   have hdom : AsympRightDom γ f g := ho
-  exact not_pos_asymp_bounded_below_and_right_dom hg (And.intro hbound hdom)
+  exact not_asymp_pos_bounded_below_and_right_dom hg (And.intro hbound hdom)
 
 theorem pos_Θ_imp_not_o [PosSMulMono γ β] (hg : AsympPos g) (hΘ : f ∈ @Θ _ _ γ _ _ _ _ _ g) : ¬f ∈ @o _ _ γ _ _ _ _ _ g := by
   intro ho
@@ -87,7 +87,7 @@ theorem pos_Ω_imp_not_o [PosSMulMono γ β] (hg : AsympPos g) (hΩ : f ∈ @Ω 
   intro ho
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
-  exact pos_asymp_bounded_below_imp_not_right_dom hg hb hd
+  exact asymp_pos_bounded_below_imp_not_right_dom hg hb hd
 
 theorem pos_o_imp_not_Θ [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ @o _ _ γ _ _ _ _ _ g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g) := by
   intro hΘ
@@ -97,14 +97,14 @@ theorem pos_o_imp_not_Ω [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ @o _ 
   intro hΩ
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
-  exact pos_asymp_right_dom_imp_not_bounded_below hg hd hb
+  exact asymp_pos_right_dom_imp_not_bounded_below hg hd hb
 
 theorem not_pos_Θ_and_ω [PosSMulMono γ β] (hg : AsympPos g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g ∧ f ∈ @ω _ _ γ _ _ _ _ _ g) := by
   intro h
   rcases h with ⟨⟨hO, _⟩, hω⟩
   have hb : AsympBoundedAbove γ f g := hO
   have hd : AsympLeftDom γ f g := hω
-  exact not_pos_asymp_bounded_above_and_left_dom hg (And.intro hb hd)
+  exact not_asymp_pos_bounded_above_and_left_dom hg (And.intro hb hd)
 
 theorem pos_Θ_imp_not_ω [PosSMulMono γ β] (hg : AsympPos g)(hΘ : f ∈ @Θ _ _ γ _ _ _ _ _ g) : ¬f ∈ @ω _ _ γ _ _ _ _ _ g := by
   intro hω
@@ -115,7 +115,7 @@ theorem not_pos_o_and_ω [PosSMulStrictMono γ β] (hg : AsympPos g) : ¬(f ∈ 
   rcases h with ⟨ho, hω⟩
   have ha : AsympRightDom γ f g := ho
   have hb : AsympLeftDom γ f g := hω
-  exact not_pos_asymp_left_and_right_dom hg (And.intro hb ha)
+  exact not_asymp_pos_left_and_right_dom hg (And.intro hb ha)
 
 end Pos
 
