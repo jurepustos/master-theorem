@@ -149,9 +149,9 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_le_ge_iff, lemma:asymp_pos_of_ge_pos}
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_pos_of_pos_le}
     By Theorem \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
-    \ref{lemma:asymp_pos_of_ge_pos}.
+    \ref{lemma:asymp_pos_of_pos_le}.
 \end{proof}
 
 \begin{lemma}
@@ -165,9 +165,9 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_le_ge_iff, lemma:asymp_neg_of_neg_ge}
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_neg_of_le_neg}
     By Theorem \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
-    \ref{lemma:asymp_neg_of_neg_ge}.
+    \ref{lemma:asymp_neg_of_le_neg}.
 \end{proof}
 
 
@@ -682,8 +682,8 @@ action on $R$.
 
 \begin{proof}
     \leanok
-    \uses{lemma:asymp_dominated_imp_bounded_above}
-    Since $o(g(x))$ and $O(f(x))$, we can simply use Theorem 
+    \uses{lemma:asymp_right_dom_imp_bounded_above}
+    Since $o(g(x))$ and $O(f(x))$, we can simply use Lemma 
     \ref{lemma:asymp_right_dom_imp_bounded_above}.
 \end{proof}
 
