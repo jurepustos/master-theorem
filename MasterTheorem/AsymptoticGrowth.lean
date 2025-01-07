@@ -367,8 +367,14 @@ section Mul
 
 variable [LinearOrder α] [Preorder β] [Semiring β] [MulPosMono β] [PosMulMono β] 
          [Preorder γ] [Ring γ] [PosMulStrictMono γ] [MulAction γ β] 
-         [IsScalarTower γ (α → β) (α → β)] [IsScalarTower γ γ (α → β)] 
-         [SMulCommClass γ (α → β) (α → β)] {f₁ f₂ g₁ g₂ : α → β} 
+         [IsScalarTower γ β β] [IsScalarTower γ γ β] [SMulCommClass γ β β] 
+         {f₁ f₂ g₁ g₂ : α → β} 
+
+omit [LinearOrder α] [Preorder β] [MulPosMono β] [PosMulMono β] [Preorder γ] [PosMulStrictMono γ] in
+private lemma pi_smul_mul_smul_comm {k₁ k₂ : γ} : k₁ • g₁ * k₂ • g₂ = (k₁ * k₂) • (g₁ * g₂) := by
+  ext n
+  simp
+  apply smul_mul_smul_comm
 
 theorem asymp_bounded_above_nonneg_mul (hf₁ : AsympNonneg f₁) (hf₂ : AsympNonneg f₂) (ha : AsympBoundedAbove γ f₁ g₁) (hb : AsympBoundedAbove γ f₂ g₂) : AsympBoundedAbove γ (f₁ * f₂) (g₁ * g₂) := by
   rcases ha with ⟨k₁, k₁_pos, ha⟩
@@ -377,7 +383,7 @@ theorem asymp_bounded_above_nonneg_mul (hf₁ : AsympNonneg f₁) (hf₂ : Asymp
   constructor
   . exact mul_pos k₁_pos k₂_pos
   . suffices AsympLE (f₁ * f₂) (k₁ • g₁ * k₂ • g₂) by {
-      rw [smul_mul_smul_comm k₁ g₁ k₂ g₂] at this 
+      rw [pi_smul_mul_smul_comm] at this 
       exact this
     } 
     exact asymp_le_nonneg_mul hf₁ hf₂ ha hb
@@ -389,7 +395,7 @@ theorem asymp_bounded_below_nonpos_mul [ExistsAddOfLE β] [AddRightMono β] [Add
   constructor
   . exact mul_pos k₁_pos k₂_pos
   . suffices AsympLE (f₁ * f₂) (k₁ • g₁ * k₂ • g₂) by {
-      rw [smul_mul_smul_comm k₁ g₁ k₂ g₂] at this 
+      rw [pi_smul_mul_smul_comm] at this 
       exact this
     } 
     exact asymp_ge_nonpos_mul hf₁ hf₂ ha hb
