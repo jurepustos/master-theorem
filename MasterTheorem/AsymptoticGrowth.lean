@@ -54,7 +54,7 @@ lemma asymp_left_dom_imp_bounded_below (h : AsympLeftDom γ f g) : AsympBoundedB
   . exact one_pos
   . exact h one_pos
 
-theorem asymp_bounded_above_below_iff : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
+lemma asymp_bounded_above_below_iff : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
   constructor <;> (
     intro h
     rcases h with ⟨ha, hb⟩

@@ -150,7 +150,7 @@ complexity theory in Lean 4:
 \begin{proof}
     \leanok
     \uses{thm:asymp_le_ge_iff, lemma:asymp_pos_of_pos_le}
-    By Theorem \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
+    By Lemma \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
     \ref{lemma:asymp_pos_of_pos_le}.
 \end{proof}
 
@@ -504,14 +504,14 @@ complexity theory in Lean 4:
     The proof is entirely analogous to the previous proof.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_bounded_above_below_iff}
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_below_iff}
     \lean{asymp_bounded_above_below_iff}
     \leanok
     \uses{def:asymp_bounded_above, def:asymp_bounded_below, def:asymp_bounded}
     $f$ is asymptotically bounded above and below by $g$ if and only if $f$ is 
     asymptotically bounded by $g$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
     \leanok
@@ -738,9 +738,9 @@ action on $R$.
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_bounded_above_below_iff}
-    Similarly to previous proofs, the proof is a direct application of Theorem 
-    \ref{thm:asymp_bounded_above_below_iff}.
+    \uses{lemma:asymp_bounded_above_below_iff}
+    Similarly to previous proofs, the proof is a direct application of Lemma 
+    \ref{lemma:asymp_bounded_above_below_iff}.
 \end{proof}
 
 
