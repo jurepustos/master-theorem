@@ -155,7 +155,7 @@ theorem asymp_pos_left_dom_imp_not_bounded_above (hg : AsympPos g) (hd : AsympLe
   simp
   exact asymp_pos_bounded_above_imp_not_left_dom hg
 
-theorem not_asymp_pos_left_and_right_dom (hg: AsympPos g): ¬(AsympLeftDom γ f g ∧ AsympRightDom γ f g) := by
+lemma not_asymp_pos_left_and_right_dom (hg: AsympPos g): ¬(AsympLeftDom γ f g ∧ AsympRightDom γ f g) := by
   intro h 
   rcases h with ⟨ha, hb⟩
 
@@ -180,6 +180,14 @@ theorem not_asymp_pos_left_and_right_dom (hg: AsympPos g): ¬(AsympLeftDom γ f 
   have contra1 : g N < (@OfNat.ofNat γ 2 _) • g N := (lt_smul_iff_one_lt_left hg).2 one_lt_two
   have contra2 := le_trans ha hb
   exact not_le_of_gt contra1 contra2
+
+theorem not_asymp_pos_left_dom_of_right_dom (hg : AsympPos g) (h : AsympRightDom γ f g) : ¬AsympLeftDom γ f g := by
+  intro h1
+  exact not_asymp_pos_left_and_right_dom hg (And.intro h1 h)
+
+theorem not_asymp_pos_right_dom_of_left_dom (hg : AsympPos g) (h : AsympLeftDom γ f g) : ¬AsympRightDom γ f g := by
+  intro h1
+  exact not_asymp_pos_left_and_right_dom hg (And.intro h h1)
 
 end Pos
 
