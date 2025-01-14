@@ -39,13 +39,13 @@ variable [Preorder α] [Preorder β] [LinearOrderedSemiring γ] [SMul γ β]
 
 lemma o_imp_O (h : f ∈ @o _ _ γ _ _ _ _ _ g) : f ∈ @O _ _ γ _ _ _ _ _ g := by
   have hd : AsympRightDom γ f g := h
-  have hbound := asymp_right_dom_imp_bounded_above hd
+  have hbound := asymp_bounded_above_of_right_dom hd
   rcases hbound with ⟨k, k_pos, hbound⟩
   use k
 
 lemma ω_imp_Ω (h : f ∈ @ω _ _ γ _ _ _ _ _ g) : f ∈ @Ω _ _ γ _ _ _ _ _ g := by
   have hd : AsympLeftDom γ f g := h
-  have hbound := asymp_left_dom_imp_bounded_below hd
+  have hbound := asymp_bounded_below_of_left_dom hd
   rcases hbound with ⟨k, k_pos, hbound⟩
   use k
 
@@ -87,7 +87,7 @@ theorem pos_Ω_imp_not_o [PosSMulMono γ β] (hg : AsympPos g) (hΩ : f ∈ @Ω 
   intro ho
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
-  exact asymp_pos_bounded_below_imp_not_right_dom hg hb hd
+  exact not_asymp_right_dom_of_bounded_below_pos hg hb hd
 
 theorem pos_o_imp_not_Θ [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ @o _ _ γ _ _ _ _ _ g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g) := by
   intro hΘ
@@ -97,7 +97,7 @@ theorem pos_o_imp_not_Ω [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ @o _ 
   intro hΩ
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
-  exact asymp_pos_right_dom_imp_not_bounded_below hg hd hb
+  exact not_asymp_bounded_below_of_right_dom_pos hg hd hb
 
 theorem not_pos_Θ_and_ω [PosSMulMono γ β] (hg : AsympPos g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g ∧ f ∈ @ω _ _ γ _ _ _ _ _ g) := by
   intro h

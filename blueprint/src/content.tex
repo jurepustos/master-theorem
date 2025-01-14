@@ -476,8 +476,8 @@ complexity theory in Lean 4:
 \end{definition}
 
 \begin{lemma}
-    \label{lemma:asymp_right_dom_imp_bounded_above}
-    \lean{asymp_right_dom_imp_bounded_above}
+    \label{lemma:asymp_bounded_above_of_right_dom}
+    \lean{asymp_bounded_above_of_right_dom}
     \leanok
     \uses{def:asymp_right_dom, def:asymp_bounded_above}
     If $f$ is dominated by $g$, then it's also bounded above by $g$.
@@ -486,14 +486,14 @@ complexity theory in Lean 4:
 \begin{proof}
     \leanok 
     The definitions of $f$ being dominated and bounded above by $g$ only differ
-    in the quantifier before $k$ at the very start (universal for the former, existential
-    for the latter), so it suffices to use any positive value for $k$. We can use $1$. 
+    in the quantifier before $k$ at the very start (universal for the hypothesis, existential
+    for the goal), so it suffices to use any positive value for $k$. We can use $1$. 
     The desired result then follows directly.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:asymp_left_dom_imp_bounded_below}
-    \lean{asymp_left_dom_imp_bounded_below}
+    \label{lemma:asymp_bounded_below_of_left_dom}
+    \lean{asymp_bounded_below_of_left_dom}
     \leanok
     \uses{def:asymp_left_dom, def:asymp_bounded_below}
     If $f$ dominates $g$, then it's bounded below by $g$.
@@ -524,17 +524,17 @@ complexity theory in Lean 4:
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_right_dom}
     Let $g$ be asymptotically positive. Then $f$ is not both asymptotically bounded 
-    below and asymptotically dominated by $g$.
+    below by $g$ and asymptotically dominated by $g$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    TODO 
 \end{proof}
 
 \begin{theorem}
-    \label{thm:asymp_pos_bounded_below_imp_not_right_dom}
-    \lean{asymp_pos_bounded_below_imp_not_right_dom}
+    \label{thm:not_asymp_right_dom_of_bounded_below_pos}
+    \lean{not_asymp_right_dom_of_bounded_below_pos}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_right_dom}
     Let $f$ be asymptotically positive. If $f$ is asymptotically bounded below by $g$, 
@@ -543,12 +543,13 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    TODO 
+    \uses{lemma:not_asymp_pos_bounded_below_and_right_dom}
+    This is a direct application of Lemma \ref{lemma:not_asymp_pos_bounded_below_and_right_dom}. 
 \end{proof}
 
 \begin{theorem}
-    \label{thm:asymp_pos_right_dom_imp_not_bounded_below}
-    \lean{asymp_pos_right_dom_imp_not_bounded_below}
+    \label{thm:not_asymp_bounded_below_of_right_dom_pos}
+    \lean{not_asymp_bounded_below_of_right_dom_pos}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_above, def:asymp_right_dom}
     Let $f$ be asymptotically positive. If $f$ is asymptotically bounded below by $g$, 
@@ -557,7 +558,8 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    TODO 
+    \uses{lemma:not_asymp_pos_bounded_below_and_right_dom}
+    This is a direct application of Lemma \ref{lemma:not_asymp_pos_bounded_below_and_right_dom}. 
 \end{proof}
 
 \begin{lemma}
@@ -575,8 +577,8 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{theorem}
-    \label{thm:asymp_pos_bounded_above_imp_not_left_dom}
-    \lean{asymp_pos_bounded_above_imp_not_left_dom}
+    \label{thm:not_asymp_left_dom_of_bounded_above_pos}
+    \lean{not_asymp_left_dom_of_bounded_above_pos}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_left_dom}
     Let $f$ be asymptotically positive. If $f$ is bounded below by $g$, then $f$ 
@@ -584,32 +586,47 @@ complexity theory in Lean 4:
 \end{theorem}
 
 \begin{proof}
-    TODO 
+    \leanok
+    \uses{lemma:not_asymp_pos_bounded_above_and_left_dom}
+    This is a direct application of Lemma \ref{lemma:not_asymp_pos_bounded_above_and_left_dom}. 
 \end{proof}
 
 \begin{theorem}
-    \label{thm:asymp_pos_left_dom_imp_not_bounded_above}
-    \lean{asymp_pos_left_dom_imp_not_bounded_above}
+    \label{thm:not_asymp_bounded_above_of_left_dom_pos}
+    \lean{not_asymp_bounded_above_of_left_dom_pos}
     \leanok
     \uses{def:asymp_pos, def:asymp_bounded_below, def:asymp_left_dom}
-    TODO
+    Let $f$ be asymptotically positive. If $f$ is asymptotically bounded above by $g$, 
+    then $f$ does not asymptotically dominate $g$.
 \end{theorem}
 
 \begin{proof}
-    TODO 
+    \leanok
+    \uses{lemma:not_asymp_pos_bounded_above_and_left_dom}
+    This is a direct application of Lemma \ref{lemma:not_asymp_pos_bounded_above_and_left_dom}. 
 \end{proof}
 
-\begin{theorem}
-    \label{thm:not_asymp_pos_left_and_right_dom}
+\begin{lemma}
+    \label{lemma:not_asymp_pos_left_and_right_dom}
     \lean{not_asymp_pos_left_and_right_dom}
     \leanok
     \uses{def:asymp_pos, def:asymp_left_dom, def:asymp_right_dom}
     Let $g$ be asymptotically positive. Then it is not true that both $f$ is asymptotically
     dominated by $g$ and that $f$ dominates $g$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
-    TODO 
+    Suppose $f$ both dominates $g$ and is dominated by $g$. Our goal is to find a
+    contradiction. We have by definition the inequalities $g(x) > 0$, 
+    $f(x) \ge k\_1 \cdot g(x)$ and $f(x) \le k\_2 \cdot g(x)$ for all $k\_1 > 0$, 
+    $k\_2 > 0$ and for all $x \ge x\_0$ for some $x\_0$. Note that we use the same 
+    constant $x\_0$ for all inequalities with no loss of generality. In fact, we shall also use the same $x\_0$ 
+    in the asymptotic positivity condition $g(x) > 0$.
+
+    Fix $k\_1 = 2$ and $k\_2 = 1$ (generally, we only need $k\_1 \ge k\_2$), so we now have
+    $f(x) \ge 2 \cdot g(x)$ and $f(x) \le g(x)$. From these inequalities, it immediately
+    follows that $2 \cdot g(x) \le g(x)$. However, since $1 \le 2$ and $g(x) > 0$, we have
+    $g(x) < 2 \cdot g(x)$. We thus have two contradicting inequalities, finishing the proof.
 \end{proof}
 
 \begin{theorem}
@@ -622,7 +639,9 @@ complexity theory in Lean 4:
 \end{theorem}
 
 \begin{proof}
-    TODO 
+    \leanok
+    \uses{lemma:not_asymp_pos_left_and_right_dom}
+    This is a direct application of Lemma \ref{lemma:not_asymp_pos_left_and_right_dom}. 
 \end{proof}
 
 \begin{theorem}
@@ -635,7 +654,9 @@ complexity theory in Lean 4:
 \end{theorem}
 
 \begin{proof}
-    TODO 
+    \leanok
+    \uses{lemma:not_asymp_pos_left_and_right_dom}
+    This is a direct application of Lemma \ref{lemma:not_asymp_pos_left_and_right_dom}. 
 \end{proof}
 
 
@@ -696,10 +717,8 @@ action on $R$.
 \end{definition}
 
 
-\subsection{Relations between asymptotic sets}
-
-\begin{lemma}
-    \label{lemma:small_o_imp_big_o}
+\subsection{Relations between asymptotic sets} \begin{lemma}
+    \label{lemma:big_o_of_small_o}
     \lean{o_imp_O}
     \leanok
     \uses{def:small_o, def:big_o}
@@ -708,13 +727,13 @@ action on $R$.
 
 \begin{proof}
     \leanok
-    \uses{lemma:asymp_right_dom_imp_bounded_above}
+    \uses{lemma:asymp_bounded_above_of_right_dom}
     Since $o(g(x))$ and $O(f(x))$, we can simply use Lemma 
-    \ref{lemma:asymp_right_dom_imp_bounded_above}.
+    \ref{lemma:asymp_bounded_above_of_right_dom}.
 \end{proof}
 
 \begin{theorem}
-    \label{thm:small_omega_imp_big_omega}
+    \label{thm:big_omega_of_small_omega}
     \lean{ω_imp_Ω}
     \leanok
     \uses{def:small_omega, def:big_omega}
@@ -723,9 +742,9 @@ action on $R$.
 
 \begin{proof}
     \leanok
-    \uses{lemma:asymp_left_dom_imp_bounded_below}
+    \uses{lemma:asymp_bounded_below_of_left_dom}
     The proof is a simple application of Theorem 
-    \ref{lemma:asymp_left_dom_imp_bounded_below}.
+    \ref{lemma:asymp_bounded_below_of_left_dom}.
 \end{proof}
 
 \begin{theorem}
