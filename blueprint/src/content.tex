@@ -529,7 +529,18 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    TODO 
+    Suppose $f$ is asymptotically bounded below by $g$ and also asymptotically dominated
+    by $g$. We need to find a contradiction to prove the statement. 
+
+    First, we claim that there exists $x\_0$ such that for all $x \ge x\_0$ we have 
+    $f(x) \ge k \cdot g(x)$ for some $k > 0$, $g(x) \ge 0$ and $f(x) \le k' \cdot g(x)$ 
+    for all $k' > 0$. Each of the asymptotic assumption gives one such constant, so
+    taking the maximum of all three gives the needed value.
+
+    For the contradiction, consider $f(x) \le k' \cdot g(x)$ when $k' = k / 2$.
+    In this case, we have $f(x) \le (k / 2) \cdot g(x)$, but we also have
+    $k \cdot g(x) \le f(x)$, leading by transitivity to $k \cdot g(x) \le (k / 2) \cdot g(x)$,
+    an obvious contradiction to the fact that $(k / 2) \cdot g(x) \le k \cdot g(x)$.
 \end{proof}
 
 \begin{theorem}
@@ -660,6 +671,236 @@ complexity theory in Lean 4:
 \end{proof}
 
 
+\subsection{Reflexivity}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_refl}
+    \lean{asymp_bounded_refl}
+    \leanok
+    \uses{def:asymp_bounded}
+    $f(x)$ is asymptotically bounded by itself. 
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{def:asymp_bounded, def:asymp_bounded_above, def:asymp_bounded_below}
+    Proving asymptotic boundedness is equivalent to proving boundedness above and below.
+    Both can be proved the same way - we choose $1_K$ for $K$ and $1_R$ for $N$, then the
+    required asymptotic growth properties follow from definitions of identity elements for 
+    $K$ and $R$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_refl}
+    \lean{asymp_bounded_above_refl}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    $f(x)$ is asymptotically bounded above by itself.
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_refl}
+    This follows directly from \ref{lemma:asymp_bounded_refl}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_below_refl}
+    \lean{asymp_bounded_below_refl}
+    \leanok
+    \uses{def:asymp_bounded_below}
+    $f(x)$ is asymptotically bounded below by itself.
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_refl}
+    This follows directly from \ref{lemma:asymp_bounded_refl}.
+\end{proof}
+
+
+\subsection{Scalar multiplicativity}
+
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_pos_smul}
+    \lean{asymp_bounded_above_pos_smul}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    Let $c > 0$. If $f(x)$ is bounded above by $(gx)$, then $c*f(x)$ is also bounded
+    above by $g(x)$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+
+\subsection{Additivity}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_add}
+    \lean{asymp_bounded_above_add}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    Let $f\_1$ and $f\_2$ be bounded above by $g$. Then $f\_1 + f\_2$ is also bounded 
+    above by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_below_add}
+    \lean{asymp_bounded_above_below_add}
+    \leanok
+    \uses{def:asymp_bounded_below}
+    Let $f\_1$ and $f\_2$ be bounded below by $g$. Then $f\_1 + f\_2$ is also bounded 
+    below by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_add}
+    \lean{asymp_bounded_above_add}
+    \leanok
+    \uses{def:asymp_bounded}
+    Let $f\_1$ and $f\_2$ be bounded by $g$. Then $f\_1 + f\_2$ is also bounded by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_below_add_pos}
+    \lean{asymp_bounded_below_add_pos}
+    \leanok
+    \uses{def:asymp_bounded_below, def:asymp_pos}
+    Let $f\_1$ be bounded below by $g$ and let $f\_2$ be asymptotically positive. 
+    Then $f\_1 + f\_2$ is bounded below by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_add_neg}
+    \lean{asymp_bounded_above_add_neg}
+    \leanok
+    \uses{def:asymp_bounded_above, def:asymp_neg}
+    Let $f\_1$ be bounded above by $g$ and let $f\_2$ be asymptotically negative. 
+    Then $f\_1 + f\_2$ is bounded above by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_add_pos_above}
+    \lean{asymp_bounded_add_pos_above}
+    \leanok
+    \uses{def:asymp_bounded, def:asymp_bounded_above, def:asymp_pos}
+    Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically positive and
+    bounded above by $g$. Then $f\_1 + f\_2$ is bounded by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_add_neg_below}
+    \lean{asymp_bounded_add_neg_below}
+    \leanok
+    \uses{def:asymp_bounded, def:asymp_bounded_below, def:asymp_neg}
+    Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically negative and
+    bounded below by $g$. Then $f\_1 + f\_2$ is bounded by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_add_pos_right_dom}
+    \lean{asymp_bounded_add_pos_above}
+    \leanok
+    \uses{def:asymp_bounded, def:asymp_right_dom, def:asymp_pos}
+    Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically positive and
+    let $f\_2$ be dominated by $g$. Then $f\_1 + f\_2$ is bounded by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_add_neg_left_dom}
+    \lean{asymp_bounded_add_neg_left_dom}
+    \leanok
+    \uses{def:asymp_bounded, def:asymp_bounded_below, def:asymp_neg}
+    Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically negative and
+    let $f\_2$ dominate $g$. Then $f\_1 + f\_2$ is bounded by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+
+\subsection{Multiplicativity}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_nonneg_mul}
+    \lean{asymp_bounded_above_nonneg_mul}
+    \leanok
+    \uses{def:asymp_bounded_above, def:asymp_nonneg}
+    Let $f\_1$ and $f\_2$ be asymptotically nonnegative functions such that $f\_1$ 
+    be asymptotically bounded above by $g\_1$ and $f\_2$ be asymptotically bounded 
+    above by $g\_2$. 
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_below_nonpos_mul}
+    \lean{asymp_bounded_below_nonpos_mul}
+    \leanok
+    \uses{def:asymp_bounded_below, def:asymp_nonpos}
+    Let $f\_1$ and $f\_2$ be asymptotically nonpositive functions such that $f\_1$ 
+    be asymptotically bounded below by $g\_1$ and $f\_2$ be asymptotically bounded 
+    below by $g\_2$. 
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    TODO
+\end{proof}
+
+
 \section{Bachman-Landau notation}
 
 Bachman-Landau family of notations is the name of a few closely related notations used in 
@@ -765,76 +1006,6 @@ action on $R$.
 
 \subsection{Properties of asymptotic growth}
 
-\subsubsection{Reflexivity}
-
-\begin{lemma}
-    \label{lemma:asymp_bounded_refl}
-    \lean{asymp_bounded_refl}
-    \leanok
-    \uses{def:asymp_bounded}
-    $f(x)$ is asymptotically bounded by itself. 
-
-\end{lemma}
-
-\begin{proof}
-    \leanok
-    \uses{def:asymp_bounded, def:asymp_bounded_above, def:asymp_bounded_below}
-    Proving asymptotic boundedness is equivalent to proving boundedness above and below.
-    Both can be proved the same way - we choose $1_K$ for $K$ and $1_R$ for $N$, then the
-    required asymptotic growth properties follow from definitions of identity elements for 
-    $K$ and $R$.
-\end{proof}
-
-\begin{lemma}
-    \label{lemma:asymp_bounded_above_refl}
-    \lean{asymp_bounded_above_refl}
-    \leanok
-    \uses{def:asymp_bounded_above}
-    $f(x)$ is asymptotically bounded above by itself.
-
-\end{lemma}
-
-\begin{proof}
-    \leanok
-    \uses{lemma:asymp_bounded_refl}
-    This follows directly from \ref{lemma:asymp_bounded_refl}.
-\end{proof}
-
-\begin{lemma}
-    \label{lemma:asymp_bounded_below_refl}
-    \lean{asymp_bounded_below_refl}
-    \leanok
-    \uses{def:asymp_bounded_below}
-    $f(x)$ is asymptotically bounded below by itself.
-
-\end{lemma}
-
-\begin{proof}
-    \leanok
-    \uses{lemma:asymp_bounded_refl}
-    This follows directly from \ref{lemma:asymp_bounded_refl}.
-\end{proof}
-
-
-\subsubsection{Scalar multiplicativity}
-
-
-\begin{lemma}
-    \label{lemma:asymp_bounded_above_pos_smul}
-    \lean{asymp_bounded_above_pos_smul}
-    \leanok
-    \uses{def:asymp_bounded_above}
-    Let $c > 0$. If $f(x)$ is bounded above by $(gx)$, then $c*f(x)$ is also bounded
-    above by $g(x)$.
-\end{lemma}
-
-\begin{proof}
-    \leanok
-    TODO
-\end{proof}
-
-
-\subsubsection{Additivity}
 
 
 \section{The Master theorem}
