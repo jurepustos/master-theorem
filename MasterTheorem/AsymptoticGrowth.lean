@@ -363,16 +363,15 @@ end Add
 
 section Mul
 
-variable [LinearOrder α] [Preorder β] [Semiring β] [MulPosMono β] [PosMulMono β] 
-         [Preorder γ] [Ring γ] [PosMulStrictMono γ] [MulAction γ β] 
-         [IsScalarTower γ β β] [IsScalarTower γ γ β] [SMulCommClass γ β β] 
-         {f₁ f₂ g₁ g₂ : α → β} 
+variable [Semiring β] [Ring γ] [MulAction γ β] [IsScalarTower γ β β] [IsScalarTower γ γ β] 
+         [SMulCommClass γ β β] {f₁ f₂ g₁ g₂ : α → β} 
 
-omit [LinearOrder α] [Preorder β] [MulPosMono β] [PosMulMono β] [Preorder γ] [PosMulStrictMono γ] in
 private lemma pi_smul_mul_smul_comm {k₁ k₂ : γ} : k₁ • g₁ * k₂ • g₂ = (k₁ * k₂) • (g₁ * g₂) := by
   ext n
   simp
   apply smul_mul_smul_comm
+
+variable [LinearOrder α] [Preorder β] [MulPosMono β] [PosMulMono β] [Preorder γ] [PosMulStrictMono γ]
 
 lemma asymp_bounded_above_nonneg_mul (hf₁ : AsympNonneg f₁) (hf₂ : AsympNonneg f₂) (ha : AsympBoundedAbove γ f₁ g₁) (hb : AsympBoundedAbove γ f₂ g₂) : AsympBoundedAbove γ (f₁ * f₂) (g₁ * g₂) := by
   rcases ha with ⟨k₁, k₁_pos, ha⟩
