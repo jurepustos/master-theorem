@@ -54,7 +54,7 @@ lemma asymp_bounded_below_of_left_dom (h : AsympLeftDom γ f g) : AsympBoundedBe
   . exact one_pos
   . exact h one_pos
 
-lemma asymp_bounded_above_below_iff : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
+lemma asymp_bounded_iff : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
   constructor <;> (
     intro h
     rcases h with ⟨ha, hb⟩
@@ -106,11 +106,11 @@ lemma not_asymp_pos_bounded_below_and_right_dom (hg : AsympPos g) : ¬(AsympBoun
   exact not_le_of_gt contra2 contra1
 
 -- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not right_dom by g.
-theorem not_asymp_right_dom_of_bounded_below_pos (hg : AsympPos g) (hb : AsympBoundedBelow γ f g) : ¬AsympRightDom γ f g := by
+lemma not_asymp_right_dom_of_bounded_below_pos (hg : AsympPos g) (hb : AsympBoundedBelow γ f g) : ¬AsympRightDom γ f g := by
   intro hd
   exact not_asymp_pos_bounded_below_and_right_dom hg (And.intro hb hd)
 
-theorem not_asymp_bounded_below_of_right_dom_pos (hg : AsympPos g) (hd : AsympRightDom γ f g) : ¬AsympBoundedBelow γ f g := by 
+lemma not_asymp_bounded_below_of_right_dom_pos (hg : AsympPos g) (hd : AsympRightDom γ f g) : ¬AsympBoundedBelow γ f g := by 
   intro hb
   exact not_asymp_pos_bounded_below_and_right_dom hg (And.intro hb hd)
 
@@ -145,11 +145,11 @@ lemma not_asymp_pos_bounded_above_and_left_dom (hg : AsympPos g) : ¬(AsympBound
   have contra2 : k₁ • g N < (k₁ + 1) • g N := smul_lt_smul_of_pos_right (by linarith) hg
   exact not_le_of_gt contra2 contra1
 
-theorem not_asymp_left_dom_of_bounded_above_pos (hg : AsympPos g) (hb : AsympBoundedAbove γ f g) : ¬AsympLeftDom γ f g := by
+lemma not_asymp_left_dom_of_bounded_above_pos (hg : AsympPos g) (hb : AsympBoundedAbove γ f g) : ¬AsympLeftDom γ f g := by
   intro hd
   exact not_asymp_pos_bounded_above_and_left_dom hg (And.intro hb hd)
 
-theorem not_asymp_bounded_above_of_left_dom_pos (hg : AsympPos g) (hd : AsympLeftDom γ f g) : ¬AsympBoundedAbove γ f g := by
+lemma not_asymp_bounded_above_of_left_dom_pos (hg : AsympPos g) (hd : AsympLeftDom γ f g) : ¬AsympBoundedAbove γ f g := by
   revert hd
   contrapose
   simp
@@ -181,11 +181,11 @@ lemma not_asymp_pos_left_and_right_dom (hg: AsympPos g): ¬(AsympLeftDom γ f g 
   have contra2 := le_trans ha hb
   exact not_le_of_gt contra1 contra2
 
-theorem not_asymp_pos_left_dom_of_right_dom (hg : AsympPos g) (h : AsympRightDom γ f g) : ¬AsympLeftDom γ f g := by
+lemma not_asymp_pos_left_dom_of_right_dom (hg : AsympPos g) (h : AsympRightDom γ f g) : ¬AsympLeftDom γ f g := by
   intro h1
   exact not_asymp_pos_left_and_right_dom hg (And.intro h1 h)
 
-theorem not_asymp_pos_right_dom_of_left_dom (hg : AsympPos g) (h : AsympLeftDom γ f g) : ¬AsympRightDom γ f g := by
+lemma not_asymp_pos_right_dom_of_left_dom (hg : AsympPos g) (h : AsympLeftDom γ f g) : ¬AsympRightDom γ f g := by
   intro h1
   exact not_asymp_pos_left_and_right_dom hg (And.intro h h1)
 

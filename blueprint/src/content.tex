@@ -505,8 +505,8 @@ complexity theory in Lean 4:
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:asymp_bounded_above_below_iff}
-    \lean{asymp_bounded_above_below_iff}
+    \label{lemma:asymp_bounded_iff}
+    \lean{asymp_bounded_iff}
     \leanok
     \uses{def:asymp_bounded_above, def:asymp_bounded_below, def:asymp_bounded}
     $f$ is asymptotically bounded above and below by $g$ if and only if $f$ is 
@@ -1113,9 +1113,9 @@ action on $R$.
 
 \begin{proof}
     \leanok
-    \uses{lemma:asymp_bounded_above_below_iff}
+    \uses{lemma:asymp_bounded_iff}
     Similarly to previous proofs, the proof is a direct application of Lemma 
-    \ref{lemma:asymp_bounded_above_below_iff}.
+    \ref{lemma:asymp_bounded_iff}.
 \end{proof}
 
 
