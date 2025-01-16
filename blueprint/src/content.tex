@@ -584,7 +584,9 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    TODO 
+    The proof is analogous to the proof of Lemma 
+    \ref{lemma:not_asymp_pos_bounded_below_and_right_dom}. This time, we set $k' = k + 1$
+    and thus produce the false inequality $(k + 1) \cdot g(x) \le k \cdot g(x)$.
 \end{proof}
 
 \begin{theorem}
@@ -678,7 +680,7 @@ complexity theory in Lean 4:
     \lean{asymp_bounded_refl}
     \leanok
     \uses{def:asymp_bounded}
-    $f(x)$ is asymptotically bounded by itself. 
+    $f$ is asymptotically bounded by itself. 
 
 \end{lemma}
 
@@ -696,8 +698,7 @@ complexity theory in Lean 4:
     \lean{asymp_bounded_above_refl}
     \leanok
     \uses{def:asymp_bounded_above}
-    $f(x)$ is asymptotically bounded above by itself.
-
+    $f$ is asymptotically bounded above by itself.
 \end{lemma}
 
 \begin{proof}
@@ -711,8 +712,7 @@ complexity theory in Lean 4:
     \lean{asymp_bounded_below_refl}
     \leanok
     \uses{def:asymp_bounded_below}
-    $f(x)$ is asymptotically bounded below by itself.
-
+    $f$ is asymptotically bounded below by itself.
 \end{lemma}
 
 \begin{proof}
@@ -724,19 +724,106 @@ complexity theory in Lean 4:
 
 \subsection{Scalar multiplicativity}
 
-
 \begin{lemma}
     \label{lemma:asymp_bounded_above_pos_smul}
     \lean{asymp_bounded_above_pos_smul}
     \leanok
     \uses{def:asymp_bounded_above}
-    Let $c > 0$. If $f(x)$ is bounded above by $(gx)$, then $c*f(x)$ is also bounded
-    above by $g(x)$.
+    Let $c > 0$. If $f$ is bounded above by $g$, then $c \cdot f$ is also bounded
+    above by $g$.
 \end{lemma}
 
 \begin{proof}
     \leanok
-    TODO
+    \uses{lemma:asymp_le_pos_smul}
+    Let $k$ be the constant such that $f$ is asymptotically less than $k \cdot g$.
+    By positive scalar multiplicativity of asymptotic inequality, $c \cdot f$ is 
+    asymptotically less than $c \cdot k \cdot g$. Since $c \cdot k > 0$, this implies 
+    that $c \cdot f$ is bounded above by $g$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_below_pos_smul}
+    \lean{asymp_bounded_below_pos_smul}
+    \leanok
+    \uses{def:asymp_bounded_below}
+    Let $c > 0$. If $f$ is bounded below by $g$, then $c \cdot f$ is also bounded
+    below by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_ge_pos_smul}
+    Let $k$ be the constant such that $f$ is asymptotically greater than $k \cdot g$.
+    By positive scalar multiplicativity of asymptotic inequality, $c \cdot f$ is 
+    asymptotically greater than $c \cdot k \cdot g$. Since $c \cdot k > 0$, this implies
+    that $c \cdot f$ is bounded below by $g$.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_bounded_pos_smul}
+    \lean{asymp_bounded_pos_smul}
+    \leanok
+    \uses{def:asymp_bounded}
+    Let $c > 0$. If $f$ is bounded by $g$, then $c \cdot f$ is also bounded by $g$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_pos_smul, lemma:asymp_bounded_below_pos_smul,}
+    Above boundedness is exactly Lemma \ref{lemma:asymp_bounded_above_pos_smul} and
+    below boundedness is exactly Lemma \ref{lemma:asymp_bounded_below_pos_smul}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_neg_smul}
+    \lean{asymp_bounded_above_neg_smul}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    Let $c < 0$. If $f$ is bounded above by $g$, then $c \cdot f$ is bounded
+    above by $-g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_le_neg_smul}
+    Let $k$ be the constant such that $f$ is asymptotically less than $k \cdot g$.
+    By positive scalar multiplicativity of asymptotic inequality, $-c \cdot f$ is 
+    asymptotically less than $-c \cdot k \cdot g$. Since $-c \cdot k > 0$, this implies
+    that $c \cdot f$ is bounded above by $-g$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_below_neg_smul}
+    \lean{asymp_bounded_below_neg_smul}
+    \leanok
+    \uses{def:asymp_bounded_below}
+    Let $c < 0$. If $f$ is bounded below by $g$, then $c \cdot f$ is bounded
+    below by $-g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_le_neg_smul}
+    Let $k$ be the constant such that $f$ is asymptotically greater than $k \cdot g$.
+    By positive scalar multiplicativity of asymptotic inequality, $-c \cdot f$ is 
+    asymptotically greater than $-c \cdot k \cdot g$. Since $-c \cdot k > 0$, this implies
+    that $c \cdot f$ is bounded below by $-g$.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_bounded_neg_smul}
+    \lean{asymp_bounded_neg_smul}
+    \leanok
+    \uses{def:asymp_bounded}
+    Let $c < 0$. If $f$ is bounded by $g$, then $c \cdot f$ is bounded by $-g$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_neg_smul, lemma:asymp_bounded_below_neg_smul}
+    Above boundedness is exactly Lemma \ref{lemma:asymp_bounded_above_neg_smul} and
+    below boundedness is exactly Lemma \ref{lemma:asymp_bounded_below_neg_smul}.
 \end{proof}
 
 
@@ -753,12 +840,16 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    TODO
+    \uses{lemma:asymp_le_add}
+    Let $k\_1$ and $k\_2$ be the constants such that $f\_1$ is asymptotically less than $k\_1 \cdot g$ 
+    and $f\_2$ is asymptotically less than $k\_2 \cdot g$. By additivity of asymptotic
+    inequality, $f\_1 + f\_2$ is asymptotically less than $(k\_1 * k\_2) \cdot g$.
+    It directly follows that $f\_1 + f\_2$ is asymptotically bounded above by $g$.
 \end{proof}
 
 \begin{lemma}
     \label{lemma:asymp_bounded_below_add}
-    \lean{asymp_bounded_above_below_add}
+    \lean{asymp_bounded_below_add}
     \leanok
     \uses{def:asymp_bounded_below}
     Let $f\_1$ and $f\_2$ be bounded below by $g$. Then $f\_1 + f\_2$ is also bounded 
@@ -767,20 +858,26 @@ complexity theory in Lean 4:
 
 \begin{proof}
     \leanok
-    TODO
+    \uses{lemma:asymp_ge_add}
+    Let $k\_1$ and $k\_2$ be the constants such that $f\_1$ is asymptotically greater than $k\_1 \cdot g$ 
+    and $f\_2$ is asymptotically greater than $k\_2 \cdot g$. By additivity of asymptotic
+    inequality, $f\_1 + f\_2$ is asymptotically greater than $(k\_1 * k\_2) \cdot g$.
+    It directly follows that $f\_1 + f\_2$ is asymptotically bounded below by $g$.
 \end{proof}
 
-\begin{lemma}
-    \label{lemma:asymp_bounded_add}
+\begin{theorem}
+    \label{thm:asymp_bounded_add}
     \lean{asymp_bounded_above_add}
     \leanok
     \uses{def:asymp_bounded}
     Let $f\_1$ and $f\_2$ be bounded by $g$. Then $f\_1 + f\_2$ is also bounded by $g$.
-\end{lemma}
+\end{theorem}
 
 \begin{proof}
     \leanok
-    TODO
+    \uses{lemma:asymp_bounded_above_add, lemma:asymp_bounded_below_add}
+    This is proved directly by Lemma \ref{lemma:asymp_bounded_above_add} and Lemma
+    \ref{lemma:asymp_bounded_below_add}.
 \end{proof}
 
 \begin{lemma}

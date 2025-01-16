@@ -242,12 +242,10 @@ lemma asymp_bounded_below_pos_smul (hc : c > 0) (h : AsympBoundedBelow γ f g) :
   use c * k
   constructor
   . exact mul_pos hc k_pos
-  . rw [← asymp_le_ge_iff]
-    rw [← asymp_le_ge_iff] at h
-    simp [mul_smul]
-    exact asymp_le_pos_smul hc h
+  . simp [mul_smul]
+    exact asymp_ge_pos_smul hc h
 
-lemma asymp_bounded_pos_smul (hc : c > 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) g := by
+theorem asymp_bounded_pos_smul (hc : c > 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) g := by
   rcases h with ⟨ha, hb⟩
   constructor
   . exact asymp_bounded_above_pos_smul hc ha
