@@ -106,11 +106,11 @@ lemma not_asymp_pos_bounded_below_and_right_dom (hg : AsympPos g) : ¬(AsympBoun
   exact not_le_of_gt contra2 contra1
 
 -- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not right_dom by g.
-lemma not_asymp_right_dom_of_bounded_below_pos (hg : AsympPos g) (hb : AsympBoundedBelow γ f g) : ¬AsympRightDom γ f g := by
+lemma not_asymp_pos_right_dom_of_bounded_below (hg : AsympPos g) (hb : AsympBoundedBelow γ f g) : ¬AsympRightDom γ f g := by
   intro hd
   exact not_asymp_pos_bounded_below_and_right_dom hg (And.intro hb hd)
 
-lemma not_asymp_bounded_below_of_right_dom_pos (hg : AsympPos g) (hd : AsympRightDom γ f g) : ¬AsympBoundedBelow γ f g := by 
+lemma not_asymp_pos_bounded_below_of_right_dom (hg : AsympPos g) (hd : AsympRightDom γ f g) : ¬AsympBoundedBelow γ f g := by 
   intro hb
   exact not_asymp_pos_bounded_below_and_right_dom hg (And.intro hb hd)
 

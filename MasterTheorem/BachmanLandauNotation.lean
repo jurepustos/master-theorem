@@ -66,21 +66,21 @@ lemma not_pos_o_of_Θ [PosSMulMono γ β] (hg : AsympPos g) (hΘ : f ∈ @Θ _ _
   intro ho
   exact not_pos_Θ_and_o hg (And.intro hΘ ho)
 
+lemma not_pos_Θ_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ @o _ _ γ _ _ _ _ _ g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g) := by
+  intro hΘ
+  exact not_pos_Θ_and_o hg (And.intro hΘ ho)
+
 lemma not_pos_o_of_Ω [PosSMulMono γ β] (hg : AsympPos g) (hΩ : f ∈ @Ω _ _ γ _ _ _ _ _ g) : ¬(f ∈ @o _ _ γ _ _ _ _ _ g) := by
   intro ho
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
-  apply not_asymp_right_dom_of_bounded_below_pos hg hb hd
-
-lemma not_pos_Θ_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ @o _ _ γ _ _ _ _ _ g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g) := by
-  intro hΘ
-  exact not_pos_Θ_and_o hg (And.intro hΘ ho)
+  apply not_asymp_pos_right_dom_of_bounded_below hg hb hd
 
 lemma not_pos_Ω_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ @o _ _ γ _ _ _ _ _ g) : ¬(f ∈ @Ω _ _ γ _ _ _ _ _ g) := by
   intro hΩ
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
-  exact not_asymp_bounded_below_of_right_dom_pos hg hd hb
+  exact not_asymp_pos_bounded_below_of_right_dom hg hd hb
 
 lemma not_pos_Θ_and_ω [PosSMulMono γ β] (hg : AsympPos g) : ¬(f ∈ @Θ _ _ γ _ _ _ _ _ g ∧ f ∈ @ω _ _ γ _ _ _ _ _ g) := by
   intro h
@@ -91,6 +91,10 @@ lemma not_pos_Θ_and_ω [PosSMulMono γ β] (hg : AsympPos g) : ¬(f ∈ @Θ _ _
 
 lemma not_pos_ω_of_Θ [PosSMulMono γ β] (hg : AsympPos g)(hΘ : f ∈ @Θ _ _ γ _ _ _ _ _ g) : ¬f ∈ @ω _ _ γ _ _ _ _ _ g := by
   intro hω
+  exact not_pos_Θ_and_ω hg (And.intro hΘ hω)
+
+lemma not_pos_Θ_of_ω [PosSMulMono γ β] (hg : AsympPos g)(hω : f ∈ @ω _ _ γ _ _ _ _ _ g) : ¬f ∈ @Θ _ _ γ _ _ _ _ _ g := by
+  intro hΘ
   exact not_pos_Θ_and_ω hg (And.intro hΘ hω)
 
 lemma not_pos_o_and_ω [PosSMulStrictMono γ β] (hg : AsympPos g) : ¬(f ∈ @o _ _ γ _ _ _ _ _ g ∧ f ∈ @ω _ _ γ _ _ _ _ _ g) := by
