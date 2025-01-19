@@ -126,16 +126,51 @@ section Refl
 variable [LinearOrder α] [Preorder β] [PartialOrder γ] [One α] [γ_monoid : MonoidWithZero γ] 
          [MulAction γ β] [ZeroLEOneClass γ] [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
 
-theorem Θ_refl : f ∈ @Θ _ _ γ _ _ _ _ _ f := by
+lemma Θ_refl : f ∈ @Θ _ _ γ _ _ _ _ _ f := by
   exact asymp_bounded_refl
 
-theorem O_refl : f ∈ @O _ _ γ _ _ _ _ _ f := by
+lemma O_refl : f ∈ @O _ _ γ _ _ _ _ _ f := by
   exact asymp_bounded_above_refl
 
-theorem Ω_refl : f ∈ @Ω _ _ γ _ _ _ _ _ f := by
+lemma Ω_refl : f ∈ @Ω _ _ γ _ _ _ _ _ f := by
   exact asymp_bounded_below_refl
 
 end Refl
+
+
+section Trans
+
+variable [LinearOrder α] [Preorder β] {f g h : α → β}
+
+section Bounded
+
+variable [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
+
+lemma Θ_trans (ha : f ∈ @Θ _ _ γ _ _ _ _ _ g) (hb : g ∈ @Θ _ _ γ _ _ _ _ _ h) : f ∈ @Θ _ _ γ _ _ _ _ _ h := by
+  exact asymp_bounded_trans ha hb
+
+lemma O_trans (ha : f ∈ @O _ _ γ _ _ _ _ _ g) (hb : g ∈ @O _ _ γ _ _ _ _ _ h) : f ∈ @O _ _ γ _ _ _ _ _ h := by
+  exact asymp_bounded_above_trans ha hb
+
+lemma Ω_trans (ha : f ∈ @Ω _ _ γ _ _ _ _ _ g) (hb : g ∈ @Ω _ _ γ _ _ _ _ _ h) : f ∈ @Ω _ _ γ _ _ _ _ _ h := by
+  exact asymp_bounded_below_trans ha hb
+
+end Bounded
+
+
+section Dom
+
+variable [PartialOrder γ] [MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] [NeZero (@One.one γ _)] [PosSMulMono γ β] 
+
+lemma o_trans (ha : f ∈ @o _ _ γ _ _ _ _ _ g) (hb : g ∈ @o _ _ γ _ _ _ _ _ h) : f ∈ @o _ _ γ _ _ _ _ _ h := by
+  exact asymp_right_dom_trans ha hb
+
+lemma ω_trans (ha : f ∈ @ω _ _ γ _ _ _ _ _ g) (hb : g ∈ @ω _ _ γ _ _ _ _ _ h) : f ∈ @ω _ _ γ _ _ _ _ _ h := by
+  exact asymp_left_dom_trans ha hb
+
+end Dom
+
+end Trans
 
 
 section SMul

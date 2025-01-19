@@ -131,6 +131,31 @@ theorem asymp_le_ge_iff : AsympLE f g ↔ AsympGE g f := by
 end Equivalence
 
 
+section Trans
+
+variable [LinearOrder α] [Preorder β] {f g h : α → β}
+
+lemma asymp_le_trans (ha : AsympLE f g) (hb : AsympLE g h) : AsympLE f h := by
+  rcases ha with ⟨N₁, ha⟩
+  rcases hb with ⟨N₂, hb⟩
+  use N₁ ⊔ N₂
+  intro n hn
+  specialize ha n (le_trans (le_max_left N₁ N₂) hn)
+  specialize hb n (le_trans (le_max_right N₁ N₂) hn)
+  exact le_trans ha hb
+
+lemma asymp_ge_trans (ha : AsympGE f g) (hb : AsympGE g h) : AsympGE f h := by
+  rcases ha with ⟨N₁, ha⟩
+  rcases hb with ⟨N₂, hb⟩
+  use N₁ ⊔ N₂
+  intro n hn
+  specialize ha n (le_trans (le_max_left N₁ N₂) hn)
+  specialize hb n (le_trans (le_max_right N₁ N₂) hn)
+  exact le_trans hb ha
+
+end Trans
+
+
 section PosNeg
 
 variable [LinearOrder α] [Preorder β] [Zero β] {f g : α → β}

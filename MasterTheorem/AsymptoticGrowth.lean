@@ -221,6 +221,67 @@ lemma asymp_bounded_below_refl : AsympBoundedBelow γ f f := by
 end Refl
 
 
+section Trans
+
+variable [LinearOrder α] [Preorder β] {f g h : α → β}
+
+section Bounded
+
+variable [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
+
+lemma asymp_bounded_above_trans (ha : AsympBoundedAbove γ f g) (hb : AsympBoundedAbove γ g h) : AsympBoundedAbove γ f h := by
+  rcases ha with ⟨k₁, k₁_pos, ha⟩
+  rcases hb with ⟨k₂, k₂_pos, hb⟩
+  use k₁ * k₂
+  constructor
+  . exact mul_pos k₁_pos k₂_pos
+  . apply asymp_le_pos_smul k₁_pos at hb
+    simp [mul_smul]
+    exact asymp_le_trans ha hb
+
+lemma asymp_bounded_below_trans (ha : AsympBoundedBelow γ f g) (hb : AsympBoundedBelow γ g h) : AsympBoundedBelow γ f h := by
+  rcases ha with ⟨k₁, k₁_pos, ha⟩
+  rcases hb with ⟨k₂, k₂_pos, hb⟩
+  use k₁ * k₂
+  constructor
+  . exact mul_pos k₁_pos k₂_pos
+  . apply asymp_ge_pos_smul k₁_pos at hb
+    simp [mul_smul]
+    exact asymp_ge_trans ha hb
+
+lemma asymp_bounded_trans (ha : AsympBounded γ f g) (hb : AsympBounded γ g h) : AsympBounded γ f h := by
+  constructor
+  . exact asymp_bounded_above_trans ha.1 hb.1
+  . exact asymp_bounded_below_trans ha.2 hb.2
+
+end Bounded
+
+
+section Dom
+
+variable [PartialOrder γ] [MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] [NeZero (@One.one γ _)] [PosSMulMono γ β] 
+
+lemma asymp_left_dom_trans (ha : AsympLeftDom γ f g) (hb : AsympLeftDom γ g h) : AsympLeftDom γ f h := by
+  intro k k_pos
+  specialize ha k k_pos
+  specialize hb 1 one_pos
+  simp at hb
+  apply asymp_ge_pos_smul k_pos at hb
+  exact asymp_ge_trans ha hb
+
+lemma asymp_right_dom_trans (ha : AsympRightDom γ f g) (hb : AsympRightDom γ g h) : AsympRightDom γ f h := by
+  intro k k_pos
+  specialize ha k k_pos
+  specialize hb 1 one_pos
+  simp at hb
+  apply asymp_le_pos_smul k_pos at hb
+  exact asymp_le_trans ha hb
+
+end Dom
+
+end Trans
+
+
 section SMul
 
 variable {c : γ} {f g : α → β} 
