@@ -247,6 +247,40 @@ complexity theory in Lean 4:
 \end{proof}
 
 
+\section{Transitivity}
+
+\begin{lemma}
+    \label{lemma:asymp_le_trans}
+    \lean{asymp_le_trans}
+    \leanok
+    If $f$ is asymptotically less than $g$ and $g$ is asymptotically less than $h$,
+    then $f$ is asymptotically less than $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    By assumption, $f(x) \le g(x)$ for all $x \ge x\_0$ and $g(y) \le h(y)$ for all
+    $y \ge y\_0$. Let $z\_0 = \max \{ x\_0, y\_0 \}$. By transitivity, we have 
+    $f(z) \le g(z)$ for all $z \ge z\_0$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_trans}
+    \lean{asymp_ge_trans}
+    \leanok
+    If $f$ is asymptotically greater than $g$ and $g$ is asymptotically greater than $h$,
+    then $f$ is asymptotically greater than $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_trans}
+    By the equivalence given by Lemma \ref{thm:asymp_le_ge_iff}, we can apply
+    Lemma \ref{lemma:asymp_le_trans} in reverse, since $h$ is asymptotically less than
+    $g$ and $g$ is asymptotically less than $f$.
+\end{proof}
+
+
 \subsection{Additivity}
 
 \begin{lemma}
@@ -722,6 +756,93 @@ complexity theory in Lean 4:
 \end{proof}
 
 
+\subsection{Transitivity}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_above_trans}
+    \lean{asymp_bounded_above_trans}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    If $f$ is asymptotically bounded above by $g$ and $g$ is asymptotically bounded above
+    by $h$, then $f$ is asymptotically bounded above by $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_le_pos_smul, lemma:asymp_le_trans}
+    Let $k\_1$ and $k\_2$ be the constants such that $f(x) \le k\_1 \cdot g(x)$ and
+    $g(x) \le k\_2 \cdot h(x)$ for sufficiently large $x$. By multiplicativity and 
+    transitivity, we have $f(x) \le k\1 \cdot k\_2 \cdot h(x)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_below_trans}
+    \lean{asymp_bounded_below_trans}
+    \leanok
+    \uses{def:asymp_bounded_below}
+    If $f$ is asymptotically bounded below by $g$ and $g$ is asymptotically bounded below
+    by $h$, then $f$ is asymptotically bounded below by $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_ge_pos_smul, lemma:asymp_ge_trans}
+    Let $k\_1$ and $k\_2$ be the constants such that $f(x) \ge k\_1 \cdot g(x)$ and
+    $g(x) \ge k\_2 \cdot h(x)$ for sufficiently large $x$. By multiplicativity and 
+    transitivity, we have $f(x) \ge k\1 \cdot k\_2 \cdot h(x)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_bounded_trans}
+    \lean{asymp_bounded_trans}
+    \leanok
+    \uses{def:asymp_bounded}
+    If $f$ is asymptotically bounded by $g$ and $g$ is asymptotically bounded 
+    by $h$, then $f$ is asymptotically bounded by $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_trans, lemma:asymp_bounded_below_trans}
+    A direct consequence of Lemma \ref{lemma:asymp_bounded_above_trans} and Lemma
+    \ref{lemma:asymp_bounded_below_trans}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_right_dom_trans}
+    \lean{asymp_right_dom_trans}
+    \leanok
+    \uses{def:asymp_right_dom}
+    If $f$ is asymptotically dominated by $g$ and $g$ is asymptotically dominated by $h$, then 
+    $f$ is asymptotically dominated by $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_le_pos_smul, lemma:asymp_le_trans}
+    Let $k > 0$. Then by first assumption, we have $f(x) \le k \cdot g(x)$ for large 
+    $x$. By the second assumption, we have $g(x) \le h(x)$ for large $x$. By multiplicativity 
+    and transitivity, we get $f(x) \le k \cdot h(x)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_left_dom_trans}
+    \lean{asymp_left_dom_trans}
+    \leanok
+    \uses{def:asymp_left_dom}
+    If $f$ asymptotically dominates $g$ and $g$ asymptotically dominates $h$, then 
+    $f$ asymptotically dominates $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_ge_pos_smul, lemma:asymp_ge_trans}
+    Let $k > 0$. Then by first assumption, we have $f(x) \ge k \cdot g(x)$ for large 
+    $x$. By the second assumption, we have $g(x) \ge h(x)$ for large $x$. By multiplicativity 
+    and transitivity, we get $f(x) \ge k \cdot h(x)$.
+\end{proof}
+
+
 \subsection{Scalar multiplicativity}
 
 \begin{lemma}
@@ -1169,8 +1290,8 @@ action on $R$.
 
 \begin{proof}
     \leanok
-    \uses{lemma:not_asymp_pos_right_dom_of_bounded_below}
-    A direct application of \ref{lemma:not_asymp_pos_right_dom_of_bounded_below}.
+    \uses{thm:not_asymp_pos_right_dom_of_bounded_below}
+    A direct application of \ref{thm:not_asymp_pos_right_dom_of_bounded_below}.
 \end{proof}
 
 \begin{lemma}
@@ -1182,8 +1303,8 @@ action on $R$.
 
 \begin{proof}
     \leanok
-    \uses{lemma:not_asymp_pos_bounded_below_of_right_dom}
-    A direct application of \ref{lemma:not_asymp_pos_bounded_below_of_right_dom}.
+    \uses{thm:not_asymp_pos_bounded_below_of_right_dom}
+    A direct application of \ref{thm:not_asymp_pos_bounded_below_of_right_dom}.
 \end{proof}
 
 \begin{lemma}
