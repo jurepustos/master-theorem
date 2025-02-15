@@ -10,9 +10,11 @@ import Mathlib.Order.MinMax
 import MasterTheorem.AsymptoticIneq
 import MasterTheorem.Aux
 
+variable {α β : Type*} (γ : Type* := by exact β)
+
 section Defs
 
-variable {α β : Type*} [LE α] [LE β] (γ : Type*) [LT γ] [Zero γ] [SMul γ β]  
+variable [LE α] [LE β] [LT γ] [Zero γ] [SMul γ β]  
 
 def AsympBoundedAbove (f g : α → β) := 
   ∃ k : γ, k > 0 ∧ AsympLE f (fun n ↦ k • g n)
@@ -196,8 +198,6 @@ end Conversions
 
 section Properties
 
-variable {α β γ : Type*}
-
 section Refl
 
 variable [LinearOrder α] [Preorder β] [PartialOrder γ] [One α] [γ_monoid : MonoidWithZero γ] 
@@ -213,10 +213,10 @@ lemma asymp_bounded_refl : AsympBounded γ f f := by
       simp
 
 lemma asymp_bounded_above_refl : AsympBoundedAbove γ f f := by
-  exact asymp_bounded_refl.1
+  exact (asymp_bounded_refl γ).1
 
 lemma asymp_bounded_below_refl : AsympBoundedBelow γ f f := by
-  exact asymp_bounded_refl.2
+  exact (asymp_bounded_refl γ).2
 
 end Refl
 
@@ -251,8 +251,8 @@ lemma asymp_bounded_below_trans (ha : AsympBoundedBelow γ f g) (hb : AsympBound
 
 lemma asymp_bounded_trans (ha : AsympBounded γ f g) (hb : AsympBounded γ g h) : AsympBounded γ f h := by
   constructor
-  . exact asymp_bounded_above_trans ha.1 hb.1
-  . exact asymp_bounded_below_trans ha.2 hb.2
+  . exact asymp_bounded_above_trans γ ha.1 hb.1
+  . exact asymp_bounded_below_trans γ ha.2 hb.2
 
 end Bounded
 
@@ -309,8 +309,8 @@ lemma asymp_bounded_below_pos_smul (hc : c > 0) (h : AsympBoundedBelow γ f g) :
 theorem asymp_bounded_pos_smul (hc : c > 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) g := by
   rcases h with ⟨ha, hb⟩
   constructor
-  . exact asymp_bounded_above_pos_smul hc ha
-  . exact asymp_bounded_below_pos_smul hc hb
+  . exact asymp_bounded_above_pos_smul γ hc ha
+  . exact asymp_bounded_below_pos_smul γ hc hb
 
 end Pos
 
@@ -349,8 +349,8 @@ lemma asymp_bounded_below_neg_smul (hc : c < 0) (h : AsympBoundedBelow γ f g) :
 theorem asymp_bounded_neg_smul (hc : c < 0) (h : AsympBounded γ f g) : AsympBounded γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
   rcases h with ⟨ha, hb⟩
   constructor 
-  . exact asymp_bounded_below_neg_smul hc hb
-  . exact asymp_bounded_above_neg_smul hc ha
+  . exact asymp_bounded_below_neg_smul γ hc hb
+  . exact asymp_bounded_above_neg_smul γ hc ha
 
 end Neg
 
@@ -441,7 +441,7 @@ lemma asymp_bounded_above_nonneg_mul (hf₁ : AsympNonneg f₁) (hf₂ : AsympNo
   constructor
   . exact mul_pos k₁_pos k₂_pos
   . suffices AsympLE (f₁ * f₂) (k₁ • g₁ * k₂ • g₂) by {
-      rw [pi_smul_mul_smul_comm] at this 
+      rw [pi_smul_mul_smul_comm γ] at this 
       exact this
     } 
     exact asymp_le_nonneg_mul hf₁ hf₂ ha hb
@@ -453,7 +453,7 @@ lemma asymp_bounded_below_nonpos_mul [ExistsAddOfLE β] [AddRightMono β] [AddRi
   constructor
   . exact mul_pos k₁_pos k₂_pos
   . suffices AsympLE (f₁ * f₂) (k₁ • g₁ * k₂ • g₂) by {
-      rw [pi_smul_mul_smul_comm] at this 
+      rw [pi_smul_mul_smul_comm γ] at this 
       exact this
     } 
     exact asymp_ge_nonpos_mul hf₁ hf₂ ha hb

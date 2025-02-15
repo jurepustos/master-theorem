@@ -24,11 +24,11 @@ structure MasterRecurrence (T : ℕ → ℕ) (a : ℕ) (b : ℕ) (f : ℕ → �
   /- Positive base cases -/
   T_base_pos : ∀ n < n₀, T n > 0
   /- The recurrence formula -/
-  T_rec : ∀ n ≥ n₀, T n ≤ a • T ((Rat.ofInt n) / (Rat.ofInt b)).ceil.toNat + f n
+  T_rec : ∀ n ≥ n₀, T n ≤ a * T ((Rat.ofInt n) / (Rat.ofInt b)).ceil.toNat + f n
   /- f is polynomial with degree d -/
   d : ℕ
   /- f is polynomial with degree d -/
-  f_poly : AsympBoundedAbove ℕ f fun n ↦ n ^ d
+  f_poly : f ∈ O ℕ fun n ↦ n ^ d
 
 
 namespace MasterRecurrence
@@ -73,10 +73,10 @@ def rec_pow (master_rec: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) :
     }
     T_base_pos := master_rec.T_base_pos
     T_rec := by {
-      rcases master_rec.f_poly with ⟨C, C_pos, N₀, hf⟩
+      rcases master_rec.f_poly with ⟨C₀, C₀_pos, N₀, hf₀⟩
       generalize hN : master_rec.n₀ ⊔ N₀ = N
       simp
-      simp at hf
+      simp at hf₀
 
       /- We handle `n₀ ≤ n < N` separately as `f` is not bounded by 
          `C • n^d` below N. -/
