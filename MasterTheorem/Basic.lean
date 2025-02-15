@@ -96,7 +96,61 @@ def rec_pow (master_rec: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) :
 
       intro hn
       /- TODO: adapt, cast to ℚ and apply formula_pow -/
-      sorry
+      simp
+      unfold Int.toNat Rat.ceil
+      split_ifs with hden_nb hden_geom
+      . split <;> split
+        case pos.h_1.h_1 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case pos.h_1.h_2 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case pos.h_2.h_1 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case pos.h_2.h_2 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+      . split <;> split
+        case neg.h_1.h_1 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case neg.h_1.h_2 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case neg.h_2.h_1 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case neg.h_2.h_2 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+      . split <;> split
+        case pos.h_1.h_1 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case pos.h_1.h_2 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case pos.h_2.h_1 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case pos.h_2.h_2 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+      . split <;> split
+        case neg.h_1.h_1 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case neg.h_1.h_2 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case neg.h_2.h_1 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
+        case neg.h_2.h_2 x m hnum_nb y l hnum_geom := by {
+          sorry
+        }
     }
     d := master_rec.d
     f_poly := by {
