@@ -29,7 +29,7 @@ def AsympNonneg {α β : Type*} [LE α] [LE β] [Zero β] (f : α → β) :=
 def AsympNonpos {α β : Type*} [LE α] [LE β] [Zero β] (f : α → β) :=
   AsympProperty (fun n ↦ f n ≤ 0)
 
-variable {α β : Type*} [LE α] [LE β] (γ : Type* := by exact β) [LT γ] [Zero γ] [SMul γ β]  
+variable {α β : Type*} [LE α] [LE β]
 
 def AsympLE (f g : α → β) :=
   AsympProperty (fun n ↦ f n ≤ g n)

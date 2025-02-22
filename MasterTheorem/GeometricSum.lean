@@ -7,11 +7,11 @@ def GeometricSum (a b : ℚ) (n : ℕ) : ℚ :=
 
 namespace GeometricSum
 
-lemma def_zero {a b : ℚ} : GeometricSum a b 0 = a := by
+lemma def_zero (a b : ℚ) : GeometricSum a b 0 = a := by
   unfold GeometricSum
   rfl
 
-lemma def_succ {a b : ℚ} {k : ℕ} : a * b^(Nat.succ k) + GeometricSum a b k = GeometricSum a b (Nat.succ k) := by
+lemma def_succ (a b : ℚ) (k : ℕ) : a * b^(Nat.succ k) + GeometricSum a b k = GeometricSum a b (Nat.succ k) := by
   unfold GeometricSum
   split
   . simp
@@ -19,7 +19,7 @@ lemma def_succ {a b : ℚ} {k : ℕ} : a * b^(Nat.succ k) + GeometricSum a b k =
   . simp
     apply def_succ
 
-lemma pos_of_pos_pos {a b : ℚ} {n : ℕ} (ha : a > 0) (hb : b > 0) : GeometricSum a b n > 0 := by
+lemma pos_of_pos_of_pos {a b : ℚ} (ha : a > 0) (hb : b > 0) (n : ℕ) : GeometricSum a b n > 0 := by
   unfold GeometricSum
   induction n with
   | zero => {

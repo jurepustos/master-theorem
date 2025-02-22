@@ -14,7 +14,7 @@ variable {α β : Type*} (γ : Type* := by exact β)
 
 section Defs
 
-variable [LE α] [LE β] [LT γ] [Zero γ] [SMul γ β]  
+variable [LE α] [LE β] [LT γ] [Zero γ] [SMul γ β]
 
 def AsympBoundedAbove (f g : α → β) := 
   ∃ k : γ, k > 0 ∧ AsympLE f (fun n ↦ k • g n)

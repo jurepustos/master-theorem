@@ -10,9 +10,9 @@ import MasterTheorem.GeometricSum
 /- We formalize the proof at https://www.cs.dartmouth.edu/~deepc/Courses/S20/lecs/lec3supp.pdf -/
 
 /- Divide and conquer recurrence -/
-structure MasterRecurrence (T : ℕ → ℕ) (a : ℕ) (b : ℕ) (f : ℕ → ℕ) where
+structure MasterRecurrence (T : ℤ → ℤ) (a : ℤ) (b : ℤ) (f : ℤ → ℤ) where
   /- The lowest point at which the recurrence is in the base case -/
-  n₀ : ℕ
+  n₀ : ℤ
   /- n₀ has to be strictly positive -/
   n₀_pos : n₀ > 0
   /- a is positive -/
@@ -20,15 +20,17 @@ structure MasterRecurrence (T : ℕ → ℕ) (a : ℕ) (b : ℕ) (f : ℕ → �
   /- a is positive -/
   one_lt_b : 1 < b
   /- f is nonnegative -/
-  f_nonneg : ∀ n, f n ≥ 0
-  /- Positive base cases -/
-  T_base_pos : ∀ n < n₀, T n > 0
+  f_nonneg : f ≥ 0
+  /- Negative base cases equal zero -/
+  T_neg_eq_zero : ∀ n < 0, T n = 0
+  /- Base cases are nonnegative -/
+  T_nonneg : T ≥ 0
   /- The recurrence formula -/
-  T_rec : ∀ n ≥ n₀, T n ≤ a * T ((Rat.ofInt n) / (Rat.ofInt b)).ceil.toNat + f n
+  T_rec : ∀ n ≥ n₀, T n ≤ a * T ((Rat.ofInt n) / (Rat.ofInt b)).ceil + f n
   /- f is polynomial with degree d -/
   d : ℕ
   /- f is polynomial with degree d -/
-  f_poly : f ∈ O ℕ fun n ↦ n ^ d
+  f_poly : f ∈ O ℤ fun n ↦ n ^ d
 
 
 namespace MasterRecurrence
@@ -54,35 +56,72 @@ private lemma formula_pow {T f : ℚ → ℚ} {a b C : ℚ} {n₀ k d : ℕ} (ha
     exact hrec_nk
   }
   have hpow_n' := le_add_of_le_add_right hpow_n T_subst
-  /- TODO: extract (a/b^d)^k and rewrite with GeometricSum.def_succ -/
-  sorry
+  have habk : a^k * C * (n / b^k)^d = C * n^d * (a / b^d)^k := by {
+    rw [mul_comm (a^k), Rat.div_def, Rat.div_def, mul_pow, mul_pow, ← mul_assoc, ← mul_assoc,
+        mul_assoc C, mul_comm (a^k), ← mul_assoc C, Rat.inv_def, Rat.divInt_pow, Rat.num_pow,
+        Rat.den_pow, Rat.inv_def, Rat.divInt_pow, Rat.num_pow, Rat.den_pow, ← pow_mul, ← pow_mul,
+        mul_comm d k, ← Nat.cast_pow, ← Nat.cast_pow, ← pow_mul, ← pow_mul, mul_comm d k]
+  }
+  rw [habk, mul_comm (GeometricSum _ _ _), add_assoc, ← mul_add (C * n^d), ← mul_comm (_ + _), 
+      ← Nat.pred_eq_sub_one, ← Nat.succ_pred_eq_of_pos hk, Nat.pred_succ, 
+      ← one_mul (_^k.pred.succ), GeometricSum.def_succ, Nat.succ_pred] at hpow_n'
+  exact hpow_n'
 
 
-variable {T f : ℕ → ℕ} {a b : ℕ}
+variable {T f : ℤ → ℤ} {a b : ℤ}
 
-def rec_pow (master_rec: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) : 
-    MasterRecurrence T (a^k) (b^k) ((GeometricSum 1 (a/b^master_rec.d) (k - 1)).ceil.toNat • f) :=
+lemma b_pos (self: MasterRecurrence T a b f) : b > 0 := lt_trans one_pos self.one_lt_b 
+ 
+def rec_pow (self: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) : 
+    MasterRecurrence T (a^k) (b^k) ((GeometricSum 1 (a/b^self.d) (k - 1)).ceil • f) :=
   {
-    n₀ := master_rec.n₀,
-    n₀_pos := master_rec.n₀_pos,
-    a_pos := pow_pos master_rec.a_pos k,
-    one_lt_b := one_lt_pow₀ master_rec.one_lt_b (zero_lt_iff.1 hk),
+    n₀ := self.n₀,
+    n₀_pos := self.n₀_pos,
+    a_pos := pow_pos self.a_pos k,
+    one_lt_b := one_lt_pow₀ self.one_lt_b (zero_lt_iff.1 hk),
     f_nonneg := by {
       intro n
-      apply mul_nonneg <;> simp
+      apply mul_nonneg
+      . unfold Rat.ceil
+        split_ifs with hden
+        . apply Rat.num_nonneg.2
+          apply le_of_lt
+          apply GeometricSum.pos_of_pos_of_pos one_pos
+          apply div_pos
+          . simp
+            exact self.a_pos
+          . apply pow_pos
+            . simp
+              exact self.b_pos
+        . apply add_nonneg
+          . apply Int.ediv_nonneg
+            . apply Rat.num_nonneg.2
+              apply le_of_lt
+              apply GeometricSum.pos_of_pos_of_pos one_pos
+              apply div_pos
+              . simp
+                exact self.a_pos
+              . apply pow_pos
+                . simp
+                  exact self.b_pos
+            . simp
+          . apply le_of_lt
+            exact one_pos
+      . exact self.f_nonneg n
     }
-    T_base_pos := master_rec.T_base_pos
+    T_neg_eq_zero := self.T_neg_eq_zero
+    T_nonneg := self.T_nonneg
     T_rec := by {
-      rcases master_rec.f_poly with ⟨C₀, C₀_pos, N₀, hf₀⟩
-      generalize hN : master_rec.n₀ ⊔ N₀ = N
+      rcases self.f_poly with ⟨C₀, C₀_pos, N₀, hf₀⟩
+      generalize hN : self.n₀ ⊔ N₀ = N
       simp
       simp at hf₀
 
       /- We handle `n₀ ≤ n < N` separately as `f` is not bounded by 
          `C • n^d` below N. -/
       intro n
-      suffices n ≥ N → T n ≤ a ^ k * T ((Rat.ofInt n) / (Rat.ofInt (b^k))).ceil.toNat + 
-          (GeometricSum 1 (a / b ^ master_rec.d) (k - 1)).ceil.toNat * f n by {
+      suffices n ≥ N → T n ≤ a ^ k * T ((Rat.ofInt n) / (Rat.ofInt (b^k))).ceil + 
+          (GeometricSum 1 (a / b ^ self.d) (k - 1)).ceil * f n by {
         intro hn
         simp at this
         if h : n ≥ N then {
@@ -97,89 +136,41 @@ def rec_pow (master_rec: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) :
       intro hn
       /- TODO: adapt, cast to ℚ and apply formula_pow -/
       simp
-      unfold Int.toNat Rat.ceil
+      unfold Rat.ceil
       split_ifs with hden_nb hden_geom
-      . split <;> split
-        case pos.h_1.h_1 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case pos.h_1.h_2 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case pos.h_2.h_1 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case pos.h_2.h_2 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-      . split <;> split
-        case neg.h_1.h_1 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case neg.h_1.h_2 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case neg.h_2.h_1 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case neg.h_2.h_2 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-      . split <;> split
-        case pos.h_1.h_1 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case pos.h_1.h_2 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case pos.h_2.h_1 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case pos.h_2.h_2 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-      . split <;> split
-        case neg.h_1.h_1 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case neg.h_1.h_2 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case neg.h_2.h_1 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
-        case neg.h_2.h_2 x m hnum_nb y l hnum_geom := by {
-          sorry
-        }
+      . sorry
+      . sorry
+      . sorry
+      . sorry
     }
-    d := master_rec.d
+    d := self.d
     f_poly := by {
       apply O_pos_smul
       . simp 
         unfold Rat.ceil
         split_ifs with hden
         . apply Rat.num_pos.2
-          apply GeometricSum.pos_of_pos_pos one_pos
+          apply GeometricSum.pos_of_pos_of_pos one_pos
           apply div_pos
           . simp
-            exact master_rec.a_pos
+            exact self.a_pos
           . apply pow_pos
             simp
-            exact lt_trans one_pos master_rec.one_lt_b
+            exact self.b_pos
         . apply Left.add_pos_of_nonneg_of_pos
           . apply Int.ediv_nonneg <;> apply le_of_lt
             . apply Rat.num_pos.2
-              apply GeometricSum.pos_of_pos_pos one_pos
+              apply GeometricSum.pos_of_pos_of_pos one_pos
               apply div_pos
               . simp
-                exact master_rec.a_pos
+                exact self.a_pos
               . apply pow_pos
                 simp
-                exact lt_trans one_pos master_rec.one_lt_b
+                exact self.b_pos
             . simp
               apply Rat.den_pos
           . exact one_pos
-      . exact master_rec.f_poly
+      . exact self.f_poly
     }
   }
 
