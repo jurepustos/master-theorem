@@ -11,11 +11,11 @@ import MasterTheorem.GeometricSum
 
 /- Divide and conquer recurrence -/
 structure MasterRecurrence (T : ℤ → ℤ) (a : ℤ) (b : ℤ) (f : ℤ → ℤ) where
-  /- The lowest point at which the recurrence is in the base case -/
+  /-The lowest point at which the recurrence is in the base case -/
   n₀ : ℤ
   /- n₀ has to be strictly positive -/
   n₀_pos : n₀ > 0
-  /- a is positive -/
+  /-a is positive -/
   a_pos : a > 0
   /- a is positive -/
   one_lt_b : 1 < b
@@ -65,7 +65,9 @@ private lemma formula_pow {T f : ℚ → ℚ} {a b C : ℚ} {n₀ k d : ℕ} (ha
   rw [habk, mul_comm (GeometricSum _ _ _), add_assoc, ← mul_add (C * n^d), ← mul_comm (_ + _), 
       ← Nat.pred_eq_sub_one, ← Nat.succ_pred_eq_of_pos hk, Nat.pred_succ, 
       ← one_mul (_^k.pred.succ), GeometricSum.def_succ, Nat.succ_pred] at hpow_n'
-  exact hpow_n'
+  . exact hpow_n'
+  . symm
+    exact ne_of_lt hk
 
 
 variable {T f : ℤ → ℤ} {a b : ℤ}
@@ -112,36 +114,47 @@ def rec_pow (self: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) :
     T_neg_eq_zero := self.T_neg_eq_zero
     T_nonneg := self.T_nonneg
     T_rec := by {
-      rcases self.f_poly with ⟨C₀, C₀_pos, N₀, hf₀⟩
-      generalize hN : self.n₀ ⊔ N₀ = N
+      intro n hn
       simp
-      simp at hf₀
-
-      /- We handle `n₀ ≤ n < N` separately as `f` is not bounded by 
-         `C • n^d` below N. -/
-      intro n
-      suffices n ≥ N → T n ≤ a ^ k * T ((Rat.ofInt n) / (Rat.ofInt (b^k))).ceil + 
-          (GeometricSum 1 (a / b ^ self.d) (k - 1)).ceil * f n by {
-        intro hn
-        simp at this
-        if h : n ≥ N then {
-          exact this h
+      have poly_pos : 0 < n^self.d := by {
+        induction' self.d with d hd
+        . rw [pow_zero]
+          exact one_pos
+        . rw [pow_add, pow_one]
+          apply mul_pos
+          . exact hd
+          . exact lt_of_lt_of_le self.n₀_pos hn
+      }
+      have poly_nonneg : 0 ≤ n^self.d := le_of_lt poly_pos
+      have f_bound : ∃ C : ℤ, C > 0 ∧ f n ≤ C * n^self.d := by {
+        rcases self.f_poly with ⟨C₀, C₀_pos, N₀, hf₀⟩
+        generalize hN : self.n₀ ⊔ N₀ = N
+        simp at hf₀
+        specialize hf₀ n
+        if hN₀ : N₀ ≤ n then {
+          specialize hf₀ hN₀
+          use C₀
         }
         else {
-          simp at h
-          sorry
+          simp at hN₀
+          use f n + 1
+          constructor
+          . apply add_pos_of_nonneg_of_pos
+            . exact self.f_nonneg n
+            . exact one_pos
+          . rw [add_mul, one_mul]
+            apply le_add_of_le_add_right
+            . apply le_add_of_nonneg_right
+              . exact poly_nonneg
+            . apply le_mul_of_one_le_right
+              . exact self.f_nonneg n
+              . rw [Order.one_le_iff_pos]
+                exact poly_pos
         }
       }
 
-      intro hn
       /- TODO: adapt, cast to ℚ and apply formula_pow -/
-      simp
-      unfold Rat.ceil
-      split_ifs with hden_nb hden_geom
-      . sorry
-      . sorry
-      . sorry
-      . sorry
+      sorry
     }
     d := self.d
     f_poly := by {
