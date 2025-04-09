@@ -68,6 +68,7 @@ lemma asymp_bounded_iff : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g 
 
 end Simple
 
+
 section Pos
 
 variable [LinearOrder α] [PartialOrder β] [AddCommMonoid β] [LinearOrderedField γ] [Module γ β] [SMulPosStrictMono γ β] 
