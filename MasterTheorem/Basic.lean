@@ -200,8 +200,6 @@ structure MasterRecurrence (T : ℕ → ℕ) (a b : ℕ) (f : ℕ → ℕ) where
   a_pos : a > 0
   /- a is positive -/
   one_lt_b : 1 < b
-  /- f is monotone -/
-  T_monotone : Monotone T
   /- The recurrence formula -/
   T_rec : ∀ n ≥ n₀, T n ≤ a * T (n ⌈/⌉ b) + f n
   /- f is polynomial with degree d -/
@@ -248,66 +246,38 @@ private lemma formula_le_ceil {T f : ℕ → ℕ} {a b n₀ : ℕ} {C : ℚ} (hC
       exact ceil_C_nonneg
     )
 
-private lemma formula_subst_first {T : ℕ → ℕ} {a b d C n₀ : ℕ} (ha : a > 0) (hb : b > 0)
-    (hC : C > 0) (hd : d > 0) (hrec : ∀ n : ℕ, n ≥ n₀ → T n ≤ a * T (n / b) + C * n^d) :
-    ∀ n : ℕ, n ≥ n₀ * b → T n ≤ a^2 * T (n / b^2) + (1 + (Rat.ofInt a) / (Rat.ofInt b)^d) * C * n^d := by
-  intro n hn
-  have hrec_n := hrec n (le_of_mul_le_of_one_le_left hn hb)
-  have hrec_n_div_b := hrec (n / b) ((Nat.le_div_iff_mul_le hb).2 hn)
-  
-  simp
-  rw [← @Nat.cast_le ℚ, Nat.cast_add, Nat.cast_mul, Nat.cast_mul, 
-      Nat.cast_pow] at hrec_n hrec_n_div_b
-  rw [Nat.div_div_eq_div_mul, ← Nat.pow_two] at hrec_n_div_b
-  rw [mul_assoc, pow_two, add_mul, one_mul, mul_assoc, add_comm (Nat.cast C * _), 
-      ← add_assoc, mul_comm (Nat.cast C), ← mul_assoc _ _ (Nat.cast C), div_mul_eq_mul_div, 
-      ← mul_div, ← div_pow (Nat.cast n) (Nat.cast b) d, mul_assoc (Nat.cast a), 
-      mul_comm _ (Nat.cast C), ← mul_add (Nat.cast a), mul_comm _ (Nat.cast C)]
-  apply @le_add_of_le_add_right ℚ _ _ _ _ (Nat.cast a * Nat.cast (T (n / b))) _ _ hrec_n
-  rw [mul_le_mul_left]
-  . apply @le_add_of_le_add_left ℚ _ _ _ _ _ (Nat.cast C * (Nat.cast (n / b))^d)
-    . exact hrec_n_div_b
-    . rw [mul_le_mul_left, pow_le_pow_iff_left₀]
-      . exact Nat.cast_div_le
-      . linarith
-      . apply div_nonneg <;> linarith
-      . linarith
-      . simp
-        exact hC
-  . simp
-    exact ha
-
-private lemma formula_subst_once {T : ℕ → ℕ} {a b d C n₀ k : ℕ} (ha : a > 0) (hb : b > 1)
-    (hC : C > 0) (hd : d > 0) (hk : k > 0) (hrec : ∀ n : ℕ, n ≥ n₀ → T n ≤ a * T (n / b) + C * n^d)
-    (hformula : ∀ n : ℕ, n ≥ n₀ * b^(k-1) → T n ≤ a^k * T (n / b^k) + (GeometricSum C (a / (b^d)) (k-1)) * n^d) :
-    ∀ n : ℕ, n ≥ n₀ * b^k → T n ≤ a^(k+1) * T (n / b^(k+1)) + (GeometricSum C (a / (b^d)) k) * n^d := by
-  intro n hn
-  have k_nonzero : k ≠ 0 := Nat.ne_zero_iff_zero_lt.2 hk
-  have b_pos : b > 0 := lt_trans one_pos hb
-  have b_pow_k_pred_nonzero : b^(k-1) ≠ 0 := Nat.ne_zero_iff_zero_lt.2 (pow_pos b_pos (k-1))
-  have n₀_mul_b_pow_k_pred_le_n : n₀ * b^(k-1) ≤ n := by {
-    rw [← Nat.sub_one_add_one k_nonzero, pow_succ, ← mul_assoc] at hn
-    exact le_of_mul_le_of_one_le_left hn b_pos
+private lemma formula_subst_once {T : ℕ → ℕ} {a b d C n₀ k : ℕ} (n : ℕ) (ha : a > 0)
+    (hb : b > 1) (hn : n ≥ n₀ * b^k) (hC : C > 0) (hd : d > 0)
+    (hrec : T (n / b^k) ≤ a * T (n / b^(k+1)) + C * (n / b^k)^d)
+    (hformula : T n ≤ a^k * T (n / b^k) + (GeometricSum C (a / (b^d)) (k-1)) * n^d) :
+    T n ≤ a^(k+1) * T (n / b^(k+1)) + (GeometricSum C (a / (b^d)) k) * n^d := by
+  if hk : k = 0 then {
+    rw [hk, GeometricSum.def_zero, zero_add, pow_one, pow_one, ← Nat.cast_mul,
+        ← Nat.cast_pow, ← Nat.cast_mul, ← Nat.cast_add, Nat.cast_le]
+    rw [hk, pow_zero, Nat.div_one, zero_add, pow_one] at hrec 
+    exact hrec
   }
-  have hrec_n_div_b_pow_k := hrec (n / b^k) ((Nat.le_div_iff_mul_le (pow_pos b_pos k)).2 hn)
-  specialize hformula n n₀_mul_b_pow_k_pred_le_n
+  else {
+    replace hk : k ≠ 0 := Ne.intro hk
+    have b_pos : b > 0 := lt_trans one_pos hb
+    have b_pow_k_pred_nonzero : b^(k-1) ≠ 0 := Nat.ne_zero_iff_zero_lt.2 (pow_pos b_pos (k-1))
+    have n₀_mul_b_pow_k_pred_le_n : n₀ * b^(k-1) ≤ n := by {
+      rw [← Nat.sub_one_add_one hk, pow_succ, ← mul_assoc] at hn
+      exact le_of_mul_le_of_one_le_left hn b_pos
+    }
 
-  simp
-  rw [← @Nat.cast_le ℚ, Nat.cast_add, Nat.cast_mul, Nat.cast_mul, 
-      Nat.cast_pow] at hrec_n_div_b_pow_k
-  rw [Nat.div_div_eq_div_mul, ← Nat.pow_succ, ← Nat.add_one] at hrec_n_div_b_pow_k
-  rw [pow_succ, mul_assoc, ← Nat.sub_one_add_one k_nonzero, ← GeometricSum.def_succ,
-      ← Nat.add_one, Nat.sub_one_add_one k_nonzero, add_mul, ← add_assoc, div_pow,
-      ← pow_mul, mul_assoc (Nat.cast C), div_mul_eq_mul_div, 
-      mul_comm ((Nat.cast a)^k) ((Nat.cast n)^d), ← div_mul_eq_mul_div, mul_comm d k,
-      pow_mul, ← div_pow, mul_comm _ ((Nat.cast a)^k), ← mul_assoc (Nat.cast C), 
-      mul_comm (Nat.cast C), mul_assoc, ← mul_add]
+    rw [← @Nat.cast_le ℚ, Nat.cast_add, Nat.cast_mul, Nat.cast_mul, Nat.cast_pow] at hrec
+    rw [pow_succ, mul_assoc, ← Nat.sub_one_add_one hk, ← GeometricSum.def_succ,
+        ← Nat.add_one, Nat.sub_one_add_one hk, add_mul, ← add_assoc, div_pow,
+        ← pow_mul, mul_assoc (Nat.cast C), div_mul_eq_mul_div, 
+        mul_comm ((Nat.cast a)^k) ((Nat.cast n)^d), ← div_mul_eq_mul_div, mul_comm d k,
+        pow_mul, ← div_pow, mul_comm _ ((Nat.cast a)^k), ← mul_assoc (Nat.cast C), 
+        mul_comm (Nat.cast C), mul_assoc, ← mul_add]
 
-  apply @le_add_of_le_add_right ℚ _ _ _ _ ((Nat.cast a)^k * Nat.cast (T (n / b^k))) _ _ hformula
-  rw [mul_le_mul_left]
-  . apply @le_add_of_le_add_left ℚ _ _ _ _ _ (Nat.cast C * (Nat.cast (n / b^k))^d)
-    . exact hrec_n_div_b_pow_k
-    . rw [mul_le_mul_left, pow_le_pow_iff_left₀]
+    apply le_add_of_le_add_right hformula
+    rw [mul_le_mul_left]
+    . apply le_add_of_le_add_left hrec
+      rw [mul_le_mul_left, pow_le_pow_iff_left₀]
       . rw [← Nat.cast_pow]
         exact Nat.cast_div_le
       . simp
@@ -318,10 +288,37 @@ private lemma formula_subst_once {T : ℕ → ℕ} {a b d C n₀ k : ℕ} (ha : 
       . exact Nat.ne_zero_iff_zero_lt.2 hd
       . simp
         exact hC
-  . apply pow_pos
-    simp
-    exact ha
+    . apply pow_pos
+      simp
+      exact ha
+  }
 
+private theorem formula_subst {T : ℕ → ℕ} {a b d C n₀ : ℕ} (k n : ℕ) (ha : a > 0)
+    (hb : b > 1) (hn : n ≥ n₀ * b^k) (hC : C > 0) (hd : d > 0)
+    (hrec : ∀ m : ℕ, m ≥ n₀ → T m ≤ a * T (m / b) + C * m^d) :
+    T n ≤ a^k * T (n / b^k) + (GeometricSum C (a / b^d) (k-1)) * n^d := by
+  induction' k with x hx
+  . rw [← Nat.cast_pow, pow_zero, Nat.zero_sub, pow_zero, 
+        Nat.div_one, GeometricSum.def_zero, Nat.cast_one, one_mul]
+    rw [pow_zero, mul_one] at hn
+    apply le_add_of_le_of_nonneg
+    . apply le_refl
+    . apply mul_nonneg <;> simp
+  . have n₀_mul_b_pow_x_le_n : n₀ * b^x ≤ n := by {
+      rw [pow_succ, ← mul_assoc] at hn
+      exact le_of_mul_le_of_one_le_left hn (le_of_lt hb)
+    }
+    have n₀_le_x_div_b_pow_x : n₀ ≤ n / b^x := by {
+      apply (Nat.le_div_iff_mul_le (pow_pos (le_of_lt hb) x)).2 
+      exact n₀_mul_b_pow_x_le_n
+    }
+    specialize hx n₀_mul_b_pow_x_le_n
+    rw [Nat.add_one_sub_one]
+    apply formula_subst_once n ha hb n₀_mul_b_pow_x_le_n hC hd
+    . specialize hrec (n / b^x) n₀_le_x_div_b_pow_x
+      rw [Nat.div_div_eq_div_mul, ← pow_succ] at hrec
+      exact hrec
+    . exact hx
 
 variable {T f : ℕ → ℕ} {a b : ℕ}
 
@@ -342,6 +339,7 @@ def repeat_subst (self: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) :
         rw [← S_def]
       }
 
+      intro n hn
       sorry
     }
     d := self.d
