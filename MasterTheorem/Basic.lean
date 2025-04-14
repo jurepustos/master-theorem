@@ -358,17 +358,54 @@ def repeat_subst (self: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) :
               apply Rat.den_pos
           . exact one_pos
       . have add_b_poly : (fun n ↦ (n + b)^self.d) ∈ O ℕ fun n ↦ n^self.d := by {
-          unfold O AsympBoundedAbove AsympLE AsympProperty
-          simp
-          sorry
+          have binom_def : ∀ x, ∀ n, (n + b)^x = ∑ m ∈ Finset.range (x + 1), n ^ m * b ^ (x - m) * ↑(x.choose m) := by {
+            intro x n
+            rw [add_pow]
+            simp
+          }
+          have binom_step : ∀ x, ∀ n, (n + b)^x = ∑ m ∈ Finset.range x, n ^ m * b ^ (x - m) * ↑(x.choose m) + n^x := by {
+            intro x n
+            rw [binom_def]
+            rw [Finset.sum_range_succ, Nat.choose_self, mul_one, Nat.sub_self, 
+                pow_zero, mul_one]
+          }
+          
+          induction' self.d with x hx
+          . use 1
+            constructor
+            . exact one_pos
+            . use 0
+              intro n hn
+              simp
+          . rcases hx with ⟨C, C_pos, N, hpoly⟩
+            use C + C * b
+            constructor
+            . exact add_pos C_pos (mul_pos C_pos self.b_pos)
+            . use N + 1
+              intro n hn
+              simp
+              rw [pow_succ, binom_def]
+              specialize hpoly n (le_of_add_le_left hn)
+              simp at hpoly
+              rw [binom_def] at hpoly
+              have n_pos : n > 0 := by linarith
+              apply (mul_le_mul_right (add_pos n_pos self.b_pos)).2 at hpoly
+
+              apply le_trans hpoly
+              rw [mul_add, mul_assoc, ← pow_succ n x, mul_assoc, mul_comm _ b, ← mul_assoc]
+              have le_mul_n : C * b * n^x ≤ C * b * n^(x + 1) := by {
+                rw [pow_succ]
+                apply mul_le_mul
+                . exact le_refl (C * b)
+                . exact le_mul_of_one_le_right (zero_le (n^x)) n_pos
+                . exact zero_le (n^x)
+                . exact zero_le (C * b)
+              }
+              apply le_trans (add_le_add (le_refl (C * n^(x + 1))) le_mul_n)
+              rw [add_mul]
         }
 
-        suffices f_of_add_b_poly : (fun n ↦ f (n + b)) ∈ O ℕ fun n ↦ (n + b)^self.d by {
-          exact O_trans ℕ f_of_add_b_poly add_b_poly
-        }
-
-        unfold O
-        simp
+        apply flip (O_trans ℕ) add_b_poly
         rcases self.f_poly with ⟨C, C_pos, N, hle⟩
         use C
         constructor

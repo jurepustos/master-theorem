@@ -214,35 +214,35 @@ end SMul
 
 section Add
 
-variable {α β γ : Type*} [LinearOrder α] [Preorder β] [AddCommMonoid β] [AddLeftMono β] 
+variable [LinearOrder α] [Preorder β] [AddCommMonoid β] [AddLeftMono β] 
          [LinearOrderedSemiring γ] [Module γ β] {f₁ f₂ g : α → β} 
 
 lemma O_add (ha : f₁ ∈ O γ g) (hb : f₂ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ O γ g := by
-  exact asymp_bounded_above_add ha hb
+  exact asymp_bounded_above_add γ ha hb
 
 lemma Ω_add (ha : f₁ ∈ Ω γ g) (hb : f₂ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Ω γ g := by
-  exact asymp_bounded_below_add ha hb
+  exact asymp_bounded_below_add γ ha hb
 
 theorem Θ_add (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ Θ γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add ha hb
+  exact asymp_bounded_add γ ha hb
 
 lemma Ω_add_pos (hf : AsympPos f₂) (h : f₁ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Ω γ g := by
-  exact asymp_bounded_below_add_pos hf h
+  exact asymp_bounded_below_add_pos γ hf h
 
 lemma O_add_neg (hf : AsympNeg f₂) (h : f₁ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ O γ g := by
-  exact asymp_bounded_above_add_neg hf h
+  exact asymp_bounded_above_add_neg γ hf h
 
 theorem Θ_add_pos_O (hf : AsympPos f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add_pos_above hf ha hb
+  exact asymp_bounded_add_pos_above γ hf ha hb
 
 theorem Θ_add_neg_Ω (hf : AsympNeg f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add_neg_below hf ha hb
+  exact asymp_bounded_add_neg_below γ hf ha hb
 
 theorem Θ_add_pos_o (hf : AsympPos f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ o γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add_pos_right_dom hf ha hb
+  exact asymp_bounded_add_pos_right_dom γ hf ha hb
 
 theorem Θ_add_neg_ω (hf : AsympNeg f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add_neg_left_dom hf ha hb
+  exact asymp_bounded_add_neg_left_dom γ hf ha hb
 
 end Add
 
