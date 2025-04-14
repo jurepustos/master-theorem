@@ -11,7 +11,7 @@ import MasterTheorem.Aux
 
 section Defs
 
-private def AsympProperty {α : Type*} [LE α] (p : α → Prop) :=
+def AsympProperty {α : Type*} [LE α] (p : α → Prop) :=
   ∃ N, ∀ n ≥ N, p n
 
 def AsympNonZero {α β : Type*} [LE α] [Zero β] (f : α → β) :=

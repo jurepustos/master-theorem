@@ -6,137 +6,19 @@ import Mathlib.Data.Nat.Cast.Order.Basic
 import MasterTheorem.BachmanLandauNotation
 import MasterTheorem.AsymptoticGrowth
 import MasterTheorem.GeometricSum
+import MasterTheorem.CeilDiv
 
 
 namespace Nat
 
-lemma ceilDiv_eq_div_or_div_succ {a b : ℕ} (hb : b > 0) : a ⌈/⌉ b = a / b ∨ a ⌈/⌉ b = a / b + 1 := by 
-  rw [Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc, Nat.add_div]
-  . split_ifs with hdiv <;> simp
-    . right
-      apply (Nat.div_eq_zero_iff hb).2
-      apply Nat.sub_one_lt
-      linarith
-    . left
-      apply (Nat.div_eq_zero_iff hb).2
-      apply Nat.sub_one_lt
-      linarith
-  . exact hb
-  . linarith
-
-lemma pred_div_self {a : ℕ} (h : a > 0) : (a - 1) / a = 0 := by
-  apply (Nat.div_eq_zero_iff h).2
-  apply Nat.sub_one_lt
-  linarith
-
-lemma ceilDiv_le_div_succ {a b : ℕ} (hb : b > 0) : a ⌈/⌉ b ≤ a / b + 1 := by 
-  rw [Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc, Nat.add_div]
-  . split_ifs with hdiv <;> simp <;> linarith [pred_div_self hb]
-  . exact hb
-  . linarith
-
-theorem ceilDiv_eq_div_iff_dvd {a b : ℕ} (hb : b > 0) : b ∣ a ↔ a ⌈/⌉ b = a / b := by
-  constructor <;> intro h
-  . rw [Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc, Nat.add_div]
-    split_ifs with hdiv
-    . rw [Nat.mod_eq_zero_of_dvd h] at hdiv
-      simp at hdiv
-      contrapose hdiv
-      simp
-      linarith
-    . simp at hdiv
-      simp
-      apply (Nat.div_eq_zero_iff hb).2
-      apply Nat.sub_one_lt
-      linarith
-    . linarith
-    . linarith
-  . rw [Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc, Nat.add_div] at h
-    . split_ifs at h with hdiv <;> simp at hdiv
-      . rw [pred_div_self] at h
-        . simp at h
-        . exact hb
-      . apply Nat.lt_sub_of_add_lt at hdiv
-        rw [Nat.sub_sub_self, Nat.lt_one_iff, ← Nat.dvd_iff_mod_eq_zero] at hdiv
-        . use a / b
-          symm
-          exact Nat.mul_div_cancel' hdiv
-        . linarith
-    . exact hb
-    . linarith
-
-lemma one_div_of_gt_one {a : ℕ} (ha : a > 1) : 1 / a = 0 := (Nat.div_eq_zero_iff (by linarith)).2 ha
-
-theorem ceilDiv_ceilDiv_of_mul_dvd {a b c : ℕ} (hbc : b * c > 0) (hdvd : (b * c) ∣ a) : a ⌈/⌉ b ⌈/⌉ c = a / (b * c) := by
-  have b_pos : b > 0 := pos_of_mul_pos_left hbc (by linarith)
-  have c_pos : c > 0 := pos_of_mul_pos_right hbc (by linarith)
-  have hdvd_b : b ∣ a := dvd_of_mul_right_dvd hdvd
-  have hdvd_c : c ∣ a / b := Nat.dvd_div_of_mul_dvd hdvd
-  rw [(Nat.ceilDiv_eq_div_iff_dvd b_pos).1 hdvd_b, (Nat.ceilDiv_eq_div_iff_dvd c_pos).1 hdvd_c]
-  apply Nat.div_div_eq_div_mul
-
-theorem ceilDiv_ceilDiv_le_of_right_dvd {a b c : ℕ} (hb : b > 0) (hc : c > 1) (hdvd : c ∣ a ⌈/⌉ b) : a ⌈/⌉ b ⌈/⌉ c ≤ a ⌈/⌉ (b * c) + 1 := by
-  have c_pos : c > 0 := by linarith
-  have div_c : 1 / c = 0 := (Nat.div_eq_zero_iff c_pos).2 hc
-  have bc_pos := mul_pos hb c_pos
-  rw [(Nat.ceilDiv_eq_div_iff_dvd c_pos).1 hdvd, Nat.ceilDiv_eq_add_pred_div, 
-      Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc hb, Nat.add_sub_assoc bc_pos, 
-      add_div hb, add_div bc_pos]
-  split_ifs with hmod_b hmod_bc hmod_bc <;> 
-    rw [Nat.pred_div_self hb, Nat.pred_div_self bc_pos] <;> simp <;> 
-      simp at hmod_b <;> simp at hmod_bc
-  . rw [add_div c_pos, div_c]
-    split_ifs with hmod_c <;> simp <;> rw [Nat.div_div_eq_div_mul] <;> linarith
-  . rw [add_div c_pos, div_c]
-    split_ifs with hmod_c <;> simp <;> rw [Nat.div_div_eq_div_mul]
-    apply le_succ
-  . rw [Nat.div_div_eq_div_mul]
-    linarith
-  . rw [Nat.div_div_eq_div_mul]
-    apply le_succ
-
-theorem ceilDiv_ceilDiv_le {a b c : ℕ} (hb : b > 0) (hc : c > 1) : a ⌈/⌉ b ⌈/⌉ c ≤ a ⌈/⌉ (b * c) + 2 := by
-  have c_pos : c > 0 := by linarith
-  have bc_pos := mul_pos hb c_pos
-  apply le_trans (Nat.ceilDiv_le_div_succ (by linarith))
-  simp
-  rw [Nat.ceilDiv_eq_add_pred_div, Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc (by linarith), 
-      Nat.add_sub_assoc (by linarith), Nat.add_div hb, Nat.add_div bc_pos, 
-      Nat.pred_div_self hb, Nat.pred_div_self bc_pos]
-  split_ifs with hmod_b hmod_bc <;> simp
-  . rw [Nat.add_div c_pos, Nat.one_div_of_gt_one hc, Nat.div_div_eq_div_mul]
-    split_ifs with hmod_c <;> simp
-    linarith
-  . rw [Nat.add_div c_pos, Nat.one_div_of_gt_one hc, Nat.div_div_eq_div_mul]
-    split_ifs with hmod_c <;> simp
-  . rw [Nat.div_div_eq_div_mul]
-    linarith
-  . rw [Nat.div_div_eq_div_mul]
-    linarith
-
-lemma le_ceilDiv_ceilDiv {a b c : ℕ} (hb : b > 0) (hc : c > 1) : a ⌈/⌉ (b * c) - 1 ≤ a ⌈/⌉ b ⌈/⌉ c := by
-  have c_pos : c > 0 := by linarith
-  have bc_pos := mul_pos hb c_pos
-  apply le_trans' (floorDiv_le_ceilDiv)
-  simp
-  rw [Nat.ceilDiv_eq_add_pred_div, Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc (by linarith), 
-      Nat.add_sub_assoc (by linarith), Nat.add_div hb, Nat.pred_div_self hb]
-  split_ifs with hmod_b <;> simp
-  . rw [Nat.add_div bc_pos, Nat.add_div c_pos]
-    split_ifs with hmod_bc hmod_c <;> 
-      rw [Nat.pred_div_self bc_pos, Nat.one_div_of_gt_one hc, Nat.div_div_eq_div_mul] <;> linarith
-  . rw [Nat.add_div bc_pos]
-    split_ifs with hmod_bc <;> rw [Nat.pred_div_self bc_pos, Nat.div_div_eq_div_mul]
-    simp
-
-lemma poly_pos {n d : ℕ} (hn : 0 < n) : 0 < n^d := by
+private lemma poly_pos {n d : ℕ} (hn : 0 < n) : 0 < n^d := by
   induction' d with m hm
   . rw [pow_zero]
     exact one_pos
   . rw [pow_add, pow_one]
     exact mul_pos hm hn
 
-theorem func_le_mul_func_of_lt (f : ℕ → ℕ) {g : ℕ → ℕ} (N : ℕ) (hg : g ≥ 1) : ∃ C > 0, ∀ n < N, f n ≤ C * g n := by
+private theorem func_le_mul_func_of_lt (f : ℕ → ℕ) {g : ℕ → ℕ} (N : ℕ) (hg : g ≥ 1) : ∃ C > 0, ∀ n < N, f n ≤ C * g n := by
   induction' N with m hm
   . use 1
     constructor
@@ -147,42 +29,38 @@ theorem func_le_mul_func_of_lt (f : ℕ → ℕ) {g : ℕ → ℕ} (N : ℕ) (hg
   . rcases hm with ⟨C, C_pos, hm⟩
     use C + f m
     constructor
-    . linarith
+    . exact add_pos_of_pos_of_nonneg C_pos (Nat.zero_le (f m))
     . intro n n_lt_succ
       rw [add_mul]
       if hn_m : n < m then {
-        apply le_add_of_le_of_nonneg
-        . exact hm n hn_m
-        . apply mul_nonneg <;> linarith
+        apply le_add_of_le_of_nonneg (hm n hn_m)
+        apply mul_nonneg <;> apply Nat.zero_le
       }
       else {
         simp at hn_m
         have n_eq_m : n = m := eq_of_le_of_le (Nat.le_of_lt_add_one n_lt_succ) hn_m
-        apply le_add_of_nonneg_of_le
-        . exact mul_nonneg (le_of_lt C_pos) (by linarith)
-        . rw [← mul_one (f n), ← n_eq_m]
-          apply Nat.mul_le_mul_left
-          exact hg n
+        apply le_add_of_nonneg_of_le (mul_nonneg (le_of_lt C_pos) (zero_le (g n)))
+        rw [← mul_one (f n), ← n_eq_m]
+        exact Nat.mul_le_mul_left (f n) (hg n)
       }
 
-theorem func_le_mul_func_of_asymp_bounded_above {f g : ℕ → ℕ} (h : AsympBoundedAbove ℕ f g) (hg : g ≥ 1) : ∃ C > 0, ∀ n, f n ≤ C * g n := by
+private theorem func_le_const_mul_func_of_asymp_bounded_above {f g : ℕ → ℕ} (h : AsympBoundedAbove ℕ f g) (hg : g ≥ 1) : ∃ C > 0, ∀ n, f n ≤ C * g n := by
   rcases h with ⟨C₀, C₀_pos, N, hbound⟩
   rcases Nat.func_le_mul_func_of_lt f N hg with ⟨C₁, C₁_pos, hlt⟩
   use C₀ + C₁
   constructor
-  . exact add_pos_of_pos_of_nonneg C₀_pos (by linarith)
+  . exact add_pos_of_pos_of_nonneg C₀_pos (zero_le C₁)
   . intro n
     rw [add_mul]
     if hn : N ≤ n then {
       simp at hbound
-      apply le_add_of_le_of_nonneg
-      . exact hbound n hn
-      . exact mul_nonneg (le_of_lt C₁_pos) (by linarith)
+      apply le_add_of_le_of_nonneg (hbound n hn)
+      exact mul_nonneg (le_of_lt C₁_pos) (zero_le (g n))
     }
     else {
       simp at hn
       apply le_add_of_nonneg_of_le
-      . apply mul_nonneg (le_of_lt C₀_pos) (by linarith)
+      . exact mul_nonneg (le_of_lt C₀_pos) (zero_le (g n))
       . exact hlt n hn
     }
 
@@ -200,6 +78,8 @@ structure MasterRecurrence (T : ℕ → ℕ) (a b : ℕ) (f : ℕ → ℕ) where
   a_pos : a > 0
   /- a is positive -/
   one_lt_b : 1 < b
+  /- T is monotone -/
+  T_monotone : Monotone T
   /- The recurrence formula -/
   T_rec : ∀ n ≥ n₀, T n ≤ a * T (n ⌈/⌉ b) + f n
   /- f is polynomial with degree d -/
@@ -241,7 +121,7 @@ private lemma formula_le_ceil {T f : ℕ → ℕ} {a b n₀ : ℕ} {C : ℚ} (hC
       contrapose hCf
       simp at hCf
       intro heq
-      have ceil_C_nonneg : 0 ≤ ⌈C⌉ := Int.ceil_nonneg (by linarith)
+      have ceil_C_nonneg : 0 ≤ ⌈C⌉ := Int.ceil_nonneg (le_of_lt hC)
       rw [heq, Int.negSucc_not_nonneg m] at ceil_C_nonneg
       exact ceil_C_nonneg
     )
@@ -320,27 +200,135 @@ private theorem formula_subst {T : ℕ → ℕ} {a b d C n₀ : ℕ} (k n : ℕ)
       exact hrec
     . exact hx
 
+private def supremum (T : ℕ → ℕ) (n : ℕ) : Σ' M, (∀ k ≤ n, T k ≤ M) ∧ (∃ m ≤ n, T m = M) :=
+  match n with
+    | 0 => by {
+        use T 0
+        constructor
+        . intro k hk
+          apply Nat.eq_zero_of_le_zero at hk
+          rw [hk]
+        . use 0
+      }
+    | Nat.succ n => by {
+        rcases supremum T n with ⟨M₀, hn, hm⟩
+        use T (n+1) ⊔ M₀
+        constructor
+        . intro k hk
+          if k_eq_n_succ : k ≠ n.succ then {
+            have k_lt_n_succ := Nat.lt_of_le_of_ne hk k_eq_n_succ
+            have k_le_n := Nat.le_of_lt_succ k_lt_n_succ
+            specialize hn k k_le_n
+            apply le_trans hn
+            apply le_max_right
+          }
+          else {
+            simp at k_eq_n_succ
+            rw [k_eq_n_succ]
+            apply le_max_left
+          }
+        . rcases hm with ⟨m, hm1, hm2⟩
+          if hM₀ : M₀ ≤ T (n + 1) then {
+            use n + 1
+            constructor
+            . exact le_refl n.succ
+            . symm
+              exact max_eq_left hM₀
+          }
+          else {
+            simp at hM₀
+            use m
+            constructor
+            . exact le_trans hm1 (Nat.le_succ n)
+            . rw [hm2]
+              symm
+              exact max_eq_right (le_of_lt hM₀)
+          }
+      }
+
+
+private def monotonize (T : ℕ → ℕ) : Σ' U, T ≤ U ∧ Monotone U := by
+  use fun n ↦ (supremum T n).1
+  constructor
+  . intro n
+    simp
+    exact (supremum T n).2.1 n (le_refl n)
+  . unfold Monotone
+    intro n m hle
+    simp
+    rcases (supremum T n).2 with ⟨hn, n', n'_le_n, hn'⟩
+    rcases (supremum T m).2 with ⟨hm, m', m'_le_m, hm'⟩
+    rw [← hm', ← hn']
+    specialize hm n' (le_trans n'_le_n hle)
+    rw [← hm'] at hm
+    exact hm
+
+
 variable {T f : ℕ → ℕ} {a b : ℕ}
 
 lemma b_pos (self: MasterRecurrence T a b f) : b > 0 := lt_trans one_pos self.one_lt_b 
  
 def repeat_subst (self: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) : 
-    MasterRecurrence T (a^k) (b^k) (fun n ↦ (GeometricSum 1 (a/b^self.d) (k - 1)).ceil.toNat • f n) :=
+    MasterRecurrence (fun n ↦ T (n + b)) (a^k) (b^k) (fun n ↦ (GeometricSum 1 (a/b^self.d) (k - 1)).ceil.toNat * f (n + b)) :=
   {
-    n₀ := self.n₀,
-    n₀_pos := self.n₀_pos,
+    n₀ := self.n₀ * b^k,
+    n₀_pos := mul_pos self.n₀_pos (pow_pos (self.b_pos) k),
     a_pos := pow_pos self.a_pos k,
     one_lt_b := one_lt_pow₀ self.one_lt_b (zero_lt_iff.1 hk),
-    T_monotone := self.T_monotone
+    T_monotone := by {
+      intro x y x_le_y
+      apply self.T_monotone
+      exact add_le_add x_le_y (le_refl b) 
+    }
     T_rec := by {
-      generalize S_def : (fun n ↦ T (n + 2)) = S
-      have S_apply : (n : ℕ) → S n = T (n + 2) := by {
-        intro n
-        rw [← S_def]
+      intro n hn
+
+      suffices T (n + b) ≤ a ^ k * T (n / b ^ k + b) + (GeometricSum 1 (↑a / ↑b ^ self.d) (k - 1)).ceil.toNat * f (n + b) by {
+        apply le_add_of_le_add_right this
+        apply Nat.mul_le_mul_left
+        apply self.T_monotone
+        simp
+        rw [← Nat.floorDiv_eq_div]
+        exact floorDiv_le_ceilDiv
       }
 
-      intro n hn
-      sorry
+      have rec_apply := self.T_rec (n + b) (le_add_right (le_of_mul_le_of_one_le_left hn (pow_pos self.b_pos k)))
+      have rec_div : a * T ((n + b) ⌈/⌉ b) ≤ a * T ((n + b) / b + 1) := by {
+        apply Nat.mul_le_mul_left
+        apply self.T_monotone
+        exact Nat.ceilDiv_le_div_succ self.b_pos
+      }
+
+      apply flip le_add_of_le_add_right rec_div at rec_apply
+      rw [Nat.add_div self.b_pos, Nat.div_self self.b_pos] at rec_apply
+      split_ifs at rec_apply with hrec_mod <;> simp at hrec_mod
+      . contrapose hrec_mod
+        intro hmod
+        have hcontra := Nat.mod_lt n self.b_pos
+        exact not_le_of_lt hcontra hmod 
+      . simp at rec_apply
+        rw [add_assoc, one_add_one_eq_two] at rec_apply
+        have rec_T_le_n_add_b : a * T (n / b + 2) ≤ a * T (n / b + b) := by {
+          apply Nat.mul_le_mul_left
+          apply self.T_monotone
+          exact add_le_add (le_refl (n / b)) self.one_lt_b
+        }
+        apply flip le_add_of_le_add_right rec_T_le_n_add_b at rec_apply
+        
+        generalize S_def : (fun n ↦ T (n + b)) = S
+        have S_apply : ∀ (n : ℕ), T (n + b) = S n := by {
+          intro n
+          rw [← S_def]
+        }
+        generalize g_def : (fun n ↦ f (n + b)) = g
+        have g_apply : ∀ (n : ℕ), f (n + b) = g n := by {
+          intro n
+          rw [← g_def]
+        }
+        rw [S_apply, S_apply, g_apply] at rec_apply
+        rw [S_apply, S_apply, g_apply]
+
+        sorry
     }
     d := self.d
     f_poly := by {
@@ -369,7 +357,27 @@ def repeat_subst (self: MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) :
             . simp
               apply Rat.den_pos
           . exact one_pos
-      . exact self.f_poly
+      . have add_b_poly : (fun n ↦ (n + b)^self.d) ∈ O ℕ fun n ↦ n^self.d := by {
+          unfold O AsympBoundedAbove AsympLE AsympProperty
+          simp
+          sorry
+        }
+
+        suffices f_of_add_b_poly : (fun n ↦ f (n + b)) ∈ O ℕ fun n ↦ (n + b)^self.d by {
+          exact O_trans ℕ f_of_add_b_poly add_b_poly
+        }
+
+        unfold O
+        simp
+        rcases self.f_poly with ⟨C, C_pos, N, hle⟩
+        use C
+        constructor
+        . exact C_pos
+        . simp
+          simp at hle
+          use N
+          intro n n_le_N
+          exact hle (n + b) (le_add_of_le_of_nonneg n_le_N (zero_le b))
     }
   }
 

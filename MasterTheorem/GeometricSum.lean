@@ -19,6 +19,12 @@ lemma def_succ (a b : ℚ) (k : ℕ) : a * b^(Nat.succ k) + GeometricSum a b k =
   . simp
     apply def_succ
 
+lemma const_mul (a b : ℚ) (k : ℕ) (x : ℚ) : x * GeometricSum a b k = GeometricSum (x * a) b k := by
+  unfold GeometricSum
+  split
+  . rfl
+  . rw [mul_add, ← mul_assoc, const_mul]
+
 lemma pos_of_pos_of_pos {a b : ℚ} (ha : a > 0) (hb : b > 0) (n : ℕ) : GeometricSum a b n > 0 := by
   unfold GeometricSum
   induction n with
