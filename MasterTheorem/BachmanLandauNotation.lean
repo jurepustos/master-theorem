@@ -7,7 +7,7 @@ import Mathlib.Order.Defs
 import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
 
-variable {α β : Type*} (γ : Type* := by exact β)
+variable {α β : Type*} (γ : Type*)
 
 section Defs
 

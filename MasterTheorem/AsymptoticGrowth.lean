@@ -10,7 +10,7 @@ import Mathlib.Order.MinMax
 import MasterTheorem.AsymptoticIneq
 import MasterTheorem.Aux
 
-variable {α β : Type*} (γ : Type* := by exact β)
+variable {α β : Type*} (γ : Type*)
 
 section Defs
 
