@@ -85,6 +85,8 @@ structure MasterRecurrence (T : ℕ → ℕ) (a b : ℕ) (f : ℕ → ℕ) where
   T_rec : ∀ n ≥ n₀, T n ≤ a * T (n ⌈/⌉ b) + f n
   /- f is polynomial with degree d -/
   d : ℕ
+  /- d is positive, since constant functions aren't of interest -/
+  d_pos : d > 0
   /- f is polynomial with degree d -/
   f_poly : f ∈ O ℕ fun n ↦ n ^ d
 
@@ -263,9 +265,9 @@ private lemma f_of_add_b_poly (self : MasterRecurrence T a b f) :
     exact hle (n + b) (le_add_of_le_of_nonneg n_le_N (zero_le b))
 
 noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) : 
-    Σ g : ℕ → ℕ, Σ' g_poly : (g ∈ O ℕ fun n ↦ n^self.d),
+    Σ g : ℕ → ℕ, Σ' _ : (g ∈ O ℕ fun n ↦ n^self.d),
       MasterRecurrence (fun n ↦ T (n + b)) (a^k) (b^k) 
-      (fun n ↦ (GeometricSum 1 (a/b^self.d) (k - 1)).ceil.toNat * g n) := by
+      (fun n ↦ ⌈GeometricSum 1 (a/b^self.d) (k - 1)⌉.toNat * g n) := by
   have poly_func_pos : ∀ n ≥ 1, (fun n ↦ n^self.d) n ≥ 1 := by {
     intro n n_pos
     simp
@@ -302,7 +304,8 @@ noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k
     T_rec := by {
       intro n hn
 
-      suffices T (n + b) ≤ a ^ k * T (n / b ^ k + b) + (GeometricSum 1 (↑a / ↑b ^ self.d) (k - 1)).ceil.toNat * g n by {
+      suffices T (n + b) ≤ a ^ k * T (n / b ^ k + b) + 
+                ⌈GeometricSum 1 (↑a / ↑b ^ self.d) (k - 1)⌉.toNat * g n by {
         apply le_add_of_le_add_right this
         apply Nat.mul_le_mul_left
         apply self.T_monotone
@@ -311,58 +314,66 @@ noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k
         exact floorDiv_le_ceilDiv
       }
 
-      have rec_apply := self.T_rec (n + b) (le_add_right (le_of_mul_le_of_one_le_left hn (pow_pos self.b_pos k)))
-      have rec_div : a * T ((n + b) ⌈/⌉ b) ≤ a * T ((n + b) / b + 1) := by {
-        apply Nat.mul_le_mul_left
-        apply self.T_monotone
-        exact Nat.ceilDiv_le_div_succ self.b_pos
+      generalize S_def : (fun n ↦ T (n + b)) = S
+      have S_apply : ∀ (n : ℕ), T (n + b) = S n := by {
+        intro n
+        rw [← S_def]
       }
+      have n_pos : n ≥ 1 := le_trans (mul_pos self.n₀_pos (pow_pos self.b_pos k)) hn
 
-      apply flip le_add_of_le_add_right rec_div at rec_apply
-      rw [Nat.add_div self.b_pos, Nat.div_self self.b_pos] at rec_apply
-      split_ifs at rec_apply with hrec_mod <;> simp at hrec_mod
-      . contrapose hrec_mod
-        intro hmod
-        have hcontra := Nat.mod_lt n self.b_pos
-        exact not_le_of_lt hcontra hmod 
-      . simp at rec_apply
-        rw [add_assoc, one_add_one_eq_two] at rec_apply
-        have rec_T_le_n_add_b : a * T (n / b + 2) ≤ a * T (n / b + b) := by {
+      have rec_apply : ∀ m ≥ self.n₀, S m ≤ a * S (m / b) + C * m ^ self.d := by {
+        intro m n₀_le_m
+        have m_pos : m ≥ 1 := le_trans self.n₀_pos n₀_le_m
+        have ceilDiv_apply := self.T_rec (m + b) (le_add_right n₀_le_m) 
+        have ceilDiv_le : a * T ((m + b) ⌈/⌉ b) ≤ a * T ((m + b) / b + 1) := by {
           apply Nat.mul_le_mul_left
           apply self.T_monotone
-          exact add_le_add (le_refl (n / b)) self.one_lt_b
+          exact Nat.ceilDiv_le_div_succ self.b_pos
         }
-        apply flip le_add_of_le_add_right rec_T_le_n_add_b at rec_apply
-        
-        generalize S_def : (fun n ↦ T (n + b)) = S
-        have S_apply : ∀ (n : ℕ), T (n + b) = S n := by {
-          intro n
-          rw [← S_def]
-        }
-        rw [S_apply, S_apply] at rec_apply
-        have n_pos : n ≥ 1 := le_trans (mul_pos self.n₀_pos (pow_pos self.b_pos k)) hn
-        apply flip le_add_of_le_add_left (f_poly n n_pos) at rec_apply
-        
-        rw [← g_def, ← mul_assoc]
-        simp
-        sorry
+
+        apply flip le_add_of_le_add_right ceilDiv_le at ceilDiv_apply
+        rw [Nat.add_div self.b_pos, Nat.div_self self.b_pos] at ceilDiv_apply
+        split_ifs at ceilDiv_apply with hrec_mod <;> simp at hrec_mod
+        . contrapose hrec_mod
+          intro hmod
+          have hcontra := Nat.mod_lt m self.b_pos
+          exact not_le_of_lt hcontra hmod 
+        . simp at ceilDiv_apply
+          rw [add_assoc, one_add_one_eq_two] at ceilDiv_apply
+          have rec_T_le_m_add_b : a * T (m / b + 2) ≤ a * T (m / b + b) := by {
+            apply Nat.mul_le_mul_left
+            apply self.T_monotone
+            exact add_le_add (le_refl (m / b)) self.one_lt_b
+          }
+          apply flip le_add_of_le_add_right rec_T_le_m_add_b at  ceilDiv_apply
+          rw [S_apply, S_apply] at ceilDiv_apply
+          apply flip le_add_of_le_add_left (f_poly m m_pos) at ceilDiv_apply
+          exact ceilDiv_apply
+      }
+      
+      rw [← g_def, ← mul_assoc, ← @Nat.cast_le ℚ, Nat.cast_add, Nat.cast_mul, 
+          Nat.cast_pow, Nat.cast_mul, Nat.cast_pow, Nat.cast_mul, Int.ceil_toNat]
+
+      have geom_le_ceil : GeometricSum 1 (↑a / ↑b ^ self.d) (k - 1) * C * n^self.d ≤ 
+                          ⌈GeometricSum 1 (↑a / ↑b ^ self.d) (k - 1)⌉₊ * C * n^self.d := by {
+        rw [mul_assoc, mul_assoc]
+        have right_pos : 0 < (@Nat.cast ℚ _ C) * ↑n^self.d :=
+          mul_pos (Nat.cast_pos.2 C_pos) (pow_pos (Nat.cast_pos.2 n_pos) self.d)
+        apply (mul_le_mul_right right_pos).2
+        apply Nat.le_ceil
+      }
+      rw [S_apply, S_apply]
+      apply flip le_add_of_le_add_left geom_le_ceil
+      rw [ ← mul_comm (Nat.cast C), GeometricSum.const_mul, mul_one]
+      exact formula_subst k n self.a_pos self.one_lt_b hn C_pos self.d_pos rec_apply
     }
     d := self.d
+    d_pos := self.d_pos
     f_poly := by {
       apply flip (O_pos_smul ℕ) g_poly
       simp
-      unfold Rat.ceil
-      split_ifs with hden
-      . apply Rat.num_pos.2
-        apply GeometricSum.pos_of_pos_of_pos one_pos
-        exact div_pos (Nat.cast_pos.2 self.a_pos) (pow_pos (Nat.cast_pos.2 self.b_pos) self.d)
-      . apply flip Left.add_pos_of_nonneg_of_pos one_pos
-        apply Int.ediv_nonneg <;> apply le_of_lt
-        . apply Rat.num_pos.2
-          apply GeometricSum.pos_of_pos_of_pos one_pos
-          exact div_pos (Nat.cast_pos.2 self.a_pos) (pow_pos (Nat.cast_pos.2 self.b_pos) self.d)
-        . rw [Nat.cast_pos]
-          apply Rat.den_pos
+      apply GeometricSum.pos_of_pos_of_pos one_pos
+      exact div_pos (Nat.cast_pos.2 self.a_pos) (pow_pos (Nat.cast_pos.2 self.b_pos) self.d)
     }
   }
 
