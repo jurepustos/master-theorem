@@ -6,63 +6,52 @@ import MasterTheorem.GeometricSum
 import MasterTheorem.CeilDiv
 
 
-namespace Nat
-
-private lemma poly_pos {n d : ℕ} (hn : 0 < n) : 0 < n^d := by
-  induction' d with m hm
-  . rw [pow_zero]
-    exact one_pos
-  . rw [pow_add, pow_one]
-    exact mul_pos hm hn
-
-private theorem func_le_mul_func_of_lt (f : ℕ → ℕ) {g : ℕ → ℕ} (N : ℕ) (hg : ∀ n ≥ 1, g n ≥ 1) : ∃ C > 0, ∀ n < N, n ≥ 1 → f n ≤ C * g n := by
-  induction' N with m hm
-  . use 1
-    constructor
-    . exact one_pos
-    . intro n hn
-      contrapose hn
-      simp
-  . rcases hm with ⟨C, C_pos, hm⟩
-    use C + f m
-    constructor
-    . exact add_pos_of_pos_of_nonneg C_pos (Nat.zero_le (f m))
-    . intro n n_lt_succ n_pos
-      rw [add_mul]
-      if hn_m : n < m then {
-        apply le_add_of_le_of_nonneg (hm n hn_m n_pos)
-        apply mul_nonneg <;> apply Nat.zero_le
-      }
-      else {
-        simp at hn_m
-        have n_eq_m : n = m := eq_of_le_of_le (Nat.le_of_lt_add_one n_lt_succ) hn_m
-        apply le_add_of_nonneg_of_le (mul_nonneg (le_of_lt C_pos) (zero_le (g n)))
-        rw [← mul_one (f n), ← n_eq_m]
-        exact Nat.mul_le_mul_left (f n) (hg n n_pos)
-      }
-
 private theorem le_const_mul_asymp_bounded_above {f g : ℕ → ℕ}
     (h : AsympBoundedAbove ℕ f g) (hg : ∀ n ≥ 1, g n ≥ 1) : ∃ C > 0, ∀ n ≥ 1, f n ≤ C * g n := by
   rcases h with ⟨C₀, C₀_pos, N, hbound⟩
-  rcases Nat.func_le_mul_func_of_lt f N hg with ⟨C₁, C₁_pos, hlt⟩
+  rcases func_le_mul_func_of_lt N with ⟨C₁, C₁_pos, hlt⟩
   use C₀ + C₁
-  constructor
-  . exact add_pos_of_pos_of_nonneg C₀_pos (zero_le C₁)
-  . intro n n_pos
-    rw [add_mul]
-    if hn : N ≤ n then {
-      simp at hbound
-      apply le_add_of_le_of_nonneg (hbound n hn)
-      exact mul_nonneg (le_of_lt C₁_pos) (zero_le (g n))
-    }
-    else {
-      simp at hn
-      apply le_add_of_nonneg_of_le
-      . exact mul_nonneg (le_of_lt C₀_pos) (zero_le (g n))
-      . exact hlt n hn n_pos
-    }
+  apply And.intro (add_pos_of_pos_of_nonneg C₀_pos (zero_le C₁))
+  intro n n_pos
+  rw [add_mul]
+  if hn : N ≤ n then {
+    simp at hbound
+    apply le_add_of_le_of_nonneg (hbound n hn)
+    exact mul_nonneg (le_of_lt C₁_pos) (zero_le (g n))
+  }
+  else {
+    simp at hn
+    apply le_add_of_nonneg_of_le
+    . exact mul_nonneg (le_of_lt C₀_pos) (zero_le (g n))
+    . exact hlt n hn n_pos
+  }
+where
+  func_le_mul_func_of_lt (N : ℕ) : ∃ C > 0, ∀ n < N, n ≥ 1 → f n ≤ C * g n := by
+    induction' N with m hm
+    . use 1
+      constructor
+      . exact one_pos
+      . intro n hn
+        contrapose hn
+        simp
+    . rcases hm with ⟨C, C_pos, hm⟩
+      use C + f m
+      constructor
+      . exact add_pos_of_pos_of_nonneg C_pos (Nat.zero_le (f m))
+      . intro n n_lt_succ n_pos
+        rw [add_mul]
+        if hn_m : n < m then {
+          apply le_add_of_le_of_nonneg (hm n hn_m n_pos)
+          apply mul_nonneg <;> apply Nat.zero_le
+        }
+        else {
+          simp at hn_m
+          have n_eq_m : n = m := eq_of_le_of_le (Nat.le_of_lt_add_one n_lt_succ) hn_m
+          apply le_add_of_nonneg_of_le (mul_nonneg (le_of_lt C_pos) (zero_le (g n)))
+          rw [← mul_one (f n), ← n_eq_m]
+          exact Nat.mul_le_mul_left (f n) (hg n n_pos)
+        }
 
-end Nat
 
 /- We formalize the proof at https://www.cs.dartmouth.edu/~deepc/Courses/S20/lecs/lec3supp.pdf -/
 
@@ -155,22 +144,13 @@ private lemma formula_subst_once {T : ℕ → ℕ} {a b d C n₀ k : ℕ} (n : �
         mul_comm (Nat.cast C), mul_assoc, ← mul_add]
 
     apply le_add_of_le_add_right hformula
-    rw [mul_le_mul_left]
-    . apply le_add_of_le_add_left hrec
-      rw [mul_le_mul_left, pow_le_pow_iff_left₀]
-      . rw [← Nat.cast_pow]
-        exact Nat.cast_div_le
-      . simp
-      . apply div_nonneg
-        . simp
-        . apply pow_nonneg
-          simp
-      . exact Nat.ne_zero_iff_zero_lt.2 hd
-      . simp
-        exact hC
-    . apply pow_pos
-      simp
-      exact ha
+    rw [mul_le_mul_left (pow_pos (Nat.cast_pos.2 ha) k)]
+    apply le_add_of_le_add_left hrec
+    rw [mul_le_mul_left (Nat.cast_pos.2 hC), pow_le_pow_iff_left₀ (Nat.cast_nonneg _)]
+    . rw [← Nat.cast_pow]
+      exact Nat.cast_div_le
+    . exact div_nonneg (Nat.cast_nonneg n) (pow_nonneg (Nat.cast_nonneg b) k)
+    . exact Nat.ne_zero_iff_zero_lt.2 hd
   }
 
 private theorem formula_subst {T : ℕ → ℕ} {a b d C n₀ : ℕ} (k n : ℕ) (ha : a > 0)
@@ -181,9 +161,8 @@ private theorem formula_subst {T : ℕ → ℕ} {a b d C n₀ : ℕ} (k n : ℕ)
   . rw [← Nat.cast_pow, pow_zero, Nat.zero_sub, pow_zero, 
         Nat.div_one, GeometricSum.def_zero, Nat.cast_one, one_mul]
     rw [pow_zero, mul_one] at hn
-    apply le_add_of_le_of_nonneg
-    . apply le_refl
-    . apply mul_nonneg <;> simp
+    apply le_add_of_le_of_nonneg (le_refl _)
+    apply mul_nonneg <;> simp
   . have n₀_mul_b_pow_x_le_n : n₀ * b^x ≤ n := by {
       rw [pow_succ, ← mul_assoc] at hn
       exact le_of_mul_le_of_one_le_left hn (le_of_lt hb)
@@ -216,50 +195,44 @@ private lemma add_poly (self : MasterRecurrence T a b f) :
   
   induction' self.d with x hx
   . use 1
-    constructor
-    . exact one_pos
-    . use 0
-      intro n hn
-      simp
+    apply And.intro one_pos
+    use 0
+    intro n hn
+    simp
   . rcases hx with ⟨C, C_pos, N, hpoly⟩
     use C + C * b
-    constructor
-    . exact add_pos C_pos (mul_pos C_pos self.b_pos)
-    . use N + 1
-      intro n hn
-      simp
-      rw [pow_succ, binom_def]
-      specialize hpoly n (le_of_add_le_left hn)
-      simp at hpoly
-      rw [binom_def] at hpoly
-      have n_pos : n > 0 := by linarith
-      apply (mul_le_mul_right (add_pos n_pos self.b_pos)).2 at hpoly
+    apply And.intro (add_pos C_pos (mul_pos C_pos self.b_pos))
+    use N + 1
+    intro n hn
+    simp
+    rw [pow_succ, binom_def]
+    specialize hpoly n (le_of_add_le_left hn)
+    simp at hpoly
+    rw [binom_def] at hpoly
+    have n_pos : n > 0 := by linarith
+    apply (mul_le_mul_right (add_pos n_pos self.b_pos)).2 at hpoly
 
-      apply le_trans hpoly
-      rw [mul_add, mul_assoc, ← pow_succ n x, mul_assoc, mul_comm _ b, ← mul_assoc]
-      have le_mul_n : C * b * n^x ≤ C * b * n^(x + 1) := by {
-        rw [pow_succ]
-        apply mul_le_mul
-        . exact le_refl (C * b)
-        . exact le_mul_of_one_le_right (zero_le (n^x)) n_pos
-        . exact zero_le (n^x)
-        . exact zero_le (C * b)
-      }
-      apply le_trans (add_le_add (le_refl (C * n^(x + 1))) le_mul_n)
-      rw [add_mul]
+    apply le_trans hpoly
+    rw [mul_add, mul_assoc, ← pow_succ n x, mul_assoc, mul_comm _ b, ← mul_assoc]
+    have le_mul_n : C * b * n^x ≤ C * b * n^(x + 1) := by {
+      rw [pow_succ]
+      apply mul_le_mul (le_refl (C * b)) <;> try apply zero_le
+      exact le_mul_of_one_le_right (zero_le (n^x)) n_pos
+    }
+    apply le_trans (add_le_add (le_refl (C * n^(x + 1))) le_mul_n)
+    rw [add_mul]
 
 private lemma f_of_add_b_poly (self : MasterRecurrence T a b f) : 
     (fun n ↦ f (n + b)) ∈ O ℕ fun n ↦ n^self.d := by
   apply flip (O_trans ℕ) self.add_poly
   rcases self.f_poly with ⟨C, C_pos, N, hle⟩
   use C
-  constructor
-  . exact C_pos
-  . simp
-    simp at hle
-    use N
-    intro n n_le_N
-    exact hle (n + b) (le_add_of_le_of_nonneg n_le_N (zero_le b))
+  apply And.intro C_pos
+  simp
+  simp at hle
+  use N
+  intro n n_le_N
+  exact hle (n + b) (le_add_of_le_of_nonneg n_le_N (zero_le b))
 
 noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) : 
     Σ g : ℕ → ℕ, Σ' _ : (g ∈ O ℕ fun n ↦ n^self.d),
@@ -270,7 +243,7 @@ noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k
     simp
     exact Nat.pow_pos n_pos
   }
-  have f_poly := Nat.le_const_mul_asymp_bounded_above self.f_of_add_b_poly poly_func_pos
+  have f_poly := le_const_mul_asymp_bounded_above self.f_of_add_b_poly poly_func_pos
   generalize C_def : f_poly.choose = C
   have C_pos := f_poly.choose_spec.1
   replace f_poly := f_poly.choose_spec.2
@@ -281,11 +254,10 @@ noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k
 
   have g_poly : g ∈ O ℕ fun n ↦ n^self.d := by {
     use C
-    constructor
-    . exact C_pos
-    . use 0
-      rw [← g_def]
-      simp
+    apply And.intro C_pos
+    use 0
+    rw [← g_def]
+    simp
   }
   use g_poly
   exact {
