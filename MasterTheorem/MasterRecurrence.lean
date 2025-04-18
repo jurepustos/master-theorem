@@ -137,11 +137,10 @@ private lemma formula_subst_once {T : ℕ → ℕ} {a b d C n₀ k : ℕ} (n : �
 
     rw [← @Nat.cast_le ℚ, Nat.cast_add, Nat.cast_mul, Nat.cast_mul, Nat.cast_pow] at hrec
     rw [pow_succ, mul_assoc, ← Nat.sub_one_add_one hk, ← GeometricSum.def_succ,
-        ← Nat.add_one, Nat.sub_one_add_one hk, add_mul, ← add_assoc, div_pow,
-        ← pow_mul, mul_assoc (Nat.cast C), div_mul_eq_mul_div, 
-        mul_comm ((Nat.cast a)^k) ((Nat.cast n)^d), ← div_mul_eq_mul_div, mul_comm d k,
-        pow_mul, ← div_pow, mul_comm _ ((Nat.cast a)^k), ← mul_assoc (Nat.cast C), 
-        mul_comm (Nat.cast C), mul_assoc, ← mul_add]
+        Nat.sub_one_add_one hk, add_mul, ← add_assoc, div_pow, ← pow_mul, 
+        mul_assoc (Nat.cast C), div_mul_eq_mul_div, mul_comm ((Nat.cast a)^k) ((Nat.cast n)^d),
+        ← div_mul_eq_mul_div, mul_comm d k, pow_mul, ← div_pow, mul_comm _ ((Nat.cast a)^k),
+        ← mul_assoc (Nat.cast C), mul_comm (Nat.cast C), mul_assoc, ← mul_add]
 
     apply le_add_of_le_add_right hformula
     rw [mul_le_mul_left (pow_pos (Nat.cast_pos.2 ha) k)]
