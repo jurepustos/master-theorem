@@ -49,7 +49,7 @@ theorem base_ne_one (a : ℚ) {b : ℚ} (h : b ≠ 1) (n : ℕ) :
         ← sub_eq_add_neg, sub_self, zero_sub, ← sub_eq_add_neg]
   }
 
-theorem le_of_pos_coef_of_pos_base_lt_one {a b : ℚ} (ha : a > 0) (hb : b < 1 ∧ 0 < b) 
+theorem le_of_pos_scale_of_pos_base_lt_one {a b : ℚ} (ha : a > 0) (hb : b < 1 ∧ 0 < b) 
     (n : ℕ) : GeometricSum a b n ≤ a / (1 - b) := by
   have b_ne_one : b ≠ 1 := ne_of_lt (And.left hb)
   have one_sub_b_pos : 0 < 1 - b := sub_pos.2 (And.left hb)

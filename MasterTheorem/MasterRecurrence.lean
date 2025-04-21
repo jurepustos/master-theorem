@@ -69,12 +69,6 @@ structure MasterRecurrence (T : ℕ → ℕ) (a b : ℕ) (f : ℕ → ℕ) where
   T_monotone : Monotone T
   /- The recurrence formula -/
   T_rec : ∀ n ≥ n₀, T n ≤ a * T (n ⌈/⌉ b) + f n
-  /- f is polynomial with degree d -/
-  d : ℕ
-  /- d is positive, since constant functions aren't of interest -/
-  d_pos : d > 0
-  /- f is polynomial with degree d -/
-  f_poly : f ∈ O ℕ fun n ↦ n ^ d
 
 
 namespace MasterRecurrence
@@ -179,52 +173,35 @@ private theorem formula_subst {T : ℕ → ℕ} {a b d C n₀ : ℕ} (k n : ℕ)
     . exact hx
 
 
-variable {T f : ℕ → ℕ} {a b : ℕ}
+variable {T f : ℕ → ℕ} {a b d : ℕ}
 
 lemma b_pos (self: MasterRecurrence T a b f) : b > 0 := lt_trans one_pos self.one_lt_b 
 
-private lemma add_poly (self : MasterRecurrence T a b f) : 
-    (fun n ↦ (n + b)^self.d) ∈ O ℕ fun n ↦ n^self.d := by
+private lemma add_poly {d : ℕ} (self : MasterRecurrence T a b f) (hd : d > 0) : 
+    (fun n ↦ (n + b)^d) ∈ O ℕ fun n ↦ n^d := by
   have binom_def : ∀ x, ∀ n, (n + b)^x = ∑ m ∈ Finset.range (x + 1), 
                     n ^ m * b ^ (x - m) * ↑(x.choose m) := by {
     intro x n
     rw [add_pow]
     simp
   }
-  
-  induction' self.d with x hx
-  . use 1
-    apply And.intro one_pos
-    use 0
-    intro n hn
-    simp
-  . rcases hx with ⟨C, C_pos, N, hpoly⟩
-    use C + C * b
-    apply And.intro (add_pos C_pos (mul_pos C_pos self.b_pos))
-    use N + 1
-    intro n hn
-    simp
-    rw [pow_succ, binom_def]
-    specialize hpoly n (le_of_add_le_left hn)
-    simp at hpoly
-    rw [binom_def] at hpoly
-    have n_pos : n > 0 := by linarith
-    apply (mul_le_mul_right (add_pos n_pos self.b_pos)).2 at hpoly
 
-    apply le_trans hpoly
-    rw [mul_add, mul_assoc, ← pow_succ n x, mul_assoc, mul_comm _ b, ← mul_assoc]
-    have le_mul_n : C * b * n^x ≤ C * b * n^(x + 1) := by {
-      rw [pow_succ]
-      apply mul_le_mul (le_refl (C * b)) <;> try apply zero_le
-      exact le_mul_of_one_le_right (zero_le (n^x)) n_pos
-    }
-    apply le_trans (add_le_add (le_refl (C * n^(x + 1))) le_mul_n)
-    rw [add_mul]
+  use 2^d
+  apply And.intro (pow_pos two_pos d)
+  use b
+  intro n n_le_b
+  simp
+  rw [← Nat.sub_one_add_one (ne_of_gt hd), pow_succ 2, Nat.sub_one_add_one (ne_of_gt hd)]
+  apply le_trans (add_pow_le (zero_le n) (le_of_lt self.b_pos) d)
+  rw [mul_add, mul_two, add_mul]
+  apply add_le_add (le_refl _)
+  exact mul_le_mul (le_refl _) (pow_le_pow_left₀ (zero_le b) n_le_b d) (zero_le _) (zero_le _)
 
-private lemma f_of_add_b_poly (self : MasterRecurrence T a b f) : 
-    (fun n ↦ f (n + b)) ∈ O ℕ fun n ↦ n^self.d := by
-  apply flip (O_trans ℕ) self.add_poly
-  rcases self.f_poly with ⟨C, C_pos, N, hle⟩
+private lemma f_of_add_b_poly (self : MasterRecurrence T a b f) (hd : d > 0) 
+    (hf_poly : f ∈ O ℕ fun n ↦ n^d) : 
+    (fun n ↦ f (n + b)) ∈ O ℕ fun n ↦ n^d := by
+  apply flip (O_trans ℕ) (self.add_poly hd)
+  rcases hf_poly with ⟨C, C_pos, N, hle⟩
   use C
   apply And.intro C_pos
   simp
@@ -233,25 +210,26 @@ private lemma f_of_add_b_poly (self : MasterRecurrence T a b f) :
   intro n n_le_N
   exact hle (n + b) (le_add_of_le_of_nonneg n_le_N (zero_le b))
 
-noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k > 0) : 
-    Σ g : ℕ → ℕ, Σ' _ : (g ∈ O ℕ fun n ↦ n^self.d),
-      MasterRecurrence (fun n ↦ T (n + b)) (a^k) (b^k) 
-      (fun n ↦ ⌈GeometricSum 1 (a/b^self.d) (k - 1)⌉.toNat * g n) := by
-  have poly_func_pos : ∀ n ≥ 1, (fun n ↦ n^self.d) n ≥ 1 := by {
+noncomputable def self_subst (self : MasterRecurrence T a b f) {k : ℕ} (hk : k > 0) 
+    (hd : d > 0) (hf_poly : f ∈ O ℕ fun n ↦ n^d) : 
+    Σ g : ℕ → ℕ, Σ' _ : (g ∈ O ℕ fun n ↦ n^d),
+      MasterRecurrence (fun n ↦ T (n + b)) (a^k) (b^k)
+      (fun n ↦ ⌈GeometricSum 1 (a/b^d) (k - 1)⌉.toNat * g n) := by
+  have poly_func_pos : ∀ n ≥ 1, (fun n ↦ n^d) n ≥ 1 := by {
     intro n n_pos
     simp
     exact Nat.pow_pos n_pos
   }
-  have f_poly := le_const_mul_asymp_bounded_above self.f_of_add_b_poly poly_func_pos
+  have f_poly := le_const_mul_asymp_bounded_above (self.f_of_add_b_poly hd hf_poly) poly_func_pos
   generalize C_def : f_poly.choose = C
   have C_pos := f_poly.choose_spec.1
   replace f_poly := f_poly.choose_spec.2
   rw [C_def] at C_pos f_poly
 
-  generalize g_def : (fun n ↦ C * n^self.d) = g
+  generalize g_def : (fun n ↦ C * n^d) = g
   use g
 
-  have g_poly : g ∈ O ℕ fun n ↦ n^self.d := by {
+  have g_poly : g ∈ O ℕ fun n ↦ n^d := by {
     use C
     apply And.intro C_pos
     use 0
@@ -273,7 +251,7 @@ noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k
       intro n hn
 
       suffices T (n + b) ≤ a ^ k * T (n / b ^ k + b) + 
-                ⌈GeometricSum 1 (↑a / ↑b ^ self.d) (k - 1)⌉.toNat * g n by {
+                ⌈GeometricSum 1 (↑a / ↑b ^ d) (k - 1)⌉.toNat * g n by {
         apply le_add_of_le_add_right this
         apply Nat.mul_le_mul_left
         apply self.T_monotone
@@ -289,7 +267,7 @@ noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k
       }
       have n_pos : n ≥ 1 := le_trans (mul_pos self.n₀_pos (pow_pos self.b_pos k)) hn
 
-      have rec_apply : ∀ m ≥ self.n₀, S m ≤ a * S (m / b) + C * m ^ self.d := by {
+      have rec_apply : ∀ m ≥ self.n₀, S m ≤ a * S (m / b) + C * m ^ d := by {
         intro m n₀_le_m
         have m_pos : m ≥ 1 := le_trans self.n₀_pos n₀_le_m
         have ceilDiv_apply := self.T_rec (m + b) (le_add_right n₀_le_m) 
@@ -322,26 +300,18 @@ noncomputable def self_subst (self : MasterRecurrence T a b f) (k : ℕ) (hk : k
       rw [← g_def, ← mul_assoc, ← @Nat.cast_le ℚ, Nat.cast_add, Nat.cast_mul, 
           Nat.cast_pow, Nat.cast_mul, Nat.cast_pow, Nat.cast_mul, Int.ceil_toNat]
 
-      have geom_le_ceil : GeometricSum 1 (↑a / ↑b ^ self.d) (k - 1) * C * n^self.d ≤ 
-                          ⌈GeometricSum 1 (↑a / ↑b ^ self.d) (k - 1)⌉₊ * C * n^self.d := by {
+      have geom_le_ceil : GeometricSum 1 (↑a / ↑b ^ d) (k - 1) * C * n^d ≤ 
+                          ⌈GeometricSum 1 (↑a / ↑b ^ d) (k - 1)⌉₊ * C * n^d := by {
         rw [mul_assoc, mul_assoc]
-        have right_pos : 0 < (@Nat.cast ℚ _ C) * ↑n^self.d :=
-          mul_pos (Nat.cast_pos.2 C_pos) (pow_pos (Nat.cast_pos.2 n_pos) self.d)
+        have right_pos : 0 < (@Nat.cast ℚ _ C) * ↑n^d :=
+          mul_pos (Nat.cast_pos.2 C_pos) (pow_pos (Nat.cast_pos.2 n_pos) d)
         apply (mul_le_mul_right right_pos).2
         apply Nat.le_ceil
       }
       rw [S_apply, S_apply]
       apply flip le_add_of_le_add_left geom_le_ceil
       rw [ ← mul_comm (Nat.cast C), GeometricSum.const_mul, mul_one]
-      exact formula_subst k n self.a_pos self.one_lt_b hn C_pos self.d_pos rec_apply
-    }
-    d := self.d
-    d_pos := self.d_pos
-    f_poly := by {
-      apply flip (O_pos_smul ℕ) g_poly
-      simp
-      apply GeometricSum.pos_of_pos_of_pos one_pos
-      exact div_pos (Nat.cast_pos.2 self.a_pos) (pow_pos (Nat.cast_pos.2 self.b_pos) self.d)
+      exact formula_subst k n self.a_pos self.one_lt_b hn C_pos hd rec_apply
     }
   }
 
