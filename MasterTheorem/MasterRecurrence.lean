@@ -7,14 +7,15 @@ import MasterTheorem.CeilDiv
 
 
 theorem le_const_mul_of_asymp_bounded_above {f g : ℕ → ℕ}
-    (h : AsympBoundedAbove ℕ f g) (hg : ∀ n ≥ 1, g n ≥ 1) : ∃ C > 0, ∀ n ≥ 1, f n ≤ C * g n := by
-  rcases h with ⟨C₀, C₀_pos, N, hbound⟩
-  rcases func_le_mul_func_of_lt N with ⟨C₁, C₁_pos, hlt⟩
+    (h : AsympBoundedAbove ℕ f g) (hg : ∀ n ≥ 1, g n ≥ 1) (N : ℕ) : 
+    ∃ C > 0, ∀ n > N, f n ≤ C * g n := by
+  rcases h with ⟨C₀, C₀_pos, N', hbound⟩
+  rcases func_le_mul_func_of_lt N N' with ⟨C₁, C₁_pos, hle⟩
   use C₀ + C₁
   apply And.intro (add_pos_of_pos_of_nonneg C₀_pos (zero_le C₁))
-  intro n n_pos
+  intro n n_gt
   rw [add_mul]
-  if hn : N ≤ n then {
+  if hn : N' ≤ n then {
     simp at hbound
     apply le_add_of_le_of_nonneg (hbound n hn)
     exact mul_nonneg (le_of_lt C₁_pos) (zero_le (g n))
@@ -23,42 +24,52 @@ theorem le_const_mul_of_asymp_bounded_above {f g : ℕ → ℕ}
     simp at hn
     apply le_add_of_nonneg_of_le
     . exact mul_nonneg (le_of_lt C₀_pos) (zero_le (g n))
-    . exact hlt n hn n_pos
+    . exact hle n n_gt hn
   }
 where
-  func_le_mul_func_of_lt (N : ℕ) : ∃ C > 0, ∀ n < N, n ≥ 1 → f n ≤ C * g n := by
-    induction' N with m hm
+  func_le_mul_func_of_lt (N N' : ℕ) : ∃ C > 0, ∀ n > N, n < N' → f n ≤ C * g n := by
+    induction' N' with m hm
     . use 1
-      constructor
-      . exact one_pos
-      . intro n hn
-        contrapose hn
-        simp
-    . rcases hm with ⟨C, C_pos, hm⟩
+      apply And.intro one_pos
+      intro n n_pos n_lt
+      contrapose n_lt
+      exact Nat.not_lt_zero n
+    . rcases hm with ⟨C, C_pos, f_le⟩
       use C + f m
-      constructor
-      . exact add_pos_of_pos_of_nonneg C_pos (Nat.zero_le (f m))
-      . intro n n_lt_succ n_pos
-        rw [add_mul]
-        if hn_m : n < m then {
-          apply le_add_of_le_of_nonneg (hm n hn_m n_pos)
-          apply mul_nonneg <;> apply Nat.zero_le
-        }
-        else {
-          simp at hn_m
-          have n_eq_m : n = m := eq_of_le_of_le (Nat.le_of_lt_add_one n_lt_succ) hn_m
-          apply le_add_of_nonneg_of_le (mul_nonneg (le_of_lt C_pos) (zero_le (g n)))
-          rw [← mul_one (f n), ← n_eq_m]
-          exact Nat.mul_le_mul_left (f n) (hg n n_pos)
-        }
+      apply And.intro (add_pos_of_pos_of_nonneg C_pos (Nat.zero_le (f m)))
+      intro n n_gt n_lt_succ
+      rw [add_mul]
+      if hn_m : n < m then {
+        apply le_add_of_le_of_nonneg (f_le n n_gt hn_m)
+        apply mul_nonneg <;> apply Nat.zero_le
+      }
+      else {
+        simp at hn_m
+        have n_eq_m : n = m := eq_of_le_of_le (Nat.le_of_lt_add_one n_lt_succ) hn_m
+        apply le_add_of_nonneg_of_le (mul_nonneg (le_of_lt C_pos) (zero_le (g n)))
+        rw [← mul_one (f n), ← n_eq_m]
+        exact Nat.mul_le_mul_left (f n) (hg n (Nat.zero_lt_of_lt n_gt))
+      }
+
+theorem le_const_mul_iff_asymp_bounded_above {f g : ℕ → ℕ} (hg : ∀ n ≥ 1, g n ≥ 1) 
+    (N : ℕ) : AsympBoundedAbove ℕ f g ↔ ∃ C > 0, ∀ n > N, f n ≤ C * g n := by
+  constructor
+  . intro h
+    exact le_const_mul_of_asymp_bounded_above h hg N
+  . intro h
+    rcases h with ⟨C, C_pos, poly⟩
+    use C
+    apply And.intro C_pos
+    use N + 1
+    intro n n_ge
+    specialize poly n n_ge
+    exact poly
 
 
 /- We formalize the proof at https://www.cs.dartmouth.edu/~deepc/Courses/S20/lecs/lec3supp.pdf -/
 
 /- Divide and conquer recurrence -/
-structure MasterRecurrence (T : ℕ → ℕ) (a b : ℕ) (f : ℕ → ℕ) where
-  /-The lowest point at which the recurrence is in the base case -/
-  n₀ : ℕ
+structure MasterRecurrence (T : ℕ → ℕ) (a b n₀ : ℕ) (f : ℕ → ℕ) where
   /- n₀ has to be strictly positive -/
   one_lt_n₀ : 1 < n₀
   /-a is positive -/
@@ -109,9 +120,8 @@ private lemma formula_le_ceil {T f : ℕ → ℕ} {a b n₀ : ℕ} {C : ℚ} (hC
       exact ceil_C_nonneg
     )
 
-private lemma formula_subst_once {T : ℕ → ℕ} {a b d C n₀ k : ℕ} (n : ℕ) (ha : a > 0)
-    (hb : b > 1) (hn : n ≥ n₀ * b^k) (hC : C > 0) (hd : d > 0)
-    (hrec : T (n / b^k) ≤ a * T (n / b^(k+1)) + C * (n / b^k)^d)
+private lemma formula_subst_once {T : ℕ → ℕ} {a b d C k : ℕ} (n : ℕ) (ha : a > 0)
+    (hC : C > 0) (hd : d > 0) (hrec : T (n / b^k) ≤ a * T (n / b^(k+1)) + C * (n / b^k)^d)
     (hformula : T n ≤ a^k * T (n / b^k) + (GeometricSum C (a / (b^d)) (k-1)) * n^d) :
     T n ≤ a^(k+1) * T (n / b^(k+1)) + (GeometricSum C (a / (b^d)) k) * n^d := by
   if hk : k = 0 then {
@@ -121,14 +131,6 @@ private lemma formula_subst_once {T : ℕ → ℕ} {a b d C n₀ k : ℕ} (n : �
     exact hrec
   }
   else {
-    replace hk : k ≠ 0 := Ne.intro hk
-    have b_pos : b > 0 := lt_trans one_pos hb
-    have b_pow_k_pred_nonzero : b^(k-1) ≠ 0 := Nat.ne_zero_iff_zero_lt.2 (pow_pos b_pos (k-1))
-    have n₀_mul_b_pow_k_pred_le_n : n₀ * b^(k-1) ≤ n := by {
-      rw [← Nat.sub_one_add_one hk, pow_succ, ← mul_assoc] at hn
-      exact le_of_mul_le_of_one_le_left hn b_pos
-    }
-
     rw [← @Nat.cast_le ℚ, Nat.cast_add, Nat.cast_mul, Nat.cast_mul, Nat.cast_pow] at hrec
     rw [pow_succ, mul_assoc, ← Nat.sub_one_add_one hk, ← GeometricSum.def_succ,
         Nat.sub_one_add_one hk, add_mul, ← add_assoc, div_pow, ← pow_mul, 
@@ -166,20 +168,20 @@ private theorem formula_subst {T : ℕ → ℕ} {a b d C n₀ : ℕ} (k n : ℕ)
     }
     specialize hx n₀_mul_b_pow_x_le_n
     rw [Nat.add_one_sub_one]
-    apply formula_subst_once n ha hb n₀_mul_b_pow_x_le_n hC hd
+    apply formula_subst_once n ha hC hd
     . specialize hrec (n / b^x) n₀_le_x_div_b_pow_x
       rw [Nat.div_div_eq_div_mul, ← pow_succ] at hrec
       exact hrec
     . exact hx
 
 
-variable {T f : ℕ → ℕ} {a b d : ℕ}
+variable {T f : ℕ → ℕ} {a b d n₀ : ℕ}
 
-lemma n₀_pos (self: MasterRecurrence T a b f) : self.n₀ > 0 := lt_trans one_pos self.one_lt_n₀ 
+lemma n₀_pos (self: MasterRecurrence T a b n₀ f) : n₀ > 0 := lt_trans one_pos self.one_lt_n₀ 
 
-lemma b_pos (self: MasterRecurrence T a b f) : b > 0 := lt_trans one_pos self.one_lt_b 
+lemma b_pos (self: MasterRecurrence T a b n₀ f) : b > 0 := lt_trans one_pos self.one_lt_b 
 
-private lemma add_poly {d : ℕ} (self : MasterRecurrence T a b f) (hd : d > 0) : 
+private lemma add_poly (self : MasterRecurrence T a b n₀ f) (hd : d > 0) : 
     ∀ n > 1, (n + b)^d ≤ 2^(d-1) * b^d * n^d := by
   intro n hn
   rw [← Nat.sub_one_add_one (ne_of_gt hd), Nat.sub_one_add_one (ne_of_gt hd)]
@@ -190,7 +192,7 @@ private lemma add_poly {d : ℕ} (self : MasterRecurrence T a b f) (hd : d > 0) 
   . exact one_lt_pow₀ hn d_ne_zero
   . exact one_lt_pow₀ self.one_lt_b d_ne_zero 
 
-private lemma f_of_add_b_poly {C : ℕ} (self : MasterRecurrence T a b f) (hd : d > 0) 
+private lemma f_of_add_b_poly {C : ℕ} (self : MasterRecurrence T a b n₀ f) (hd : d > 0) 
     (hC : C > 0) (hf_poly : ∀ n > 0, f n ≤ C * n^d) : 
     ∀ n > 1, f (n + b) ≤ C * 2^(d-1) * b^d * n^d := by
   intro n hn
@@ -198,19 +200,18 @@ private lemma f_of_add_b_poly {C : ℕ} (self : MasterRecurrence T a b f) (hd : 
   rw [mul_assoc, mul_assoc, mul_le_mul_left hC, ← mul_assoc]
   exact self.add_poly hd n hn
 
-def self_subst {C : ℕ} (self : MasterRecurrence T a b f) (k : ℕ)
+
+def self_subst {C : ℕ} (self : MasterRecurrence T a b n₀ f) (k : ℕ)
     (hk : k > 0) (hd : d > 0) (hC : C > 0) (hf_poly : ∀ n > 0, f n ≤ C * n^d) : 
-    MasterRecurrence (fun n ↦ T (n + b)) (a^k) (b^k)
+    MasterRecurrence (fun n ↦ T (n + b)) (a^k) (b^k) (n₀ * b^k)
     (fun n ↦ ⌈GeometricSum (↑C * 2^(d-1) * ↑b^d) (a/b^d) (k - 1)⌉.toNat * n^d) :=
   {
-    n₀ := self.n₀ * b^k,
     one_lt_n₀ := one_lt_mul_of_lt_of_le self.one_lt_n₀ (pow_pos self.b_pos k),
     a_pos := pow_pos self.a_pos k,
     one_lt_b := one_lt_pow₀ self.one_lt_b (zero_lt_iff.1 hk),
     T_monotone := by {
       intro x y x_le_y
-      apply self.T_monotone
-      exact add_le_add x_le_y (le_refl b) 
+      exact self.T_monotone (add_le_add x_le_y (le_refl b))
     }
     T_rec := by {
       intro n hn
@@ -232,7 +233,7 @@ def self_subst {C : ℕ} (self : MasterRecurrence T a b f) (k : ℕ)
       }
       have n_pos : n > 0 := le_trans (mul_pos self.n₀_pos (pow_pos self.b_pos k)) hn
 
-      have rec_apply : ∀ m ≥ self.n₀, S m ≤ a * S (m / b) + C * 2^(d-1) * b^d * m ^ d := by {
+      have rec_apply : ∀ m ≥ n₀, S m ≤ a * S (m / b) + C * 2^(d-1) * b^d * m ^ d := by {
         intro m n₀_le_m
         have m_gt_one : m > 1 := lt_of_lt_of_le self.one_lt_n₀ n₀_le_m
         have ceilDiv_apply := self.T_rec (m + b) (le_add_right n₀_le_m) 
