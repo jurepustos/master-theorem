@@ -141,7 +141,9 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) 
 
     apply le_trans' (add_le_add_right prod_le _) at indep_bound
     rw [mul_comm, ← add_mul (c := n^d)] at indep_bound
-    sorry
+    rw [max_mul]
+    apply le_trans' (le_max_right _ _)
+    exact indep_bound
   }
   else {
     apply Nat.eq_zero_of_not_pos at hk
