@@ -49,20 +49,48 @@ theorem base_ne_one (a : ℚ) {b : ℚ} (h : b ≠ 1) (n : ℕ) :
         ← sub_eq_add_neg, sub_self, zero_sub, ← sub_eq_add_neg]
   }
 
-theorem le_of_pos_scale_of_pos_base_lt_one {a b : ℚ} (ha : a > 0) (hb : b < 1 ∧ 0 < b) 
+theorem le_of_pos_scale_of_pos_base_lt_one {a b : ℚ} (ha : a > 0) (hb : 0 < b ∧ b < 1) 
     (n : ℕ) : GeometricSum a b n ≤ a / (1 - b) := by
-  have b_ne_one : b ≠ 1 := ne_of_lt (And.left hb)
-  have one_sub_b_pos : 0 < 1 - b := sub_pos.2 (And.left hb)
+  have b_ne_one : b ≠ 1 := ne_of_lt (And.right hb)
+  have one_sub_b_pos : 0 < 1 - b := sub_pos.2 (And.right hb)
   rw [GeometricSum.base_ne_one a b_ne_one, ← neg_div_neg_eq, neg_sub, 
       div_le_div_iff one_sub_b_pos one_sub_b_pos, ← mul_neg, neg_sub, mul_assoc]
   apply mul_le_mul (le_refl a)
   . apply mul_le_of_le_one_left (le_of_lt one_sub_b_pos)
     apply sub_le_self
-    exact pow_nonneg (le_of_lt (And.right hb)) (n + 1)
+    exact pow_nonneg (le_of_lt (And.left hb)) (n + 1)
   . apply flip mul_nonneg (le_of_lt one_sub_b_pos)
     apply sub_nonneg.2
-    exact pow_le_one₀ (le_of_lt (And.right hb)) (le_of_lt (And.left hb))
+    exact pow_le_one₀ (le_of_lt (And.left hb)) (le_of_lt (And.right hb))
   . exact le_of_lt ha
 
+lemma lt_of_pos_of_pos_of_succ {a b : ℚ} (ha : a > 0) (hb : b > 0) (n : ℕ) :
+    GeometricSum a b n < GeometricSum a b (n + 1) := by
+  rw [← GeometricSum.def_succ]
+  apply lt_add_of_pos_left
+  exact mul_pos ha (pow_pos hb (n+1))
+
+theorem lt_of_pos_of_pos_of_lt {a b : ℚ} {n m : ℕ} (ha : a > 0) (hb : b > 0) 
+    (hlt : n < m) : GeometricSum a b n < GeometricSum a b m := by
+  rw [lt_iff_exists_add] at hlt
+  rcases hlt with ⟨c, c_pos, m_def⟩
+  if hc : c = 1 then {
+    rw [m_def, hc]
+    exact lt_of_pos_of_pos_of_succ ha hb n
+  }
+  else {
+    replace hc := lt_of_le_of_ne c_pos (Ne.intro (Ne.symm hc))
+    have n_succ_lt_m : n + 1 < m := 
+      lt_of_lt_of_eq (add_lt_add_left hc n) (Eq.symm m_def)
+    apply lt_trans' (GeometricSum.lt_of_pos_of_pos_of_lt ha hb n_succ_lt_m)
+    exact lt_of_pos_of_pos_of_succ ha hb n
+  }
+
+theorem le_of_pos_of_pos_of_le {a b : ℚ} {n m : ℕ} (ha : a > 0) (hb : b > 0) 
+    (hle : n ≤ m) : GeometricSum a b n ≤ GeometricSum a b m := by
+  apply lt_or_eq_of_le at hle
+  rcases hle with hlt | heq
+  . exact le_of_lt (GeometricSum.lt_of_pos_of_pos_of_lt ha hb hlt)
+  . rw [heq]
 
 end GeometricSum

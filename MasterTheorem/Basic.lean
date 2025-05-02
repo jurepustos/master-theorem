@@ -24,9 +24,9 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) 
   specialize hf_poly 0
   rcases hf_poly with ⟨C, C_pos, f_poly⟩
 
-  /- fix to use an actual upper bound -/
-  use C
-  apply And.intro C_pos
+  /- TODO: fix this to use an actual upper bound -/
+  use T (n₀ * b) ⊔ C
+  apply And.intro (le_trans C_pos (le_max_right _ _))
   intro n n_gt_n₀
   
   have n_pos : n > 0 := le_trans' n_gt_n₀ (Nat.succ_le_succ (zero_le n₀))
@@ -36,23 +36,66 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) 
     rw [le_mul_iff_one_le_left n_pos]
     exact le_of_lt self.one_lt_n₀
   }
-  have k_result := find_max_k (Nat.log b n + 1) (Nat.succ_pos _) 
-                    n (le_of_lt n_gt_n₀) n_le_log
+
+  have k_result := find_max_k (Nat.log b n + 1) (Nat.succ_pos _) n 
+                    (le_of_lt n_gt_n₀) n_le_log
   rcases k_result with ⟨k, k_le, k_ge⟩
   simp at k_le k_ge
+  have a_pow_k_le_a_pow_log : a^(Fin.val k) ≤ a^(Nat.log b n) :=
+    Nat.pow_le_pow_right self.a_pos (Nat.lt_succ.1 k.is_lt)
+
   if hk : k > 0 then {
     have subst_master := self.self_subst k hk hd C_pos f_poly
+    have subst_rec := subst_master.T_rec n k_ge
+    have T_of_add_b : T n ≤ T (n + b) := self.T_monotone (le_add_right (le_refl n))
+    have pow_log_swap_le : a ^ Nat.log b n ≤ n ^ Nat.clog b a := by {
+      apply le_trans (pow_le_pow_left₀ (zero_le a) (Nat.le_pow_clog self.one_lt_b a) 
+                      (Nat.log b n))
+      rw [← pow_mul, mul_comm, pow_mul]
+      apply le_trans (pow_le_pow_left₀ (zero_le (b^Nat.log b n)) 
+                      (Nat.pow_log_le_self b (Nat.pos_iff_ne_zero.1 n_pos)) 
+                      (Nat.clog b a))
+      exact le_refl (n^Nat.clog b a)
+    }
+    have log_rec : T n ≤ n ^ (Nat.clog b a) * T (n₀ * b + 1 + b) + ⌈GeometricSum 
+        (↑C * 2 ^ (d - 1) * ↑b ^ d) (↑a / ↑b ^ d) (Nat.log b n - 1)⌉.toNat * n ^ d := by {
+      apply le_trans T_of_add_b
+      apply le_trans subst_rec
+      apply add_le_add
+      . apply mul_le_mul (le_trans a_pow_k_le_a_pow_log pow_log_swap_le)
+        . apply self.T_monotone
+          apply add_le_add_right
+          apply le_trans (Nat.ceilDiv_le_div_succ (pow_pos (self.b_pos) k))
+          apply add_le_add_right
+          apply Nat.div_le_of_le_mul
+          rw [mul_comm, mul_assoc, mul_comm b, ← pow_succ]
+          exact k_le
+        all_goals (apply Nat.zero_le)
+      . rw [mul_le_mul_right (pow_pos n_pos d)]
+        apply Int.toNat_le_toNat
+        apply Int.ceil_le_ceil
+        apply GeometricSum.le_of_pos_of_pos_of_le
+        . apply mul_pos
+          . exact mul_pos (Nat.cast_pos.2 C_pos) (pow_pos two_pos (d-1))
+          . exact pow_pos (Nat.cast_pos.2 self.b_pos) d
+        . apply div_pos (Nat.cast_pos.2 self.a_pos)
+          exact pow_pos (Nat.cast_pos.2 self.b_pos) d
+        . exact Nat.sub_le_sub_right (Fin.is_le k) 1
+    }
 
-    /- TODO: derive complexity with logarithms-/
     sorry
   }
   else {
     apply Nat.eq_zero_of_not_pos at hk
     rw [hk, pow_zero, mul_one] at k_ge
     rw [hk, zero_add, pow_one] at k_le
-
-    /- TODO: abuse upper bound of n -/
-    sorry
+  
+    /- abuse upper bound -/
+    rw [max_mul]
+    apply le_trans' (le_max_left _ _)
+    apply flip le_mul_of_le_mul_left (one_le_pow₀ n_pos)
+    rw [mul_one]
+    exact self.T_monotone k_le
   }
 where
   find_max_k (M : ℕ) (hM : M > 0) (n : ℕ) (hn : n ≥ n₀) (hn_le : n ≤ n₀ * b^M) : 
