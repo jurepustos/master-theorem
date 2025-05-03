@@ -3,7 +3,6 @@ import Mathlib.Data.Set.Defs
 import Mathlib.Tactic.Linarith
 import Mathlib.Algebra.Group.Defs
 import Mathlib.Algebra.Module.Defs
-import Mathlib.Order.Defs
 import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
 
@@ -33,17 +32,17 @@ end Defs
 
 section Conversions
 
-variable {α β : Type*} (γ : Type* := by exact β) {f g : α → β} 
+variable {α β : Type*} (γ : Type*) {f g : α → β} 
 
 section Simple
 
-variable [Preorder α] [Preorder β] [LinearOrderedSemiring γ] [SMul γ β]
+variable [Preorder α] [Preorder β] [Semiring γ] [LinearOrder γ] [SMul γ β]
 
-lemma O_of_o (h : f ∈ o γ g) : f ∈ O γ g := by
+lemma O_of_o [IsStrictOrderedRing γ] (h : f ∈ o γ g) : f ∈ O γ g := by
   apply asymp_bounded_above_of_right_dom
   apply h
 
-lemma Omega_of_omega (h : f ∈ ω γ g) : f ∈ Ω γ g := by
+lemma Omega_of_omega [IsStrictOrderedRing γ] (h : f ∈ ω γ g) : f ∈ Ω γ g := by
   apply asymp_bounded_below_of_left_dom
   apply h
 
@@ -55,7 +54,7 @@ end Simple
 
 section Pos
 
-variable [LinearOrder α] [PartialOrder β] [AddCommMonoid β] [LinearOrderedField γ] [Module γ β] [SMulPosStrictMono γ β] 
+variable [LinearOrder α] [PartialOrder β] [AddCommMonoid β] [Field γ] [LinearOrder γ] [IsStrictOrderedRing γ] [Module γ β] [SMulPosStrictMono γ β] 
 
 lemma not_pos_theta_and_o (hg : AsympPos g) : ¬(f ∈ Θ γ g ∧ f ∈ o γ g) := by
   intro hb
@@ -195,7 +194,7 @@ end Pos
 
 section Neg
 
-variable [Preorder α] [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] 
+variable [Preorder α] [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β] [Ring γ] [PartialOrder γ] [IsOrderedRing γ] [Module γ β] 
          [AddLeftStrictMono γ] [PosMulStrictMono γ] [PosSMulMono γ β] [PosSMulReflectLE γ β] 
 
 lemma O_neg_smul (hc : c < 0) (h : f ∈ O γ g) : (fun n ↦ c • f n) ∈ Ω γ (fun n ↦ - g n) := by
@@ -215,15 +214,15 @@ end SMul
 section Add
 
 variable [LinearOrder α] [Preorder β] [AddCommMonoid β] [AddLeftMono β] 
-         [LinearOrderedSemiring γ] [Module γ β] {f₁ f₂ g : α → β} 
+         [Semiring γ] [LinearOrder γ] [Module γ β] {f₁ f₂ g : α → β} 
 
-lemma O_add (ha : f₁ ∈ O γ g) (hb : f₂ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ O γ g := by
+lemma O_add [IsStrictOrderedRing γ] (ha : f₁ ∈ O γ g) (hb : f₂ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ O γ g := by
   exact asymp_bounded_above_add γ ha hb
 
-lemma Omega_add (ha : f₁ ∈ Ω γ g) (hb : f₂ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Ω γ g := by
+lemma Omega_add [IsStrictOrderedRing γ] (ha : f₁ ∈ Ω γ g) (hb : f₂ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Ω γ g := by
   exact asymp_bounded_below_add γ ha hb
 
-theorem theta_add (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ Θ γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
+theorem theta_add [IsStrictOrderedRing γ] (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ Θ γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
   exact asymp_bounded_add γ ha hb
 
 lemma Omega_add_pos (hf : AsympPos f₂) (h : f₁ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Ω γ g := by
@@ -232,16 +231,16 @@ lemma Omega_add_pos (hf : AsympPos f₂) (h : f₁ ∈ Ω γ g) : (fun n ↦ f�
 lemma O_add_neg (hf : AsympNeg f₂) (h : f₁ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ O γ g := by
   exact asymp_bounded_above_add_neg γ hf h
 
-theorem theta_add_pos_O (hf : AsympPos f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
+theorem theta_add_pos_O [IsStrictOrderedRing γ] (hf : AsympPos f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
   exact asymp_bounded_add_pos_above γ hf ha hb
 
-theorem theta_add_neg_Omega (hf : AsympNeg f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
+theorem theta_add_neg_Omega [IsStrictOrderedRing γ] (hf : AsympNeg f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
   exact asymp_bounded_add_neg_below γ hf ha hb
 
-theorem theta_add_pos_o (hf : AsympPos f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ o γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
+theorem theta_add_pos_o [IsStrictOrderedRing γ] (hf : AsympPos f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ o γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
   exact asymp_bounded_add_pos_right_dom γ hf ha hb
 
-theorem theta_add_neg_omega (hf : AsympNeg f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
+theorem theta_add_neg_omega [IsStrictOrderedRing γ] (hf : AsympNeg f₂) (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
   exact asymp_bounded_add_neg_left_dom γ hf ha hb
 
 end Add

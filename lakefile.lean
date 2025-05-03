@@ -3,13 +3,14 @@ open Lake DSL
 
 package "master-theorem" where
   version := v!"0.1.0"
-  keywords := #["math"]
+  keywords := #["math","computer science"]
   leanOptions := #[
     ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
     ⟨`autoImplicit, false⟩
   ]
 
-require "leanprover-community" / "mathlib"
+require mathlib from git
+  "https://github.com/leanprover-community/mathlib4.git"
 
 @[default_target]
 lean_lib «MasterTheorem» where

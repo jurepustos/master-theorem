@@ -4,7 +4,6 @@ import Mathlib.Algebra.Group.Defs
 import Mathlib.Algebra.Order.Group.Action
 import Mathlib.Algebra.Module.Defs
 import Mathlib.Algebra.Order.Module.Defs
-import Mathlib.Order.Defs
 import Mathlib.Order.MinMax
 
 import MasterTheorem.Aux
@@ -254,7 +253,7 @@ end Pos
 
 section Neg
 
-variable {c : γ} [OrderedAddCommGroup β] [OrderedRing γ] [Module γ β] [PosSMulMono γ β] [PosSMulReflectLE γ β] 
+variable {c : γ} [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β] [Ring γ] [PartialOrder γ] [IsOrderedRing γ] [Module γ β] [PosSMulMono γ β] [PosSMulReflectLE γ β] 
 
 theorem asymp_le_neg_smul (hc : c < 0) (h : AsympLE f g) : AsympGE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
   rcases h with ⟨N, h⟩

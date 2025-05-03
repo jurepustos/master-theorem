@@ -4,7 +4,8 @@ namespace Nat
 
 
 private lemma pred_div_self {a : ℕ} (h : a > 0) : (a - 1) / a = 0 := by
-  apply (Nat.div_eq_zero_iff h).2
+  rw [Nat.div_eq_zero_iff]
+  right
   apply Nat.sub_one_lt
   exact Nat.ne_zero_iff_zero_lt.2 h
 
@@ -12,14 +13,19 @@ lemma ceilDiv_eq_div_or_div_succ {a b : ℕ} (hb : b > 0) : a ⌈/⌉ b = a / b 
   rw [Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc hb, Nat.add_div hb]
   split_ifs with hdiv <;> simp
   . right
-    exact pred_div_self hb
+    right
+    exact hb
   . left
-    exact pred_div_self hb
+    right
+    exact hb
 
 lemma ceilDiv_le_div_succ {a b : ℕ} (hb : b > 0) : a ⌈/⌉ b ≤ a / b + 1 := by 
   rw [Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc hb, Nat.add_div hb]
-  split_ifs with hdiv <;> simp <;> rw [pred_div_self hb]
-  exact zero_le 1
+  split_ifs with hdiv <;> simp
+  . right
+    exact hb
+  . rw [pred_div_self hb]
+    exact zero_le 1
 
 theorem ceilDiv_eq_div_iff_dvd {a b : ℕ} (hb : b > 0) : b ∣ a ↔ a ⌈/⌉ b = a / b := by
   constructor <;> intro h
@@ -32,7 +38,8 @@ theorem ceilDiv_eq_div_iff_dvd {a b : ℕ} (hb : b > 0) : b ∣ a ↔ a ⌈/⌉ 
       exact hb
     . simp at hdiv
       simp
-      exact pred_div_self hb
+      right
+      exact hb
   . rw [Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc hb, Nat.add_div hb] at h
     . split_ifs at h with hdiv <;> simp at hdiv
       . rw [pred_div_self hb] at h
@@ -43,7 +50,11 @@ theorem ceilDiv_eq_div_iff_dvd {a b : ℕ} (hb : b > 0) : b ∣ a ↔ a ⌈/⌉ 
         symm
         exact Nat.mul_div_cancel' hdiv
 
-private lemma one_div_of_one_lt {a : ℕ} (ha : a > 1) : 1 / a = 0 := (Nat.div_eq_zero_iff (lt_trans one_pos ha)).2 ha
+private lemma one_div_of_one_lt {a : ℕ} (ha : a > 1) : 1 / a = 0 := by {
+  rw [Nat.div_eq_zero_iff]
+  right
+  exact ha
+}
 
 theorem ceilDiv_ceilDiv_of_mul_dvd {a b c : ℕ} (hbc : b * c > 0) (hdvd : (b * c) ∣ a) : a ⌈/⌉ b ⌈/⌉ c = a / (b * c) := by
   have b_pos : b > 0 := pos_of_mul_pos_left hbc (zero_le c)
@@ -55,18 +66,22 @@ theorem ceilDiv_ceilDiv_of_mul_dvd {a b c : ℕ} (hbc : b * c > 0) (hdvd : (b * 
 
 theorem ceilDiv_ceilDiv_le_of_right_dvd {a b c : ℕ} (hb : b > 0) (hc : c > 1) (hdvd : c ∣ a ⌈/⌉ b) : a ⌈/⌉ b ⌈/⌉ c ≤ a ⌈/⌉ (b * c) + 1 := by
   have c_pos : c > 0 := lt_trans one_pos hc
-  have div_c : 1 / c = 0 := (Nat.div_eq_zero_iff c_pos).2 hc
+  have div_c : 1 / c = 0 := by {
+    rw [Nat.div_eq_zero_iff]
+    right
+    exact hc
+  }
   have bc_pos := mul_pos hb c_pos
   rw [(Nat.ceilDiv_eq_div_iff_dvd c_pos).1 hdvd, Nat.ceilDiv_eq_add_pred_div, 
       Nat.ceilDiv_eq_add_pred_div, Nat.add_sub_assoc hb, Nat.add_sub_assoc bc_pos, 
-      add_div hb, add_div bc_pos]
+      Nat.add_div hb, Nat.add_div bc_pos]
   split_ifs with hmod_b hmod_bc hmod_bc <;> 
     rw [Nat.pred_div_self hb, Nat.pred_div_self bc_pos] <;> simp <;> 
       simp at hmod_b <;> simp at hmod_bc
-  . rw [add_div c_pos, div_c]
+  . rw [Nat.add_div c_pos, div_c]
     split_ifs with hmod_c <;> simp <;> rw [Nat.div_div_eq_div_mul] <;> 
       (try rw [add_assoc]) <;> apply le_add_right
-  . rw [add_div c_pos, div_c]
+  . rw [Nat.add_div c_pos, div_c]
     split_ifs with hmod_c <;> simp <;> rw [Nat.div_div_eq_div_mul]
     apply le_succ
   . rw [Nat.div_div_eq_div_mul, add_assoc, one_add_one_eq_two]

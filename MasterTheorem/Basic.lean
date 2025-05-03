@@ -1,4 +1,5 @@
 import Mathlib
+import Init.Data.Int.Order
 
 import MasterTheorem.BachmanLandauNotation
 import MasterTheorem.AsymptoticGrowth
@@ -10,12 +11,12 @@ namespace MasterRecurrence
 
 variable {T f : ℕ → ℕ} {a b d n₀ : ℕ}
 
-private lemma le_of_O_bound {C : ℕ} (self : MasterRecurrence T a b n₀ f)
-    (hC : C > 0) (hd : d > 0) (hf_poly : ∀ m > 0, f m ≤ C * m^d) (hlt : a < b^d)
-    {n : ℕ} (hn: n > n₀) (hb : b ≤ n / n₀) : 
+private lemma le_of_O_poly {C : ℕ} (self : MasterRecurrence T a b n₀ f)
+    (hC : C > 0) (hd : d > 0) (hf_poly : ∀ m > 0, f m ≤ C * m^d)
+    {n : ℕ} (hn: n ≥ n₀) (hb : b ≤ n / n₀) : 
     T n ≤ n ^ (Nat.clog b a) * T ((n₀ + 1) * b + 1) + 
-      ⌈(Nat.cast (R := ℚ) C) * 2 ^ (d - 1) * (↑b ^ d) / (1 - ↑a / ↑b ^ d)⌉.toNat * n ^ d := by
-  have n_pos : n > 0 := le_trans (Nat.succ_le_succ (zero_le n₀)) hn
+      ⌈GeometricSum (↑C * 2 ^ (d - 1) * ↑b ^ d) (↑a / ↑b ^ d) (Nat.log b n - 1)⌉.toNat * n ^ d := by
+  have n_pos : n > 0 := le_trans self.n₀_pos hn
   have n_le_log : n ≤ n₀ * b^(Nat.log b n + 1) := by {
     have lt_pow_log := Nat.lt_pow_succ_log_self self.one_lt_b n
     apply flip le_mul_of_le_mul_left (le_of_lt lt_pow_log)
@@ -40,7 +41,7 @@ private lemma le_of_O_bound {C : ℕ} (self : MasterRecurrence T a b n₀ f)
     apply Nat.mul_le_of_le_div
     apply Nat.pow_log_le_self
     rw [← Nat.pos_iff_ne_zero]
-    exact Nat.div_pos (le_of_lt hn) self.n₀_pos
+    exact Nat.div_pos hn self.n₀_pos
   }
   have k_pos : k > 0 :=
     Eq.subst (motive := fun n ↦ n > 0) k_def (Nat.log_pos self.one_lt_b hb)
@@ -75,27 +76,22 @@ private lemma le_of_O_bound {C : ℕ} (self : MasterRecurrence T a b n₀ f)
   . rw [mul_le_mul_right (pow_pos n_pos d)]
     apply Int.toNat_le_toNat
     apply Int.ceil_le_ceil
-    apply GeometricSum.le_of_pos_scale_of_pos_base_lt_one
+    apply GeometricSum.le_of_pos_of_pos_of_le
     . apply mul_pos
       . exact mul_pos (Nat.cast_pos.2 hC) (pow_pos two_pos (d-1))
       . exact pow_pos (Nat.cast_pos.2 self.b_pos) d
-    . constructor
-      . apply div_pos (Nat.cast_pos.2 self.a_pos)
-        exact pow_pos (Nat.cast_pos.2 self.b_pos) d
-      . rw [div_lt_one (pow_pos (Nat.cast_pos.2 self.b_pos) d), 
-            ← Nat.cast_pow, Nat.cast_lt]
-        exact hlt
+    . apply div_pos (Nat.cast_pos.2 self.a_pos)
+      exact pow_pos (Nat.cast_pos.2 self.b_pos) d
+    . exact Nat.sub_le_sub_right k_le_log_n 1
+
+private lemma poly_pos {d : ℕ} : ∀ n > 0, n^d > 0 := by
+  intro n n_pos
+  exact pow_pos n_pos d
 
 theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) (hd : d > 0) 
     (hf_poly : f ∈ O ℕ fun n ↦ n^d) (hlt : a < b^d) : T ∈ O ℕ fun n ↦ n^d := by
-  have poly_pos : ∀ n > 0, n^d > 0 := by {
-    intro n n_pos
-    exact pow_pos n_pos d 
-  }
-
   unfold O
   simp
-  rw [le_const_mul_iff_asymp_bounded_above poly_pos n₀]
   apply flip le_const_mul_of_asymp_bounded_above poly_pos at hf_poly
   specialize hf_poly 0
   rcases hf_poly with ⟨C, C_pos, f_poly⟩
@@ -103,10 +99,13 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) 
   /- use a convenient value for the constant -/
   use (T (n₀ * b) + 1) ⊔ (T ((n₀ + 1) * b + 1) + 
     ⌈(Nat.cast (R := ℚ) C) * 2 ^ (d - 1) * ↑b ^ d / (1 - ↑a / ↑b ^ d)⌉.toNat)
+  constructor
   apply And.intro (le_trans (Nat.succ_pos _) (le_max_left _ _))
-  intro n n_gt_n₀
+  use n₀
+  intro n n_ge_n₀
+  simp
 
-  have n_pos : n > 0 := le_trans (Nat.succ_le_succ (zero_le n₀)) n_gt_n₀
+  have n_pos : n > 0 := le_trans self.n₀_pos n_ge_n₀
   generalize k_def : Nat.log b (n / n₀) = k
   have n_lt_b_pow_k_succ : n < n₀ * b^(k+1) := by {
     rw [← k_def, mul_comm]
@@ -121,7 +120,26 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) 
       rw [← Nat.log_pos_iff, k_def]
       exact hk
     }
-    have indep_bound := self.le_of_O_bound C_pos hd f_poly hlt n_gt_n₀ b_le_div
+    have indep_bound := self.le_of_O_poly C_pos hd f_poly n_ge_n₀ b_le_div
+
+    have ceil_le_ceil : ⌈GeometricSum (↑C * 2 ^ (d - 1) * ↑b ^ d) 
+        (↑a / ↑b ^ d) (Nat.log b n - 1)⌉.toNat * n^d ≤ ⌈(Nat.cast (R := ℚ) C) * 
+          2 ^ (d - 1) * ↑b ^ d / (1 - ↑a / ↑b ^ d)⌉.toNat * n^d := by {
+      rw [mul_le_mul_right (pow_pos n_pos d)]
+      apply Int.toNat_le_toNat
+      apply Int.ceil_le_ceil
+      apply GeometricSum.le_of_pos_scale_of_pos_base_lt_one
+      . apply mul_pos
+        . exact mul_pos (Nat.cast_pos.2 C_pos) (pow_pos two_pos (d-1))
+        . exact pow_pos (Nat.cast_pos.2 self.b_pos) d
+      . constructor
+        . apply div_pos (Nat.cast_pos.2 self.a_pos)
+          exact pow_pos (Nat.cast_pos.2 self.b_pos) d
+        . rw [div_lt_one (pow_pos (Nat.cast_pos.2 self.b_pos) d), 
+              ← Nat.cast_pow, Nat.cast_lt]
+          exact hlt
+    }
+    apply le_trans' (add_le_add_left ceil_le_ceil _) at indep_bound
     have log_le_d : Nat.clog b a ≤ d := by {
       rw [← Nat.clog_pow b d self.one_lt_b]
       apply Nat.clog_mono_right
@@ -158,9 +176,82 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) 
     exact self.T_monotone (le_of_lt n_lt_b_pow_k_succ)
   }
 
-theorem Θ_of_Θ_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) (hd : d > 0) 
-    (hf_poly : f ∈ Θ ℕ fun n ↦ n^d) (hlt : a < b^d) : T ∈ Θ ℕ fun n ↦ n^d := by
-  sorry
+theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f) (hd : d > 0) 
+    (hf_poly : f ∈ O ℕ fun n ↦ n^d) (heq : a = b^d) : T ∈ O ℕ fun n ↦ n^d * Nat.log b n := by
+  unfold O
+  simp
+  apply flip le_const_mul_of_asymp_bounded_above poly_pos at hf_poly
+  specialize hf_poly 0
+  rcases hf_poly with ⟨C, C_pos, f_poly⟩
+
+  /- use a convenient value for the constant -/
+  use (T (n₀ * b) + 1) ⊔ ((T ((n₀ + 1) * b + 1) + 1) + 
+    ⌈(Nat.cast (R := ℚ) C) * 2 ^ (d - 1) * ↑b ^ d / (1 - ↑a / ↑b ^ d)⌉.toNat)
+  apply And.intro (le_trans (Nat.succ_pos _) (le_max_left _ _))
+  use n₀ ⊔ b
+  intro n hn
+  simp
+
+  have n_ge_n₀ : n ≥ n₀ := le_trans (le_max_left n₀ b) hn
+  have n_ge_b : n ≥ b := le_trans (le_max_right n₀ b) hn
+
+  have n_pos : n > 0 := le_trans self.n₀_pos n_ge_n₀
+  generalize k_def : Nat.log b (n / n₀) = k
+  have n_lt_b_pow_k_succ : n < n₀ * b^(k+1) := by {
+    rw [← k_def, mul_comm]
+    apply Nat.lt_mul_of_div_lt
+    apply Nat.lt_pow_succ_log_self self.one_lt_b
+    exact self.n₀_pos
+  }
+  
+  if hk : k > 0 then {
+    have b_le_div : b ≤ n / n₀ := by {
+      apply And.left
+      rw [← Nat.log_pos_iff, k_def]
+      exact hk
+    }
+    have indep_bound := self.le_of_O_poly C_pos hd f_poly n_ge_n₀ b_le_div
+    have log_eq_d : Nat.clog b a = d := by {
+      rw [← Nat.clog_pow b d self.one_lt_b, heq]
+    }
+
+    have log_n_pos : 0 < Nat.log b n := by {
+      apply Nat.log_pos self.one_lt_b
+      exact le_trans b_le_div (Nat.div_le_self _ _)
+    }
+
+    have poly_le_poly_mul_log : n^d ≤ n^d * Nat.log b n := 
+      le_mul_of_one_le_right (zero_le _) log_n_pos
+
+    rw [heq, Nat.clog_pow b d self.one_lt_b, mul_comm, ← add_mul (c := n^d), 
+        Nat.cast_pow, div_self, GeometricSum.base_eq_one] at indep_bound
+    . rw [max_mul]
+      apply le_trans' (le_max_right _ _)
+      apply le_trans indep_bound
+      rw [add_mul (c := n^d), add_mul (c := n^d * Nat.log _ n)]
+      apply add_le_add
+      . exact mul_le_mul (Nat.le_succ _) poly_le_poly_mul_log (zero_le _) (zero_le _)
+      . rw [← Nat.cast_one (R := ℚ), Nat.cast_sub log_n_pos, Rat.sub_eq_add_neg,
+            add_assoc, ← add_comm (Nat.cast 1), ← Rat.sub_eq_add_neg, sub_self,
+            add_zero, mul_comm (n^d), ← mul_assoc, mul_le_mul_right (pow_pos n_pos d),
+            ← Int.toNat_ofNat (Nat.log b n), ← Int.toNat_mul]
+        sorry
+    . rw [← Nat.cast_pow, Nat.cast_ne_zero, ← Nat.pos_iff_ne_zero]
+      exact pow_pos self.b_pos d
+  }
+  else {
+    apply Nat.eq_zero_of_not_pos at hk
+    rw [hk, zero_add, pow_one] at n_lt_b_pow_k_succ
+  
+    /- use upper bound of n -/
+    rw [max_mul]
+    apply le_trans' (le_max_left _ _)
+    apply le_mul_of_le_mul_left (c := 1)
+    . rw [mul_one]
+      apply le_trans' (Nat.le_succ _)
+      exact self.T_monotone (le_of_lt n_lt_b_pow_k_succ)
+    . exact one_le_mul (pow_pos n_pos d) (Nat.log_pos self.one_lt_b n_ge_b)
+  }
 
 
 end MasterRecurrence

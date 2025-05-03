@@ -4,7 +4,6 @@ import Mathlib.Algebra.Group.Defs
 import Mathlib.Algebra.Order.Group.Action
 import Mathlib.Algebra.Module.Defs
 import Mathlib.Algebra.Order.Module.Defs
-import Mathlib.Order.Defs
 import Mathlib.Order.MinMax
 
 section ThreeMax
