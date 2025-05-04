@@ -279,7 +279,7 @@ def self_subst {C : ℕ} (self : MasterRecurrence T a b n₀ f) (k : ℕ)
       }
       rw [S_apply, S_apply]
       apply flip le_add_of_le_add_left geom_le_ceil
-      rw [← Nat.cast_eq_ofNat, ← Nat.cast_pow 2, ← Nat.cast_mul, 
+      rw [← Nat.cast_ofNat, ← Nat.cast_pow 2, ← Nat.cast_mul, 
           ← Nat.cast_pow b, ← Nat.cast_mul, Nat.cast_pow b]
       exact formula_subst k n self.a_pos self.one_lt_b hn const_pos hd rec_apply
     }

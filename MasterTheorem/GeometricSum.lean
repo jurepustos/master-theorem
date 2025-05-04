@@ -54,7 +54,7 @@ theorem le_of_pos_scale_of_pos_base_lt_one {a b : ℚ} (ha : a > 0) (hb : 0 < b 
   have b_ne_one : b ≠ 1 := ne_of_lt (And.right hb)
   have one_sub_b_pos : 0 < 1 - b := sub_pos.2 (And.right hb)
   rw [GeometricSum.base_ne_one a b_ne_one, ← neg_div_neg_eq, neg_sub, 
-      div_le_div_iff one_sub_b_pos one_sub_b_pos, ← mul_neg, neg_sub, mul_assoc]
+      div_le_div_iff₀ one_sub_b_pos one_sub_b_pos, ← mul_neg, neg_sub, mul_assoc]
   apply mul_le_mul (le_refl a)
   . apply mul_le_of_le_one_left (le_of_lt one_sub_b_pos)
     apply sub_le_self

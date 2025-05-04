@@ -99,8 +99,8 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f) 
   /- use a convenient value for the constant -/
   use (T (n₀ * b) + 1) ⊔ (T ((n₀ + 1) * b + 1) + 
     ⌈(Nat.cast (R := ℚ) C) * 2 ^ (d - 1) * ↑b ^ d / (1 - ↑a / ↑b ^ d)⌉.toNat)
-  constructor
-  apply And.intro (le_trans (Nat.succ_pos _) (le_max_left _ _))
+
+  apply And.intro (lt_of_lt_of_le (Nat.succ_pos _) (le_max_left _ _))
   use n₀
   intro n n_ge_n₀
   simp
@@ -186,8 +186,8 @@ theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f) 
 
   /- use a convenient value for the constant -/
   use (T (n₀ * b) + 1) ⊔ ((T ((n₀ + 1) * b + 1) + 1) + 
-    ⌈(Nat.cast (R := ℚ) C) * 2 ^ (d - 1) * ↑b ^ d / (1 - ↑a / ↑b ^ d)⌉.toNat)
-  apply And.intro (le_trans (Nat.succ_pos _) (le_max_left _ _))
+    ⌈(Nat.cast (R := ℚ) C) * 2 ^ (d - 1) * ↑b ^ d⌉.toNat)
+  apply And.intro (lt_of_lt_of_le (Nat.succ_pos _) (le_max_left _ _))
   use n₀ ⊔ b
   intro n hn
   simp
@@ -234,8 +234,17 @@ theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f) 
       . rw [← Nat.cast_one (R := ℚ), Nat.cast_sub log_n_pos, Rat.sub_eq_add_neg,
             add_assoc, ← add_comm (Nat.cast 1), ← Rat.sub_eq_add_neg, sub_self,
             add_zero, mul_comm (n^d), ← mul_assoc, mul_le_mul_right (pow_pos n_pos d),
-            ← Int.toNat_ofNat (Nat.log b n), ← Int.toNat_mul]
-        sorry
+            ← Int.toNat_natCast (Nat.log b n), ← Int.toNat_mul,
+            Int.toNat_natCast (Nat.log b n)]
+        . apply Int.toNat_le_toNat
+          rw [Int.ceil_le, Int.cast_mul, Int.cast_natCast, 
+              mul_le_mul_right (Nat.cast_pos.2 log_n_pos)]
+          apply Int.le_ceil
+        . apply Int.ceil_nonneg
+          rw [← Nat.cast_two, ← Nat.cast_pow, ← Nat.cast_mul, ← Nat.cast_pow,
+              ← Nat.cast_mul]
+          apply Nat.cast_nonneg
+        . apply Nat.cast_nonneg
     . rw [← Nat.cast_pow, Nat.cast_ne_zero, ← Nat.pos_iff_ne_zero]
       exact pow_pos self.b_pos d
   }
