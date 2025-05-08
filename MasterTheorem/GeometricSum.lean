@@ -1,16 +1,26 @@
 import Mathlib
 
-def GeometricSum (a b : ℚ) (n : ℕ) : ℚ :=
+variable {K : Type*} [Field K]
+
+def GeometricSum (a b : K) (n : ℕ) : K :=
   match n with
   | Nat.zero => a
   | Nat.succ k => a * b^n + GeometricSum a b k
 
 namespace GeometricSum
 
-lemma def_zero (a b : ℚ) : GeometricSum a b 0 = a := by
+lemma def_zero (a b : K) : GeometricSum a b 0 = a := by
   rfl
 
-lemma def_succ (a b : ℚ) (k : ℕ) : a * b^(k + 1) + GeometricSum a b k = GeometricSum a b (k + 1) := by
+lemma const_mul (a b : K) (k : ℕ) (x : K) : 
+    x * GeometricSum a b k = GeometricSum (x * a) b k := by
+  unfold GeometricSum
+  split
+  . rfl
+  . rw [mul_add, ← mul_assoc, const_mul]
+
+lemma def_succ (a b : K) (k : ℕ) : 
+    a * b^(k + 1) + GeometricSum a b k = GeometricSum a b (k + 1) := by
   unfold GeometricSum
   split
   . simp
@@ -18,24 +28,19 @@ lemma def_succ (a b : ℚ) (k : ℕ) : a * b^(k + 1) + GeometricSum a b k = Geom
   . simp
     apply def_succ
 
-lemma const_mul (a b : ℚ) (k : ℕ) (x : ℚ) : x * GeometricSum a b k = GeometricSum (x * a) b k := by
-  unfold GeometricSum
-  split
-  . rfl
-  . rw [mul_add, ← mul_assoc, const_mul]
-
-lemma pos_of_pos_of_pos {a b : ℚ} (ha : a > 0) (hb : b > 0) (n : ℕ) : GeometricSum a b n > 0 := by
+lemma pos_of_pos_of_pos [LinearOrder K] [IsStrictOrderedRing K]
+    {a b : K} (ha : a > 0) (hb : b > 0) (n : ℕ) : GeometricSum a b n > 0 := by
   induction n with
   | zero => exact ha
   | succ k hk => exact add_pos (mul_pos ha (pow_pos hb k.succ)) hk
 
-theorem base_eq_one (a : ℚ) (n : ℕ) : GeometricSum a 1 n = a * (n + 1) := by
+theorem base_eq_one (a : K) (n : ℕ) : GeometricSum a 1 n = a * (n + 1) := by
   induction n with
   | zero => rw [Nat.cast_zero, zero_add, mul_one, GeometricSum.def_zero]
   | succ k hk => rw [← GeometricSum.def_succ, one_pow, Nat.cast_add, 
                     Nat.cast_one, mul_add, mul_one, add_comm, hk]
 
-theorem base_ne_one (a : ℚ) {b : ℚ} (h : b ≠ 1) (n : ℕ) : 
+theorem base_ne_one (a : K) {b : K} (h : b ≠ 1) (n : ℕ) : 
     GeometricSum a b n = a * (b^(n+1) - 1) / (b - 1) := by
   have b_pred_neq_zero : b - 1 ≠ 0 := sub_ne_zero.2 h
   induction n with
@@ -49,7 +54,9 @@ theorem base_ne_one (a : ℚ) {b : ℚ} (h : b ≠ 1) (n : ℕ) :
         ← sub_eq_add_neg, sub_self, zero_sub, ← sub_eq_add_neg]
   }
 
-theorem le_of_pos_scale_of_pos_base_lt_one {a b : ℚ} (ha : a > 0) (hb : 0 < b ∧ b < 1) 
+variable [LinearOrder K] [IsStrictOrderedRing K] 
+
+theorem le_of_pos_scale_of_pos_base_lt_one {a b : K} (ha : a > 0) (hb : 0 < b ∧ b < 1) 
     (n : ℕ) : GeometricSum a b n ≤ a / (1 - b) := by
   have b_ne_one : b ≠ 1 := ne_of_lt (And.right hb)
   have one_sub_b_pos : 0 < 1 - b := sub_pos.2 (And.right hb)
@@ -64,13 +71,13 @@ theorem le_of_pos_scale_of_pos_base_lt_one {a b : ℚ} (ha : a > 0) (hb : 0 < b 
     exact pow_le_one₀ (le_of_lt (And.left hb)) (le_of_lt (And.right hb))
   . exact le_of_lt ha
 
-lemma lt_of_pos_of_pos_of_succ {a b : ℚ} (ha : a > 0) (hb : b > 0) (n : ℕ) :
+lemma lt_of_pos_of_pos_of_succ {a b : K} (ha : a > 0) (hb : b > 0) (n : ℕ) :
     GeometricSum a b n < GeometricSum a b (n + 1) := by
   rw [← GeometricSum.def_succ]
   apply lt_add_of_pos_left
   exact mul_pos ha (pow_pos hb (n+1))
 
-theorem lt_of_pos_of_pos_of_lt {a b : ℚ} {n m : ℕ} (ha : a > 0) (hb : b > 0) 
+theorem lt_of_pos_of_pos_of_lt {a b : K} {n m : ℕ} (ha : a > 0) (hb : b > 0) 
     (hlt : n < m) : GeometricSum a b n < GeometricSum a b m := by
   rw [lt_iff_exists_add] at hlt
   rcases hlt with ⟨c, c_pos, m_def⟩
@@ -86,7 +93,7 @@ theorem lt_of_pos_of_pos_of_lt {a b : ℚ} {n m : ℕ} (ha : a > 0) (hb : b > 0)
     exact lt_of_pos_of_pos_of_succ ha hb n
   }
 
-theorem le_of_pos_of_pos_of_le {a b : ℚ} {n m : ℕ} (ha : a > 0) (hb : b > 0) 
+theorem le_of_pos_of_pos_of_le {a b : K} {n m : ℕ} (ha : a > 0) (hb : b > 0) 
     (hle : n ≤ m) : GeometricSum a b n ≤ GeometricSum a b m := by
   apply lt_or_eq_of_le at hle
   rcases hle with hlt | heq
