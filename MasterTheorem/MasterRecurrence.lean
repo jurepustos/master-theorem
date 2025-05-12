@@ -7,7 +7,7 @@ import MasterTheorem.CeilDiv
 
 
 theorem le_const_mul_of_asymp_bounded_above {f g : ℕ → ℕ}
-    (h : AsympBoundedAbove ℕ f g) (hg : ∀ n ≥ 1, g n ≥ 1) (N : ℕ) : 
+    (h : AsympBoundedAbove ℕ f g) (hg : ∀ n > 0, g n > 0) (N : ℕ) : 
     ∃ C > 0, ∀ n > N, f n ≤ C * g n := by
   rcases h with ⟨C₀, C₀_pos, N', hbound⟩
   rcases func_le_mul_func_of_lt N N' with ⟨C₁, C₁_pos, hle⟩
@@ -51,7 +51,7 @@ where
         exact Nat.mul_le_mul_left (f n) (hg n (Nat.zero_lt_of_lt n_gt))
       }
 
-theorem le_const_mul_iff_asymp_bounded_above {f g : ℕ → ℕ} (hg : ∀ n ≥ 1, g n ≥ 1) 
+theorem le_const_mul_iff_asymp_bounded_above {f g : ℕ → ℕ} (hg : ∀ n > 0, g n > 0) 
     (N : ℕ) : AsympBoundedAbove ℕ f g ↔ ∃ C > 0, ∀ n > N, f n ≤ C * g n := by
   constructor
   . intro h
@@ -86,9 +86,9 @@ namespace MasterRecurrence
 
 
 private lemma formula_subst_once {T : ℕ → ℕ} {a b k : ℕ} {d C : ℝ} (n : ℕ) (ha : a > 0)
-    (hC : C > 0) (hrec : T (n / b^k) ≤ a * T (n / b^(k+1)) + C * (n / Nat.cast (R := ℝ) b^k)^d)
-    (hformula : T n ≤ a^k * T (n / b^k) + (GeometricSum (K := ℝ) C (a / (b^d)) (k-1)) * n^d) :
-    T n ≤ a^(k+1) * T (n / b^(k+1)) + (GeometricSum (K := ℝ) C (a / (b^d)) k) * n^d := by
+    (hC : C > 0) (hrec : T (n / b^k) ≤ a * T (n / b^(k+1)) + ⌈C * (n / Nat.cast (R := ℝ) b^k)^d⌉₊)
+    (hformula : T n ≤ a^k * T (n / b^k) + ⌈(GeometricSum (K := ℝ) C (a / (b^d)) (k-1)) * n^d⌉₊) :
+    T n ≤ a^(k+1) * T (n / b^(k+1)) + ⌈(GeometricSum (K := ℝ) C (a / (b^d)) k) * n^d⌉₊ := by
   if hk : k = 0 then {
     rw [hk, GeometricSum.def_zero, zero_add, pow_one, pow_one]
     rw [hk, pow_zero, Nat.div_one, zero_add, pow_one, pow_zero, div_one] at hrec 
@@ -115,14 +115,14 @@ private lemma formula_subst_once {T : ℕ → ℕ} {a b k : ℕ} {d C : ℝ} (n 
 
 private theorem formula_subst {T : ℕ → ℕ} {a b n₀ : ℕ} {d C : ℝ} (k n : ℕ) (ha : a > 0)
     (hb : b > 1) (hn : n ≥ n₀ * b^k) (hC : C > 0) (hd : d ≥ 1)
-    (hrec : ∀ m : ℕ, m ≥ n₀ → T m ≤ a * T (m / b) + C * (Nat.cast (R := ℝ) m)^d) :
-    T n ≤ a^k * T (n / b^k) + (GeometricSum (K := ℝ) C (a / b^d) (k-1)) * n^d := by
+    (hrec : ∀ m : ℕ, m ≥ n₀ → T m ≤ a * T (m / b) + ⌈C * (Nat.cast (R := ℝ) m)^d⌉₊) :
+    T n ≤ a^k * T (n / b^k) + ⌈(GeometricSum (K := ℝ) C (a / b^d) (k-1)) * n^d⌉₊ := by
   induction' k with x hx
-  . rw [← Nat.cast_pow, pow_zero, Nat.zero_sub, pow_zero, Nat.div_one, 
-        GeometricSum.def_zero, Nat.cast_one, one_mul]
+  . rw [pow_zero, Nat.zero_sub, pow_zero, Nat.div_one, 
+        GeometricSum.def_zero, one_mul]
     rw [pow_zero, mul_one] at hn
     apply le_add_of_le_of_nonneg (le_refl _)
-    exact mul_nonneg (le_of_lt hC) (Real.rpow_nonneg (Nat.cast_nonneg _) d)
+    apply Nat.zero_le
   . have n₀_mul_b_pow_x_le_n : n₀ * b^x ≤ n := by {
       rw [pow_succ, ← mul_assoc] at hn
       exact le_of_mul_le_of_one_le_left hn (le_of_lt hb)
@@ -131,22 +131,20 @@ private theorem formula_subst {T : ℕ → ℕ} {a b n₀ : ℕ} {d C : ℝ} (k 
       apply (Nat.le_div_iff_mul_le (pow_pos (le_of_lt hb) x)).2 
       exact n₀_mul_b_pow_x_le_n
     }
+
     specialize hx n₀_mul_b_pow_x_le_n
     rw [Nat.add_one_sub_one]
-    apply formula_subst_once n ha hC
-    . specialize hrec (n / b^x) n₀_le_x_div_b_pow_x
-      rw [Nat.div_div_eq_div_mul, ← pow_succ] at hrec
-      apply le_trans hrec
-      have bound_cast_le : C * ↑(n / b ^ x) ^ d ≤ C * (Nat.cast (R := ℝ) n / ↑b ^ x) ^ d := by {
-        rw [mul_le_mul_left hC, ← Nat.cast_pow]
-        apply Real.rpow_le_rpow
-        . apply Nat.cast_nonneg
-        . apply Nat.cast_div_le
-        . exact le_trans (le_of_lt one_pos) hd
-      }
-      apply le_add_of_le_add_left _ bound_cast_le
-      rw [← Nat.cast_mul]
-    . exact hx
+    apply flip (formula_subst_once n ha hC) hx
+    specialize hrec (n / b^x) n₀_le_x_div_b_pow_x
+    rw [Nat.div_div_eq_div_mul, ← pow_succ] at hrec
+    apply le_trans hrec
+    have bound_cast_le : C * ↑(n / b ^ x) ^ d ≤ C * (Nat.cast (R := ℝ) n / ↑b ^ x) ^ d := by {
+      rw [mul_le_mul_left hC, ← Nat.cast_pow]
+      apply Real.rpow_le_rpow (Nat.cast_nonneg _) Nat.cast_div_le
+      exact le_trans (le_of_lt one_pos) hd
+    }
+    apply le_add_of_le_add_left _ (Nat.ceil_le_ceil bound_cast_le)
+    apply le_refl
 
 
 variable {T f : ℕ → ℕ} {a b n₀ : ℕ} {d : ℝ}
@@ -155,16 +153,14 @@ lemma n₀_pos (self: MasterRecurrence T a b n₀ f) : n₀ > 0 := lt_trans one_
 
 lemma b_pos (self: MasterRecurrence T a b n₀ f) : b > 0 := lt_trans one_pos self.one_lt_b 
 
-private lemma add_poly (hd : d ≥ 1) (hb : b > 1) : 
-    ∀ n > 1, Nat.cast (R := NNReal) (n + b)^d ≤ (2 : NNReal)^(d-1) * b^d * n^d := by
-  intro n hn
-  rw [Nat.cast_add]
-
+private lemma add_poly (hd : d ≥ 1) (hb : b > 1) {n : ℕ} (hn : n > 1) : 
+    Nat.cast (R := NNReal) (n + b)^d ≤ (2 : NNReal)^(d-1) * b^d * n^d := by
   have one_lt_n_add_b : 1 < (Nat.cast (R := ℝ) n + ↑b) := by {
     rw [← Nat.cast_add, ← Nat.cast_one, Nat.cast_lt]
     exact Nat.lt_add_right b hn
   }
 
+  rw [Nat.cast_add]
   apply le_trans (NNReal.rpow_add_le_mul_rpow_add_rpow n b hd)
 
   have n_pos : n > 0 := lt_trans one_pos hn
@@ -186,20 +182,51 @@ private lemma add_poly (hd : d ≥ 1) (hb : b > 1) :
       exact le_of_lt hn
 
 private lemma f_of_add_b_poly {C : ℕ} (hd : d ≥ 1) (hC : C > 0) (hb : b > 1)
-    (hf_poly : ∀ n > 0, f n ≤ C * (Nat.cast (R := ℝ) n)^d) : 
-    ∀ n > 1, f (n + b) ≤ C * (2 : ℝ)^(d-1) * b^d * n^d := by
-  intro n hn
-
+    (hf_poly : ∀ n > 0, f n ≤ C * ⌈(Nat.cast (R := ℝ) n)^d⌉₊) {n : ℕ} (hn : n > 1) : 
+    f (n + b) ≤ ⌈C * (2 : ℝ) * 2^(d-1) * b^d * n^d⌉₊ := by
   specialize hf_poly (n + b) (le_add_of_le_of_nonneg (le_of_lt hn) (zero_le b))
   apply le_trans hf_poly
-  rw [mul_assoc, mul_assoc, mul_le_mul_left (Nat.cast_pos.2 hC), ← mul_assoc]
-  exact add_poly hd hb n hn
+  have poly_le := Nat.ceil_le_ceil (add_poly hd hb hn)
+  apply le_trans ((mul_le_mul_left hC).2 poly_le)
+  have inner_le : C * ⌈(2 : ℝ) ^ (d - 1) * ↑b ^ d * ↑n ^ d⌉₊ ≤ 
+                  C * ((2 : ℝ) * (2 ^ (d - 1) * ↑b ^ d * ↑n ^ d)) := by {
+    rw [mul_le_mul_left (Nat.cast_pos.2 hC)]
+    apply Nat.ceil_le_two_mul
+    apply le_trans (le_of_lt two_inv_lt_one)
+    apply one_le_mul_of_one_le_of_one_le
+    . apply one_le_mul_of_one_le_of_one_le
+      . apply Real.one_le_rpow 
+        . exact one_le_two
+        . exact sub_nonneg.2 hd
+      . apply Real.one_le_rpow
+        . rw [← Nat.cast_one, Nat.cast_le]
+          exact le_of_lt hb
+        . exact le_trans (le_of_lt one_pos) hd
+    . apply Real.one_le_rpow
+      . rw [← Nat.cast_one, Nat.cast_le]
+        exact le_of_lt hn
+      . exact le_trans (le_of_lt one_pos) hd
+  }
+
+  apply Nat.ceil_le_ceil at inner_le
+  rw [← Nat.cast_mul, Nat.ceil_natCast, ← mul_assoc, ← mul_assoc, 
+      ← mul_assoc] at inner_le
+  exact inner_le
+
+private lemma le_mul_ceil {R : Type*} [Semiring R] [LinearOrder R] [IsStrictOrderedRing R]
+    [FloorSemiring R] {n : ℕ} {x : R} : ⌈n * x⌉₊ ≤ n * ⌈x⌉₊ := by
+  induction' n with k hk
+  . rw [zero_mul, Nat.cast_zero, zero_mul, ← Nat.ceil_zero (R := R)]
+  . rw [add_mul, one_mul, Nat.cast_add, add_mul, Nat.cast_one, one_mul]
+    apply le_trans (Nat.ceil_add_le _ _)
+    apply add_le_add_right
+    exact hk
 
 
 def self_subst {C : ℕ} (self : MasterRecurrence T a b n₀ f) (k : ℕ)
-    (hk : k > 0) (hd : d ≥ 1) (hC : C > 0) (hf_poly : ∀ n > 0, f n ≤ C * (Nat.cast (R := ℝ) n)^d) : 
+    (hk : k > 0) (hd : d ≥ 1) (hC : C > 0) (hf_poly : ∀ n > 0, f n ≤ C * ⌈(Nat.cast (R := ℝ) n)^d⌉₊) : 
     MasterRecurrence (fun n ↦ T (n + b)) (a^k) (b^k) (n₀ * b^k)
-    (fun n ↦ ⌈GeometricSum (K := ℝ) (↑C * (2 : ℝ)^(d-1) * ↑b^d) (a/b^d) (k - 1) * n^d⌉₊) :=
+    (fun n ↦ ⌈GeometricSum (K := ℝ) (↑C * 2 * (2 : ℝ)^(d-1) * ↑b^d) (a/b^d) (k - 1) * n^d⌉₊) :=
   {
     one_lt_n₀ := one_lt_mul_of_lt_of_le self.one_lt_n₀ (pow_pos self.b_pos k),
     a_pos := pow_pos self.a_pos k,
@@ -212,7 +239,7 @@ def self_subst {C : ℕ} (self : MasterRecurrence T a b n₀ f) (k : ℕ)
       intro n hn
 
       suffices add_b : T (n + b) ≤ a ^ k * T (n / b ^ k + b) + 
-                ⌈GeometricSum (K := ℝ) (C * 2^(d-1) * b^d) (↑a/↑b^d) (k-1) * n^d⌉₊ by {
+                ⌈GeometricSum (K := ℝ) (C * 2 * 2^(d-1) * b^d) (↑a/↑b^d) (k-1) * n^d⌉₊ by {
         apply le_add_of_le_add_right add_b
         apply Nat.mul_le_mul_left
         apply self.T_monotone
@@ -228,7 +255,7 @@ def self_subst {C : ℕ} (self : MasterRecurrence T a b n₀ f) (k : ℕ)
       }
       have n_pos : n > 0 := le_trans (mul_pos self.n₀_pos (pow_pos self.b_pos k)) hn
 
-      have rec_apply : ∀ m ≥ n₀, S m ≤ a * S (m / b) + C * (2 : ℝ)^(d-1) * b^d * m^d := by {
+      have rec_apply : ∀ m ≥ n₀, S m ≤ a * S (m / b) + ⌈C * 2 * (2 : ℝ)^(d-1) * b^d * m^d⌉₊ := by {
         intro m n₀_le_m
         have m_gt_one : m > 1 := lt_of_lt_of_le self.one_lt_n₀ n₀_le_m
         have ceilDiv_apply := self.T_rec (m + b) (le_add_right n₀_le_m) 
@@ -253,25 +280,23 @@ def self_subst {C : ℕ} (self : MasterRecurrence T a b n₀ f) (k : ℕ)
             exact add_le_add (le_refl (m / b)) self.one_lt_b
           }
           apply flip le_add_of_le_add_right rec_T_le_m_add_b at  ceilDiv_apply
-          rw [S_apply, S_apply, ← Nat.cast_le (α := ℝ), Nat.cast_add,
-              Nat.cast_mul] at ceilDiv_apply
-
-          apply flip le_add_of_le_add_left 
-            (f_of_add_b_poly hd hC self.one_lt_b hf_poly m m_gt_one) at ceilDiv_apply
-          exact ceilDiv_apply
+          rw [S_apply, S_apply] at ceilDiv_apply  
+          
+          have f_le := f_of_add_b_poly hd hC self.one_lt_b hf_poly m_gt_one
+          exact le_add_of_le_add_left ceilDiv_apply f_le
       }
       
-      rw [← Nat.cast_le (α := NNReal), Nat.cast_add, Nat.cast_mul, Nat.cast_pow]
+      rw [← Nat.cast_le (α := ℝ), Nat.cast_add, Nat.cast_mul, Nat.cast_pow]
 
-      have const_pos : 0 < ↑C * (2 : ℝ)^(d-1) * b^d := by {
+      have const_pos : 0 < ↑C * 2 * (2 : ℝ)^(d-1) * b^d := by {
         apply mul_pos
-        . exact mul_pos (Nat.cast_pos.2 hC) (NNReal.rpow_pos two_pos)
+        . apply mul_pos 
+          . exact mul_pos (Nat.cast_pos.2 hC) two_pos
+          . exact NNReal.rpow_pos two_pos
         . exact NNReal.rpow_pos (Nat.cast_pos.2 self.b_pos)
       }
       rw [S_apply, S_apply]
-      apply flip le_add_of_le_add_left 
-        (Nat.le_ceil (GeometricSum (K := ℝ) (↑C * 2^(d-1) * ↑b^d) (↑a / ↑b ^ d) (k - 1) * n^d))
-      simp
+      rw [← Nat.cast_pow, ← Nat.cast_mul, ← Nat.cast_add, Nat.cast_le]
       exact formula_subst k n self.a_pos self.one_lt_b hn const_pos hd rec_apply
     }
   }
