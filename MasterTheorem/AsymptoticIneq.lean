@@ -104,15 +104,25 @@ variable {α β : Type*}
 
 section Refl
 
-variable [LE α] [Inhabited α] [Preorder β] {f : α → β}
+variable [LE α] [Preorder β] {f : α → β}
 
-lemma asymp_le_refl : AsympLE f f := by
+lemma asymp_le_refl [Inhabited α] : AsympLE f f := by
   use default
   intro n hn
   exact le_refl _
 
-lemma asymp_ge_refl : AsympGE f f := by
+lemma asymp_ge_refl [Inhabited α] : AsympGE f f := by
   exact asymp_le_refl
+
+lemma asymp_le_of_le_of_forall_ge {g : α → β} {N : α} (hle : ∀ n ≥ N, f n ≤ g n) : 
+    AsympLE f g := by {
+  use N
+}
+
+lemma asymp_ge_of_ge_of_forall_ge {g : α → β} {N : α} (hle : ∀ n ≥ N, f n ≥ g n) : 
+    AsympGE f g := by {
+  use N
+}
 
 end Refl
 

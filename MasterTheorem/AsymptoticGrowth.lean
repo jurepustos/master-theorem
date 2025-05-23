@@ -9,11 +9,11 @@ import Mathlib.Order.MinMax
 import MasterTheorem.AsymptoticIneq
 import MasterTheorem.Aux
 
-variable {α β : Type*} (γ : Type*)
+variable {α β : Type*}
 
 section Defs
 
-variable [LE α] [LE β] [LT γ] [Zero γ] [SMul γ β]
+variable (γ : Type*) [LE α] [LE β] [LT γ] [Zero γ] [SMul γ β]
 
 def AsympBoundedAbove (f g : α → β) := 
   ∃ k : γ, k > 0 ∧ AsympLE f (fun n ↦ k • g n)
@@ -32,18 +32,16 @@ def AsympLeftDom (f g : α → β) :=
 
 end Defs
 
-
-section 
-
+variable {γ : Type*}
 
 section Conversions
 
-variable {α β γ : Type*} {f g : α → β}
+variable {f g : α → β}
 
 
 section Simple
 
-variable [Preorder α] [Preorder β] [Semiring γ] [LinearOrder γ]  [SMul γ β]
+variable [Preorder α] [Preorder β] [Semiring γ] [LinearOrder γ] [SMul γ β]
 
 lemma asymp_bounded_above_of_right_dom [IsStrictOrderedRing γ]
     (h : AsympRightDom γ f g) : AsympBoundedAbove γ f g := by
@@ -76,7 +74,8 @@ end Simple
 
 section Pos
 
-variable [LinearOrder α] [PartialOrder β] [AddCommMonoid β] [Field γ] [LinearOrder γ] [IsStrictOrderedRing γ] [Module γ β] [SMulPosStrictMono γ β] 
+variable [LinearOrder α] [PartialOrder β] [AddCommMonoid β] [Field γ] 
+  [LinearOrder γ] [IsStrictOrderedRing γ] [Module γ β] [SMulPosStrictMono γ β] 
 
 lemma not_asymp_pos_bounded_below_and_right_dom (hg : AsympPos g) : 
     ¬(AsympBoundedBelow γ f g ∧ AsympRightDom γ f g) := by
@@ -111,10 +110,12 @@ lemma not_asymp_pos_bounded_below_and_right_dom (hg : AsympPos g) :
 
   -- create a conflicting pair of inequalities and finish the proof
   have contra1 := le_trans hb hd
-  have contra2 : (k₁ / 2) • g N < k₁ • g N := smul_lt_smul_of_pos_right (by linarith) hg
+  have contra2 : (k₁ / 2) • g N < k₁ • g N := 
+    smul_lt_smul_of_pos_right (by linarith) hg
   exact not_le_of_gt contra2 contra1
 
--- If f is asymptotically bounded by a function g that is nonzero for large inputs, then it is not right_dom by g.
+-- If f is asymptotically bounded by a function g that is nonzero for large 
+-- inputs, then it is not right_dom by g.
 lemma not_asymp_pos_right_dom_of_bounded_below (hg : AsympPos g) 
     (hb : AsympBoundedBelow γ f g) : ¬AsympRightDom γ f g := by
   intro hd
@@ -192,7 +193,8 @@ lemma not_asymp_pos_left_and_right_dom (hg: AsympPos g) :
   rw [hN] at ha hb hg
 
   simp at ha hb hg
-  have contra1 : g N < (@OfNat.ofNat γ 2 _) • g N := (lt_smul_iff_one_lt_left hg).2 one_lt_two
+  have contra1 : g N < (@OfNat.ofNat γ 2 _) • g N := 
+    (lt_smul_iff_one_lt_left hg).2 one_lt_two
   have contra2 := le_trans ha hb
   exact not_le_of_gt contra1 contra2
 
@@ -215,10 +217,11 @@ section Properties
 
 section Refl
 
-variable [LinearOrder α] [Preorder β] [PartialOrder γ] [One α] [γ_monoid : MonoidWithZero γ] 
-         [MulAction γ β] [ZeroLEOneClass γ] [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
+variable [LinearOrder α] [Preorder β] [PartialOrder γ] 
+  [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] 
+  [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
 
-lemma asymp_bounded_refl : AsympBounded γ f f := by
+lemma asymp_bounded_refl [One α] : AsympBounded γ f f := by
   constructor <;>
   . use 1
     constructor
@@ -227,11 +230,27 @@ lemma asymp_bounded_refl : AsympBounded γ f f := by
       intro _ _
       simp
 
-lemma asymp_bounded_above_refl : AsympBoundedAbove γ f f := by
-  exact (asymp_bounded_refl γ).1
+lemma asymp_bounded_above_refl [One α] : AsympBoundedAbove γ f f := by
+  exact asymp_bounded_refl.1
 
-lemma asymp_bounded_below_refl : AsympBoundedBelow γ f f := by
-  exact (asymp_bounded_refl γ).2
+lemma asymp_bounded_below_refl [One α] : AsympBoundedBelow γ f f := by
+  exact asymp_bounded_refl.2
+
+lemma asymp_bounded_above_of_asymp_le {g : α → β} (hle : AsympLE f g) :
+    AsympBoundedAbove γ f g := by
+  use 1
+  constructor
+  . exact one_pos
+  . simp
+    exact hle
+
+lemma asymp_bounded_below_of_asymp_ge {g : α → β} (hle : AsympGE f g) :
+    AsympBoundedBelow γ f g := by
+  use 1
+  constructor
+  . exact one_pos
+  . simp
+    exact hle
 
 end Refl
 
@@ -242,7 +261,8 @@ variable [LinearOrder α] [Preorder β] {f g h : α → β}
 
 section Bounded
 
-variable [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
+variable [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosMulStrictMono γ] 
+  [PosSMulMono γ β] 
 
 lemma asymp_bounded_above_trans (ha : AsympBoundedAbove γ f g)
     (hb : AsympBoundedAbove γ g h) : AsympBoundedAbove γ f h := by
@@ -269,15 +289,16 @@ lemma asymp_bounded_below_trans (ha : AsympBoundedBelow γ f g)
 lemma asymp_bounded_trans (ha : AsympBounded γ f g) (hb : AsympBounded γ g h) : 
     AsympBounded γ f h := by
   constructor
-  . exact asymp_bounded_above_trans γ ha.1 hb.1
-  . exact asymp_bounded_below_trans γ ha.2 hb.2
+  . exact asymp_bounded_above_trans ha.1 hb.1
+  . exact asymp_bounded_below_trans ha.2 hb.2
 
 end Bounded
 
 
 section Dom
 
-variable [PartialOrder γ] [MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] [NeZero (@One.one γ _)] [PosSMulMono γ β] 
+variable {γ : Type*} [PartialOrder γ] [MonoidWithZero γ] [MulAction γ β] 
+  [ZeroLEOneClass γ] [NeZero (@One.one γ _)] [PosSMulMono γ β] 
 
 lemma asymp_left_dom_trans (ha : AsympLeftDom γ f g) (hb : AsympLeftDom γ g h) : 
     AsympLeftDom γ f h := by
@@ -308,7 +329,8 @@ variable {c : γ} {f g : α → β}
 
 section Pos
 
-variable [LinearOrder α] [Preorder β] [PartialOrder γ] [MonoidWithZero γ] [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
+variable [LinearOrder α] [Preorder β] [PartialOrder γ] [MonoidWithZero γ] 
+  [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
 
 lemma asymp_bounded_above_pos_smul (hc : c > 0) (h : AsympBoundedAbove γ f g) : 
     AsympBoundedAbove γ (fun n ↦ c • f n) g := by
@@ -332,16 +354,18 @@ theorem asymp_bounded_pos_smul (hc : c > 0) (h : AsympBounded γ f g) :
     AsympBounded γ (fun n ↦ c • f n) g := by
   rcases h with ⟨ha, hb⟩
   constructor
-  . exact asymp_bounded_above_pos_smul γ hc ha
-  . exact asymp_bounded_below_pos_smul γ hc hb
+  . exact asymp_bounded_above_pos_smul hc ha
+  . exact asymp_bounded_below_pos_smul hc hb
 
 end Pos
 
 
 section Neg
 
-variable [Preorder α] [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β] [Ring γ] [PartialOrder γ] [IsOrderedRing γ] [Module γ β] 
-         [AddLeftStrictMono γ] [PosMulStrictMono γ] [PosSMulMono γ β] [PosSMulReflectLE γ β] 
+variable [Preorder α] [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β] 
+  [Ring γ] [PartialOrder γ] [IsOrderedRing γ] [Module γ β] 
+  [AddLeftStrictMono γ] [PosMulStrictMono γ] [PosSMulMono γ β] 
+  [PosSMulReflectLE γ β] 
 
 lemma asymp_bounded_above_neg_smul (hc : c < 0) (h : AsympBoundedAbove γ f g) :
     AsympBoundedBelow γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
@@ -375,8 +399,8 @@ theorem asymp_bounded_neg_smul (hc : c < 0) (h : AsympBounded γ f g) :
     AsympBounded γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
   rcases h with ⟨ha, hb⟩
   constructor 
-  . exact asymp_bounded_below_neg_smul γ hc hb
-  . exact asymp_bounded_above_neg_smul γ hc ha
+  . exact asymp_bounded_below_neg_smul hc hb
+  . exact asymp_bounded_above_neg_smul hc ha
 
 end Neg
 
@@ -386,7 +410,7 @@ end SMul
 section Add
 
 variable [LinearOrder α] [Preorder β] [AddCommMonoid β] [AddLeftMono β] 
-         [Semiring γ] [LinearOrder γ] [Module γ β] {f₁ f₂ g : α → β} 
+  [Semiring γ] [LinearOrder γ] [Module γ β] {f₁ f₂ g : α → β} 
 
 lemma asymp_bounded_above_add [IsStrictOrderedRing γ] 
     (ha : AsympBoundedAbove γ f₁ g) (hb : AsympBoundedAbove γ f₂ g) : 
@@ -415,8 +439,8 @@ theorem asymp_bounded_add [IsStrictOrderedRing γ] (ha : AsympBounded γ f₁ g)
   rcases ha with ⟨ha₁, ha₂⟩
   rcases hb with ⟨hb₁, hb₂⟩
   constructor
-  . exact asymp_bounded_above_add γ ha₁ hb₁
-  . exact asymp_bounded_below_add γ ha₂ hb₂
+  . exact asymp_bounded_above_add ha₁ hb₁
+  . exact asymp_bounded_below_add ha₂ hb₂
 
 lemma asymp_bounded_below_add_pos (hf : AsympPos f₂) 
     (h : AsympBoundedBelow γ f₁ g) : AsympBoundedBelow γ (f₁ + f₂) g := by
@@ -439,41 +463,43 @@ theorem asymp_bounded_add_pos_above [IsStrictOrderedRing γ] (hf : AsympPos f₂
     AsympBounded γ (f₁ + f₂) g := by
   rcases ha with ⟨ha₁, ha₂⟩
   constructor
-  . exact asymp_bounded_above_add γ ha₁ hb
-  . exact asymp_bounded_below_add_pos γ hf ha₂
+  . exact asymp_bounded_above_add ha₁ hb
+  . exact asymp_bounded_below_add_pos hf ha₂
 
 theorem asymp_bounded_add_neg_below [IsStrictOrderedRing γ] (hf : AsympNeg f₂) 
     (ha : AsympBounded γ f₁ g) (hb : AsympBoundedBelow γ f₂ g) : 
     AsympBounded γ (f₁ + f₂) g := by
   rcases ha with ⟨ha₁, ha₂⟩
   constructor
-  . exact asymp_bounded_above_add_neg γ hf ha₁
-  . exact asymp_bounded_below_add γ ha₂ hb
+  . exact asymp_bounded_above_add_neg hf ha₁
+  . exact asymp_bounded_below_add ha₂ hb
 
 theorem asymp_bounded_add_pos_right_dom [IsStrictOrderedRing γ] 
     (hf : AsympPos f₂) (ha : AsympBounded γ f₁ g) (hb : AsympRightDom γ f₂ g) : 
     AsympBounded γ (f₁ + f₂) g :=
-  asymp_bounded_add_pos_above γ hf ha (asymp_bounded_above_of_right_dom hb)
+  asymp_bounded_add_pos_above hf ha (asymp_bounded_above_of_right_dom hb)
 
 theorem asymp_bounded_add_neg_left_dom [IsStrictOrderedRing γ] 
     (hf : AsympNeg f₂) (ha : AsympBounded γ f₁ g) (hb : AsympLeftDom γ f₂ g) : 
     AsympBounded γ (f₁ + f₂) g :=
-  asymp_bounded_add_neg_below γ hf ha (asymp_bounded_below_of_left_dom hb)
+  asymp_bounded_add_neg_below hf ha (asymp_bounded_below_of_left_dom hb)
 
 end Add
 
 
 section Mul
 
-variable [Semiring β] [Ring γ] [MulAction γ β] [IsScalarTower γ β β] [IsScalarTower γ γ β] 
-         [SMulCommClass γ β β] {f₁ f₂ g₁ g₂ : α → β} 
+variable [Semiring β] [Ring γ] [MulAction γ β] [IsScalarTower γ β β] 
+  [IsScalarTower γ γ β] [SMulCommClass γ β β] {f₁ f₂ g₁ g₂ : α → β} 
 
-private lemma pi_smul_mul_smul_comm {k₁ k₂ : γ} : k₁ • g₁ * k₂ • g₂ = (k₁ * k₂) • (g₁ * g₂) := by
+private lemma pi_smul_mul_smul_comm {k₁ k₂ : γ} : 
+    k₁ • g₁ * k₂ • g₂ = (k₁ * k₂) • (g₁ * g₂) := by
   ext n
   simp
   apply smul_mul_smul_comm
 
-variable [LinearOrder α] [Preorder β] [MulPosMono β] [PosMulMono β] [Preorder γ] [PosMulStrictMono γ]
+variable [LinearOrder α] [Preorder β] [MulPosMono β] [PosMulMono β] 
+  [Preorder γ] [PosMulStrictMono γ]
 
 theorem asymp_bounded_above_nonneg_mul (hf₁ : AsympNonneg f₁) 
     (hf₂ : AsympNonneg f₂) (ha : AsympBoundedAbove γ f₁ g₁) 
@@ -485,7 +511,7 @@ theorem asymp_bounded_above_nonneg_mul (hf₁ : AsympNonneg f₁)
   constructor
   . exact mul_pos k₁_pos k₂_pos
   . suffices AsympLE (f₁ * f₂) (k₁ • g₁ * k₂ • g₂) by {
-      rw [pi_smul_mul_smul_comm γ] at this 
+      rw [pi_smul_mul_smul_comm] at this 
       exact this
     } 
     exact asymp_le_nonneg_mul hf₁ hf₂ ha hb
@@ -500,7 +526,7 @@ theorem asymp_bounded_below_nonpos_mul [ExistsAddOfLE β] [AddRightMono β]
   constructor
   . exact mul_pos k₁_pos k₂_pos
   . suffices AsympLE (f₁ * f₂) (k₁ • g₁ * k₂ • g₂) by {
-      rw [pi_smul_mul_smul_comm γ] at this 
+      rw [pi_smul_mul_smul_comm] at this 
       exact this
     } 
     exact asymp_ge_nonpos_mul hf₁ hf₂ ha hb

@@ -6,11 +6,11 @@ import Mathlib.Algebra.Module.Defs
 import Mathlib.Order.Basic
 import Mathlib.Order.MinMax
 
-variable {α : Type*} {β : Type*} (γ : Type*)
+variable {α : Type*} {β : Type*}
 
 section Defs
 
-variable [LE α] [LE β] [LT γ] [Zero γ] [SMul γ β]
+variable (γ : Type*) [LE α] [LE β] [LT γ] [Zero γ] [SMul γ β]
 
 def O (g : α → β) := 
   { f : α → β | AsympBoundedAbove γ f g }
@@ -29,6 +29,8 @@ def ω (g : α → β) :=
 
 end Defs
 
+
+variable {γ : Type*}
 
 section Conversions
 
@@ -67,12 +69,12 @@ lemma not_pos_theta_and_o (hg : AsympPos g) : ¬(f ∈ Θ γ g ∧ f ∈ o γ g)
 lemma not_pos_o_of_theta [PosSMulMono γ β] (hg : AsympPos g) (hΘ : f ∈ Θ γ g) : 
     ¬f ∈ o γ g := by
   intro ho
-  exact not_pos_theta_and_o γ hg (And.intro hΘ ho)
+  exact not_pos_theta_and_o hg (And.intro hΘ ho)
 
 lemma not_pos_theta_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ o γ g) : 
     ¬(f ∈ Θ γ g) := by
   intro hΘ
-  exact not_pos_theta_and_o γ hg (And.intro hΘ ho)
+  exact not_pos_theta_and_o hg (And.intro hΘ ho)
 
 lemma not_pos_o_of_Omega [PosSMulMono γ β] (hg : AsympPos g) (hΩ : f ∈ Ω γ g) : 
     ¬(f ∈ o γ g) := by
@@ -99,12 +101,12 @@ lemma not_pos_theta_and_omega [PosSMulMono γ β] (hg : AsympPos g) :
 lemma not_pos_omega_of_theta [PosSMulMono γ β] (hg : AsympPos g)
     (hΘ : f ∈ Θ γ g) : ¬f ∈ ω γ g := by
   intro hω
-  exact not_pos_theta_and_omega γ hg (And.intro hΘ hω)
+  exact not_pos_theta_and_omega hg (And.intro hΘ hω)
 
 lemma not_pos_theta_of_omega [PosSMulMono γ β] (hg : AsympPos g)
     (hω : f ∈ ω γ g) : ¬f ∈ Θ γ g := by
   intro hΘ
-  exact not_pos_theta_and_omega γ hg (And.intro hΘ hω)
+  exact not_pos_theta_and_omega hg (And.intro hΘ hω)
 
 lemma not_pos_o_and_omega [PosSMulStrictMono γ β] (hg : AsympPos g) : 
     ¬(f ∈ o γ g ∧ f ∈ ω γ g) := by
@@ -117,12 +119,12 @@ lemma not_pos_o_and_omega [PosSMulStrictMono γ β] (hg : AsympPos g) :
 lemma not_pos_omega_of_o [PosSMulStrictMono γ β] (hg : AsympPos g) 
     (ho : f ∈ o γ g) : ¬f ∈ ω γ g := by
   intro hω
-  exact not_pos_o_and_omega γ hg (And.intro ho hω)
+  exact not_pos_o_and_omega hg (And.intro ho hω)
 
 lemma not_pos_o_of_omega [PosSMulStrictMono γ β] (hg : AsympPos g) 
     (hω : f ∈ ω γ g) : ¬f ∈ o γ g := by
   intro ho
-  exact not_pos_o_and_omega γ hg (And.intro ho hω)
+  exact not_pos_o_and_omega hg (And.intro ho hω)
 
 end Pos
 
@@ -138,13 +140,13 @@ variable [LinearOrder α] [Preorder β] [PartialOrder γ] [One α]
   [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
 
 lemma theta_refl : f ∈ Θ γ f := by
-  exact asymp_bounded_refl γ
+  exact asymp_bounded_refl
 
 lemma O_refl : f ∈ O γ f := by
-  exact asymp_bounded_above_refl γ
+  exact asymp_bounded_above_refl
 
 lemma Omega_refl : f ∈ Ω γ f := by
-  exact asymp_bounded_below_refl γ
+  exact asymp_bounded_below_refl
 
 end Refl
 
@@ -159,13 +161,13 @@ variable [Preorder γ] [MonoidWithZero γ] [MulAction γ β] [PosMulStrictMono �
   [PosSMulMono γ β] 
 
 lemma theta_trans (ha : f ∈ Θ γ g) (hb : g ∈ Θ γ h) : f ∈ Θ γ h := by
-  exact asymp_bounded_trans γ ha hb
+  exact asymp_bounded_trans ha hb
 
 lemma O_trans (ha : f ∈ O γ g) (hb : g ∈ O γ h) : f ∈ O γ h := by
-  exact asymp_bounded_above_trans γ ha hb
+  exact asymp_bounded_above_trans ha hb
 
 lemma Omega_trans (ha : f ∈ Ω γ g) (hb : g ∈ Ω γ h) : f ∈ Ω γ h := by
-  exact asymp_bounded_below_trans γ ha hb
+  exact asymp_bounded_below_trans ha hb
 
 end Bounded
 
@@ -176,10 +178,10 @@ variable [PartialOrder γ] [MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass
   [NeZero (@One.one γ _)] [PosSMulMono γ β] 
 
 lemma o_trans (ha : f ∈ o γ g) (hb : g ∈ o γ h) : f ∈ o γ h := by
-  exact asymp_right_dom_trans γ ha hb
+  exact asymp_right_dom_trans ha hb
 
 lemma omega_trans (ha : f ∈ ω γ g) (hb : g ∈ ω γ h) : f ∈ ω γ h := by
-  exact asymp_left_dom_trans γ ha hb
+  exact asymp_left_dom_trans ha hb
 
 end Dom
 
@@ -196,15 +198,15 @@ variable [LinearOrder α] [Preorder β] [PartialOrder γ] [MonoidWithZero γ]
   [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
 
 lemma O_pos_smul (hc : c > 0) (h : f ∈ O γ g) : (fun n ↦ c • f n) ∈ O γ g := by
-  exact asymp_bounded_above_pos_smul γ hc h
+  exact asymp_bounded_above_pos_smul hc h
 
 lemma Omega_pos_smul (hc : c > 0) (h : f ∈ Ω γ g) : 
     (fun n ↦ c • f n) ∈ Ω γ g := by
-  exact asymp_bounded_below_pos_smul γ hc h
+  exact asymp_bounded_below_pos_smul hc h
 
 theorem theta_pos_smul (hc : c > 0) (h : f ∈ Θ γ g) : 
     (fun n ↦ c • f n) ∈ Θ γ g := by
-  exact asymp_bounded_pos_smul γ hc h
+  exact asymp_bounded_pos_smul hc h
 
 end Pos
 
@@ -217,15 +219,15 @@ variable [Preorder α] [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid �
 
 lemma O_neg_smul (hc : c < 0) (h : f ∈ O γ g) : 
     (fun n ↦ c • f n) ∈ Ω γ (fun n ↦ - g n) := by
-  exact asymp_bounded_above_neg_smul γ hc h
+  exact asymp_bounded_above_neg_smul hc h
 
 lemma Omega_neg_smul (hc : c < 0) (h : f ∈ Ω γ g) : 
     (fun n ↦ c • f n) ∈ O γ (fun n ↦ - g n) := by
-  exact asymp_bounded_below_neg_smul γ hc h
+  exact asymp_bounded_below_neg_smul hc h
 
 theorem theta_neg_smul (hc : c < 0) (h : f ∈ Θ γ g) : 
     (fun n ↦ c • f n) ∈ Θ γ (fun n ↦ - g n) := by
-  exact asymp_bounded_neg_smul γ hc h
+  exact asymp_bounded_neg_smul hc h
 
 end Neg
 
@@ -239,39 +241,39 @@ variable [LinearOrder α] [Preorder β] [AddCommMonoid β] [AddLeftMono β]
 
 lemma O_add [IsStrictOrderedRing γ] (ha : f₁ ∈ O γ g) (hb : f₂ ∈ O γ g) : 
     (fun n ↦ f₁ n + f₂ n) ∈ O γ g := by
-  exact asymp_bounded_above_add γ ha hb
+  exact asymp_bounded_above_add ha hb
 
 lemma Omega_add [IsStrictOrderedRing γ] (ha : f₁ ∈ Ω γ g) (hb : f₂ ∈ Ω γ g) : 
     (fun n ↦ f₁ n + f₂ n) ∈ Ω γ g := by
-  exact asymp_bounded_below_add γ ha hb
+  exact asymp_bounded_below_add ha hb
 
 theorem theta_add [IsStrictOrderedRing γ] (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ Θ γ g) : 
     (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add γ ha hb
+  exact asymp_bounded_add ha hb
 
 lemma Omega_add_pos (hf : AsympPos f₂) (h : f₁ ∈ Ω γ g) : 
     (fun n ↦ f₁ n + f₂ n) ∈ Ω γ g := by
-  exact asymp_bounded_below_add_pos γ hf h
+  exact asymp_bounded_below_add_pos hf h
 
 lemma O_add_neg (hf : AsympNeg f₂) (h : f₁ ∈ O γ g) : 
     (fun n ↦ f₁ n + f₂ n) ∈ O γ g := by
-  exact asymp_bounded_above_add_neg γ hf h
+  exact asymp_bounded_above_add_neg hf h
 
 theorem theta_add_pos_O [IsStrictOrderedRing γ] (hf : AsympPos f₂) 
     (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ O γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add_pos_above γ hf ha hb
+  exact asymp_bounded_add_pos_above hf ha hb
 
 theorem theta_add_neg_Omega [IsStrictOrderedRing γ] (hf : AsympNeg f₂) 
     (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ Ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add_neg_below γ hf ha hb
+  exact asymp_bounded_add_neg_below hf ha hb
 
 theorem theta_add_pos_o [IsStrictOrderedRing γ] (hf : AsympPos f₂) 
     (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ o γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add_pos_right_dom γ hf ha hb
+  exact asymp_bounded_add_pos_right_dom hf ha hb
 
 theorem theta_add_neg_omega [IsStrictOrderedRing γ] (hf : AsympNeg f₂) 
     (ha : f₁ ∈ Θ γ g) (hb : f₂ ∈ ω γ g) : (fun n ↦ f₁ n + f₂ n) ∈ Θ γ g := by
-  exact asymp_bounded_add_neg_left_dom γ hf ha hb
+  exact asymp_bounded_add_neg_left_dom hf ha hb
 
 end Add
 
