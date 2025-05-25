@@ -198,6 +198,8 @@ variable [LinearOrder α] [Preorder β] [PartialOrder γ] [MonoidWithZero γ]
   [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
 
 lemma O_pos_smul (hc : c > 0) (h : f ∈ O γ g) : (fun n ↦ c • f n) ∈ O γ g := by
+  unfold O at h
+  simp at h
   exact asymp_bounded_above_pos_smul hc h
 
 lemma Omega_pos_smul (hc : c > 0) (h : f ∈ Ω γ g) : 
@@ -215,7 +217,7 @@ section Neg
 
 variable [Preorder α] [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β] 
   [Ring γ] [PartialOrder γ] [IsOrderedRing γ] [Module γ β] [AddLeftStrictMono γ] 
-  [PosMulStrictMono γ] [PosSMulMono γ β] [PosSMulReflectLE γ β] 
+  [PosMulStrictMono γ] [PosSMulMono γ β]
 
 lemma O_neg_smul (hc : c < 0) (h : f ∈ O γ g) : 
     (fun n ↦ c • f n) ∈ Ω γ (fun n ↦ - g n) := by

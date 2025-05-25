@@ -261,19 +261,25 @@ section Pos
 variable {c : γ} [Preorder β] [Preorder γ] [MonoidWithZero γ] [MulAction γ β] 
   [PosSMulMono γ β] 
   
-lemma asymp_le_pos_smul (hc : c > 0) (h : AsympLE f g) : 
+lemma asymp_le_nonneg_smul (hc : c ≥ 0) (h : AsympLE f g) : 
     AsympLE (c • f) (c • g) := by
   rcases h with ⟨N, h⟩
   use N
   intro n hn
   simp
   specialize h n hn
-  exact smul_le_smul_of_nonneg_left h (le_of_lt hc)
+  exact smul_le_smul_of_nonneg_left h hc
 
-lemma asymp_ge_pos_smul (hc : c > 0) (h : AsympGE f g) : 
+lemma asymp_le_pos_smul (hc : c > 0) (h : AsympLE f g) :
+    AsympLE (c • f) (c • g) := asymp_le_nonneg_smul (le_of_lt hc) h
+
+lemma asymp_ge_nonneg_smul (hc : c ≥ 0) (h : AsympGE f g) : 
     AsympGE (c • f) (c • g) := by
   rw [← asymp_le_ge_iff]
-  exact asymp_le_pos_smul hc h
+  exact asymp_le_nonneg_smul hc h
+
+lemma asymp_ge_pos_smul (hc : c > 0) (h : AsympGE f g) :
+    AsympGE (c • f) (c • g) := asymp_ge_nonneg_smul (le_of_lt hc) h
 
 end Pos
 
@@ -282,21 +288,26 @@ section Neg
 
 variable {c : γ} [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β] 
     [Ring γ] [PartialOrder γ] [IsOrderedRing γ] [Module γ β] [PosSMulMono γ β] 
-    [PosSMulReflectLE γ β] 
 
-theorem asymp_le_neg_smul (hc : c < 0) (h : AsympLE f g) : 
+theorem asymp_le_nonpos_smul (hc : c ≤ 0) (h : AsympLE f g) : 
     AsympGE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
   rcases h with ⟨N, h⟩
   use N
   intro n hn
   specialize h n hn
   simp
-  exact (smul_le_smul_iff_of_neg_left hc).2 h
+  exact smul_le_smul_of_nonpos_left h hc
 
-theorem asymp_ge_neg_smul (hc : c < 0) (h : AsympGE f g) : 
+lemma asymp_le_neg_smul (hc : c < 0) (h : AsympLE f g) :
+    AsympGE (c • f) (c • g) := asymp_le_nonpos_smul (le_of_lt hc) h
+
+theorem asymp_ge_nonpos_smul (hc : c ≤ 0) (h : AsympGE f g) : 
     AsympLE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
   rw [asymp_le_ge_iff]
-  exact asymp_le_neg_smul hc h
+  exact asymp_le_nonpos_smul hc h
+
+lemma asymp_ge_neg_smul (hc : c < 0) (h : AsympGE f g) :
+    AsympLE (c • f) (c • g) := asymp_ge_nonpos_smul (le_of_lt hc) h
 
 end Neg
 

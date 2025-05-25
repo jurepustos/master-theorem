@@ -306,7 +306,7 @@ lemma asymp_left_dom_trans (ha : AsympLeftDom γ f g) (hb : AsympLeftDom γ g h)
   specialize ha k k_pos
   specialize hb 1 one_pos
   simp at hb
-  apply asymp_ge_pos_smul k_pos at hb
+  apply asymp_ge_nonneg_smul (le_of_lt k_pos) at hb
   exact asymp_ge_trans ha hb
 
 lemma asymp_right_dom_trans (ha : AsympRightDom γ f g) 
@@ -315,7 +315,7 @@ lemma asymp_right_dom_trans (ha : AsympRightDom γ f g)
   specialize ha k k_pos
   specialize hb 1 one_pos
   simp at hb
-  apply asymp_le_pos_smul k_pos at hb
+  apply asymp_le_nonneg_smul (le_of_lt k_pos) at hb
   exact asymp_le_trans ha hb
 
 end Dom
@@ -330,7 +330,7 @@ variable {c : γ} {f g : α → β}
 section Pos
 
 variable [LinearOrder α] [Preorder β] [PartialOrder γ] [MonoidWithZero γ] 
-  [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β] 
+  [MulAction γ β] [PosMulStrictMono γ] [PosSMulMono γ β]
 
 lemma asymp_bounded_above_pos_smul (hc : c > 0) (h : AsympBoundedAbove γ f g) : 
     AsympBoundedAbove γ (fun n ↦ c • f n) g := by
@@ -365,7 +365,6 @@ section Neg
 variable [Preorder α] [AddCommGroup β] [PartialOrder β] [IsOrderedAddMonoid β] 
   [Ring γ] [PartialOrder γ] [IsOrderedRing γ] [Module γ β] 
   [AddLeftStrictMono γ] [PosMulStrictMono γ] [PosSMulMono γ β] 
-  [PosSMulReflectLE γ β] 
 
 lemma asymp_bounded_above_neg_smul (hc : c < 0) (h : AsympBoundedAbove γ f g) :
     AsympBoundedBelow γ (fun n ↦ c • f n) (fun n ↦ - g n) := by
