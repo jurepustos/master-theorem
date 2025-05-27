@@ -1,5 +1,4 @@
 import Mathlib
-import Init.Data.Int.Order
 
 import MasterTheorem.BachmanLandauNotation
 import MasterTheorem.AsymptoticGrowth
@@ -12,23 +11,19 @@ namespace MasterRecurrence
 
 variable {T f : ℕ → ℕ} {a b n₀ : ℕ} {d : ℝ}
 
-private lemma exists_le_of_poly_bound {C : ℕ} (self : MasterRecurrence T a b n₀ f)
-    (hC : C > 0) (hd : d ≥ 1) (hf_poly : ∀ m > 0, f m ≤ C * ⌈Nat.cast (R := ℝ) m^d⌉₊) : 
-    ∃ k > 0, ∀ n ≥ n₀ * b, T n ≤ T ((n₀ + 1) * b + 1) * 
-    ⌈Nat.cast (R := ℝ) n ^ (Real.logb b a)⌉₊ + ⌈GeometricSum (K := ℝ) k (↑a / ↑b^d) 
+private lemma exists_le_of_poly_bound (self : MasterRecurrence T a b n₀ f)
+    (hd : d ≥ 1) (hf_poly : f ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊) : 
+    AsympBoundedAbove ℕ T fun n ↦ T ((n₀ + 1) * b + 1) * 
+    ⌈Nat.cast (R := ℝ) n ^ (Real.logb b a)⌉₊ + ⌈GeometricSum (K := ℝ) (↑a / ↑b^d) 
     (⌈Real.logb b n⌉₊ - 1)⌉₊ * ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
-  use C * 2 * 2^(d-1) * ↑b^d
-  apply And.intro (by {
-    apply mul_pos
-    . apply mul_pos
-      . apply mul_pos <;> norm_cast
-      . apply Real.rpow_pos_of_pos two_pos
-    . apply Real.rpow_pos_of_pos
-      norm_cast
-      exact self.b_pos
-  })
+  obtain ⟨⟨D, D_pos⟩, subst_master⟩ := self.self_subst hd hf_poly
+  use ⌈D⌉₊
+  have const_pos : 0 < ⌈D⌉₊ := Nat.ceil_pos.2 D_pos
+  apply And.intro const_pos
 
+  use n₀ * b
   intro n hn
+  simp
   have n_pos : n > 0 := by {
     apply lt_of_le_of_lt' hn
     exact mul_pos self.n₀_pos self.b_pos
@@ -53,7 +48,7 @@ private lemma exists_le_of_poly_bound {C : ℕ} (self : MasterRecurrence T a b n
     all_goals linarith [self.one_lt_b, self.one_lt_n₀]
   }
 
-  have subst_master := self.self_subst k k_pos hd hC hf_poly
+  specialize subst_master k k_pos
   have subst_rec := subst_master.T_rec n (by {
     rw [← k_def, ge_iff_le, ← Nat.cast_le (α := ℝ), Nat.cast_mul, mul_comm]
     apply mul_le_of_le_div₀ <;> norm_cast
@@ -119,11 +114,7 @@ private lemma exists_le_of_poly_bound {C : ℕ} (self : MasterRecurrence T a b n
   . rw [mul_le_mul_right]
     . apply Nat.ceil_le_ceil
       apply GeometricSum.le_of_pos_of_pos_of_le
-      . apply mul_pos
-        . apply mul_pos
-          . exact mul_pos (Nat.cast_pos.2 hC) two_pos
-          . exact Real.rpow_pos_of_pos two_pos (d-1)
-        . exact Real.rpow_pos_of_pos (Nat.cast_pos.2 self.b_pos) d
+      . exact D_pos
       . apply div_pos
         . exact Nat.cast_pos.2 self.a_pos
         . exact Real.rpow_pos_of_pos (Nat.cast_pos.2 self.b_pos) d
@@ -141,28 +132,14 @@ private lemma exists_le_of_poly_bound {C : ℕ} (self : MasterRecurrence T a b n
       apply Real.rpow_pos_of_pos
       assumption_mod_cast
 
-private lemma poly_pos {d : ℝ} : ∀ n > 0, Nat.cast (R := ℝ) n^d > 0 := by
-  intro n n_pos
-  exact Real.rpow_pos_of_pos (Nat.cast_pos.2 n_pos) d
-
-private lemma ceil_poly_pos {d : ℝ} : ∀ n > 0, 0 < ⌈Nat.cast (R := ℝ) n^d⌉₊ := by {
-  intro n n_pos
-  rw [Nat.ceil_pos]
-  exact poly_pos n n_pos
-}
-
 theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f)
     (hd : d ≥ 1) (hf_poly : f ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊)
     (hlt : a < Nat.cast (R := ℝ) b^d) : 
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
   unfold O
   simp
-  apply flip le_const_mul_of_asymp_bounded_above ceil_poly_pos at hf_poly
-  specialize hf_poly 0
-  rcases hf_poly with ⟨C, C_pos, f_poly⟩
-  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound C_pos hd f_poly
+  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound hd hf_poly
 
-  apply asymp_le_of_le_of_forall_ge at poly_bound
   apply asymp_bounded_above_trans (asymp_bounded_above_of_asymp_le poly_bound)
   apply asymp_bounded_above_add
   . if hT : T ((n₀ + 1) * b + 1) > 0 then {
@@ -214,12 +191,8 @@ theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f)
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d * Real.logb b n⌉₊ := by
   unfold O
   simp
-  apply flip le_const_mul_of_asymp_bounded_above ceil_poly_pos at hf_poly
-  specialize hf_poly 0
-  rcases hf_poly with ⟨C, C_pos, f_poly⟩
-  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound C_pos hd f_poly
+  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound hd hf_poly
 
-  apply asymp_le_of_le_of_forall_ge at poly_bound
   apply asymp_bounded_above_trans (asymp_bounded_above_of_asymp_le poly_bound)
   apply asymp_bounded_above_add
   . if hT : T ((n₀ + 1) * b + 1) > 0 then {
@@ -324,12 +297,8 @@ theorem O_of_O_poly_of_scale_gt_base_pow (self : MasterRecurrence T a b n₀ f)
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^Real.logb b a⌉₊ := by
   unfold O
   simp
-  apply flip le_const_mul_of_asymp_bounded_above ceil_poly_pos at hf_poly
-  specialize hf_poly 0
-  rcases hf_poly with ⟨C, C_pos, f_poly⟩
-  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound C_pos hd f_poly
+  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound hd hf_poly
 
-  apply asymp_le_of_le_of_forall_ge at poly_bound
   apply asymp_bounded_above_trans (asymp_bounded_above_of_asymp_le poly_bound)
   apply asymp_bounded_above_add
   . apply flip asymp_bounded_above_trans (asymp_bounded_above_pos_smul
