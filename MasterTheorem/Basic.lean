@@ -11,15 +11,14 @@ namespace MasterRecurrence
 
 variable {T f : ℕ → ℕ} {a b n₀ : ℕ} {d : ℝ}
 
-private lemma exists_le_of_poly_bound (self : MasterRecurrence T a b n₀ f)
+private lemma O_of_O_poly (self : MasterRecurrence T a b n₀ f)
     (hd : d ≥ 1) (hf_poly : f ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊) : 
-    AsympBoundedAbove ℕ T fun n ↦ T ((n₀ + 1) * b + 1) * 
+    T ∈ O ℕ fun n ↦ T ((n₀ + 1) * b + 1) * 
     ⌈Nat.cast (R := ℝ) n ^ (Real.logb b a)⌉₊ + ⌈GeometricSum (K := ℝ) (↑a / ↑b^d) 
     (⌈Real.logb b n⌉₊ - 1)⌉₊ * ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
-  obtain ⟨⟨D, D_pos⟩, subst_master⟩ := self.self_subst hd hf_poly
-  use ⌈D⌉₊
-  have const_pos : 0 < ⌈D⌉₊ := Nat.ceil_pos.2 D_pos
-  apply And.intro const_pos
+  obtain ⟨C, C_pos, subst_master⟩ := self.self_subst hd hf_poly
+  use C
+  apply And.intro C_pos
 
   use n₀ * b
   intro n hn
@@ -70,10 +69,12 @@ private lemma exists_le_of_poly_bound (self : MasterRecurrence T a b n₀ f)
 
   apply le_trans T_of_add_b
   apply le_trans subst_rec
+  rw [mul_add]
   apply add_le_add
-  . rw [mul_comm]
+  . rw [mul_comm, ← mul_assoc]
     apply mul_le_mul
-    . apply self.T_monotone
+    . apply le_trans' (le_mul_of_one_le_left _ _)
+      apply self.T_monotone
       rw [← k_def, add_mul, one_mul, add_assoc, add_comm b, ← add_assoc]
       apply add_le_add_right
       apply le_trans (Nat.ceilDiv_le_div_succ (pow_pos self.b_pos _))
@@ -111,10 +112,9 @@ private lemma exists_le_of_poly_bound (self : MasterRecurrence T a b n₀ f)
       all_goals norm_cast
       all_goals linarith [self.a_pos, self.one_lt_b]
     all_goals apply zero_le
-  . rw [mul_le_mul_right]
+  . rw [mul_assoc, mul_le_mul_left C_pos, mul_le_mul_right]
     . apply Nat.ceil_le_ceil
-      apply GeometricSum.le_of_pos_of_pos_of_le
-      . exact D_pos
+      apply GeometricSum.le_of_pos_of_le
       . apply div_pos
         . exact Nat.cast_pos.2 self.a_pos
         . exact Real.rpow_pos_of_pos (Nat.cast_pos.2 self.b_pos) d
@@ -138,9 +138,9 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f)
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
   unfold O
   simp
-  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound hd hf_poly
+  have poly_bound := self.O_of_O_poly hd hf_poly
 
-  apply asymp_bounded_above_trans (asymp_bounded_above_of_asymp_le poly_bound)
+  apply asymp_bounded_above_trans poly_bound
   apply asymp_bounded_above_add
   . if hT : T ((n₀ + 1) * b + 1) > 0 then {
       apply asymp_bounded_above_pos_smul hT
@@ -166,9 +166,9 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f)
     }
   . have b_pow_d_pos : Nat.cast (R := ℝ) b^d > 0 :=
       Real.rpow_pos_of_pos (Nat.cast_pos.2 self.b_pos) d
-    have indep_const_pos : 0 < ⌈K / (1 - ↑a / ↑b^d)⌉₊ := by {
+    have indep_const_pos : 0 < ⌈1 / (1 - Nat.cast (R := ℝ) a / ↑b^d)⌉₊ := by {
       rw [Nat.ceil_pos]
-      apply div_pos K_pos
+      apply div_pos one_pos
       simp
       rw [div_lt_one] <;> assumption
     }
@@ -180,10 +180,14 @@ theorem O_of_O_poly_of_scale_lt_base_pow (self : MasterRecurrence T a b n₀ f)
     intro n hn
     apply mul_le_mul <;> try linarith
     apply Nat.ceil_le_ceil
-    apply GeometricSum.le_of_pos_scale_of_pos_base_lt_one K_pos
-    apply And.intro (div_pos _ _) <;> norm_cast
-    rw [div_lt_one]
-    all_goals linarith [self.a_pos]
+    apply GeometricSum.le_of_base_pos_lt_one
+    apply div_pos <;> norm_cast
+    . exact self.a_pos
+    . rw [div_lt_one]
+      . exact hlt
+      . apply Real.rpow_pos_of_pos
+        norm_cast
+        exact self.b_pos
 
 theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f)
     (hd : d ≥ 1) (hf_poly : f ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊)
@@ -191,9 +195,9 @@ theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f)
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d * Real.logb b n⌉₊ := by
   unfold O
   simp
-  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound hd hf_poly
+  have poly_bound := self.O_of_O_poly hd hf_poly
 
-  apply asymp_bounded_above_trans (asymp_bounded_above_of_asymp_le poly_bound)
+  apply asymp_bounded_above_trans poly_bound
   apply asymp_bounded_above_add
   . if hT : T ((n₀ + 1) * b + 1) > 0 then {
       apply asymp_bounded_above_pos_smul hT
@@ -231,9 +235,9 @@ theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f)
     have a_div_b_pow_eq_one : Nat.cast (R := ℝ) a / ↑b^d = 1 := by {
       rw [div_eq_one_iff_eq] <;> linarith
     }
-    have geom_indep : ∀ n ≥ b + 1, ⌈GeometricSum K (↑a / ↑b ^ d) 
+    have geom_indep : ∀ n ≥ b + 1, ⌈GeometricSum (K := ℝ) (↑a / ↑b ^ d) 
         (⌈Real.logb ↑b ↑n⌉₊ - 1)⌉₊ * ⌈Nat.cast (R := ℝ) n ^ d⌉₊ ≤ 
-        ⌈4 * K + 2⌉₊ * ⌈Nat.cast (R := ℝ) n^d * Real.logb b n⌉₊ := by {
+        6 * ⌈Nat.cast (R := ℝ) n^d * Real.logb b n⌉₊ := by {
       intro n hn
       rw [a_div_b_pow_eq_one, GeometricSum.base_eq_one]
 
@@ -246,7 +250,7 @@ theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f)
         all_goals norm_cast
         all_goals linarith [self.one_lt_b]
       }
-      have left_pos : 0 < K * (2 * Real.logb b n) := by {
+      have left_pos : 0 < 6 * Real.logb b n := by {
         apply mul_pos <;> linarith
       }
 
@@ -254,8 +258,6 @@ theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f)
       apply le_trans ((mul_le_mul_right _).2 (Nat.ceil_le_floor_add_one _))
       rw [Nat.cast_sub]
       simp
-      apply le_trans ((mul_le_mul_right _).2 (add_le_add_right
-        (Nat.floor_le_floor ((mul_le_mul_left _).2 (Nat.ceil_le_two_mul _))) _))
     
       /- add a log and destroy the inner left ceiling -/
       rw [← Nat.cast_le (α := ℝ)]
@@ -263,32 +265,27 @@ theorem O_of_O_poly_of_scale_eq_base_pow (self : MasterRecurrence T a b n₀ f)
       apply le_trans ((mul_le_mul_right _).2 (add_le_add_left 
         (c := Real.logb b n) _ _))
       apply le_trans ((mul_le_mul_right _).2 (add_le_add_right 
-        (Nat.floor_le _) _))
+        (Nat.ceil_le_two_mul _) _))
 
       /- deal with right ceiling and right hand side -/
       apply le_trans ((mul_le_mul_left _).2 (Nat.ceil_le_two_mul _))
-      apply le_trans' (mul_le_mul (Nat.le_ceil _) (Nat.le_ceil _) _ _)
+      apply le_trans' ((mul_le_mul_left _).2 (Nat.le_ceil _))
       apply le_of_eq
       ring
 
       /- prove residual goals -/
-      case _ : 0 ≤ Nat.cast (R := ℝ) _ := Nat.cast_nonneg _
       all_goals norm_cast
       all_goals try rw [Nat.ceil_pos]
       case _ : 1 ≤ Nat.clog b n => (
         apply Nat.clog_pos <;> linarith [self.one_lt_b]
       )
-      case _ : 0 ≤ ↑n ^ d * Real.logb ↑b ↑n := by {
-        apply mul_nonneg <;> linarith
-      }
-      all_goals linarith [self.one_lt_b]
+      all_goals linarith
     }
 
     apply asymp_bounded_above_trans (asymp_bounded_above_of_asymp_le 
       (asymp_le_of_le_of_forall_ge geom_indep))
     apply asymp_bounded_above_pos_smul
-    . rw [gt_iff_lt, Nat.ceil_pos]
-      linarith
+    . trivial
     . apply asymp_bounded_above_refl
 
 theorem O_of_O_poly_of_scale_gt_base_pow (self : MasterRecurrence T a b n₀ f)
@@ -297,9 +294,9 @@ theorem O_of_O_poly_of_scale_gt_base_pow (self : MasterRecurrence T a b n₀ f)
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^Real.logb b a⌉₊ := by
   unfold O
   simp
-  obtain ⟨K, K_pos, poly_bound⟩ := self.exists_le_of_poly_bound hd hf_poly
+  have poly_bound := self.O_of_O_poly hd hf_poly
 
-  apply asymp_bounded_above_trans (asymp_bounded_above_of_asymp_le poly_bound)
+  apply asymp_bounded_above_trans poly_bound
   apply asymp_bounded_above_add
   . apply flip asymp_bounded_above_trans (asymp_bounded_above_pos_smul
       (c := T ((n₀ + 1) * b + 1) + 1) 
@@ -355,10 +352,11 @@ theorem O_of_O_poly_of_scale_gt_base_pow (self : MasterRecurrence T a b n₀ f)
       all_goals norm_cast
       all_goals linarith [self.a_pos, self.one_lt_b]
     }
-    have le_n_pow_log : ∀ n ≥ b + 1, ⌈GeometricSum K (↑a / ↑b ^ d) 
-        (⌈Real.logb ↑b ↑n⌉₊ - 1)⌉₊ * ⌈Nat.cast (R := ℝ) n^d⌉₊ ≤ 
-        (⌈(2 - 2 * K / (↑a / ↑b ^ d - 1))⌉₊ + ⌈2 * K / (↑a / ↑b ^ d - 1) *
-        (Nat.cast (R := ℝ) a / ↑b^d)⌉₊) * ⌈Nat.cast (R := ℝ) n^Real.logb b a⌉₊ := by {
+    have le_n_pow_log : ∀ n ≥ b + 1, ⌈GeometricSum (Nat.cast (R := ℝ) 
+        ↑a / ↑b ^ d) (⌈Real.logb ↑b ↑n⌉₊ - 1)⌉₊ * ⌈Nat.cast (R := ℝ) n^d⌉₊ ≤ 
+        (⌈(2 - 2 / (Nat.cast (R := ℝ) a / ↑b ^ d - 1))⌉₊ + 
+        ⌈2 / (↑a / ↑b ^ d - 1) * (Nat.cast (R := ℝ) a / ↑b^d)⌉₊) * 
+        ⌈Nat.cast (R := ℝ) n^Real.logb b a⌉₊ := by {
       intro n hn
       rw [GeometricSum.base_ne_one, Nat.sub_one_add_one]
 
@@ -372,10 +370,10 @@ theorem O_of_O_poly_of_scale_gt_base_pow (self : MasterRecurrence T a b n₀ f)
         apply Real.one_lt_rpow <;> norm_cast <;> linarith [self.one_lt_b]
       }
 
-      have left_eq1 : K * ((Nat.cast (R := ℝ) a / ↑b ^ d) ^ 
+      have left_eq1 : ((Nat.cast (R := ℝ) a / ↑b ^ d) ^ 
         ⌈Real.logb ↑b ↑n⌉₊ - 1) / (↑a / ↑b ^ d - 1) = 
-        K / (↑a / ↑b^d - 1) * (↑a / ↑b^d) ^ ⌈Real.logb b n⌉₊ - 
-        K / (Nat.cast (R := ℝ) a / ↑b^d - 1) := by ring
+        1 / (↑a / ↑b^d - 1) * (↑a / ↑b^d) ^ ⌈Real.logb b n⌉₊ - 
+        1 / (Nat.cast (R := ℝ) a / ↑b^d - 1) := by ring
 
       /- destroy ceilings on the left hard side -/
       rw [left_eq1]
@@ -386,9 +384,9 @@ theorem O_of_O_poly_of_scale_gt_base_pow (self : MasterRecurrence T a b n₀ f)
       apply le_trans ((mul_le_mul_right _).2 (add_le_add_right
         (Nat.floor_le _) 1))
 
-      have left_eq2 : (K / (↑a / ↑b ^ d - 1) * (↑a / ↑b ^ d) ^ 
-        ⌈Real.logb ↑b ↑n⌉₊ - K / (↑a / ↑b ^ d - 1) + 1) * (2 * ↑n ^ d) =
-        (2 - 2 * K / (↑a / ↑b ^ d - 1)) * ↑n ^ d + 2 * K / (↑a / ↑b ^ d - 1) *
+      have left_eq2 : (1 / (Nat.cast (R := ℝ) a / ↑b ^ d - 1) * (↑a / ↑b ^ d) ^ 
+        ⌈Real.logb ↑b ↑n⌉₊ - 1 / (↑a / ↑b ^ d - 1) + 1) * (2 * ↑n ^ d) =
+        (2 - 2 / (↑a / ↑b ^ d - 1)) * ↑n ^ d + 2 / (↑a / ↑b ^ d - 1) *
         (↑a / ↑b ^ d) ^ ⌈Real.logb ↑b ↑n⌉₊ * ↑n ^ d := by ring
 
       rw [left_eq2, add_mul]
@@ -410,8 +408,8 @@ theorem O_of_O_poly_of_scale_gt_base_pow (self : MasterRecurrence T a b n₀ f)
           apply Nat.cast_nonneg
         . apply Nat.cast_nonneg
 
-      case _ : 0 ≤ K / (↑a / ↑b ^ d - 1) * (↑a / ↑b ^ d) ^ ⌈Real.logb ↑b ↑n⌉₊ 
-          - K / (↑a / ↑b ^ d - 1) => (
+      case _ : 0 ≤ 1 / (Nat.cast (R := ℝ) a / ↑b ^ d - 1) * 
+          (↑a / ↑b ^ d) ^ ⌈Real.logb ↑b ↑n⌉₊ - 1 / (↑a / ↑b ^ d - 1) => (
         rw [sub_nonneg]
         apply le_mul_of_one_le_right
         . apply div_nonneg <;> linarith
