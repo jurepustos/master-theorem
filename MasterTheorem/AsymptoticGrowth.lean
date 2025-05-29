@@ -221,6 +221,7 @@ variable [LinearOrder α] [Preorder β] [PartialOrder γ]
   [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] 
   [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
 
+@[simp]
 lemma asymp_bounded_refl [One α] : AsympBounded γ f f := by
   constructor <;>
   . use 1
@@ -230,9 +231,11 @@ lemma asymp_bounded_refl [One α] : AsympBounded γ f f := by
       intro _ _
       simp
 
+@[simp]
 lemma asymp_bounded_above_refl [One α] : AsympBoundedAbove γ f f := by
   exact asymp_bounded_refl.1
 
+@[simp]
 lemma asymp_bounded_below_refl [One α] : AsympBoundedBelow γ f f := by
   exact asymp_bounded_refl.2
 

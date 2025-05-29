@@ -106,11 +106,13 @@ section Refl
 
 variable [LE α] [Preorder β] {f : α → β}
 
+@[simp]
 lemma asymp_le_refl [Inhabited α] : AsympLE f f := by
   use default
   intro n hn
   exact le_refl _
 
+@[simp]
 lemma asymp_ge_refl [Inhabited α] : AsympGE f f := by
   exact asymp_le_refl
 

@@ -86,16 +86,16 @@ lemma not_pos_o_of_Omega [PosSMulMono γ β] (hg : AsympPos g) (hΩ : f ∈ Ω �
 lemma not_pos_Omega_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ o γ g) : 
     ¬(f ∈ Ω γ g) := by
   intro hΩ
-  have hd : AsympRightDom γ f g := ho
-  have hb : AsympBoundedBelow γ f g := hΩ
+  replace hd : AsympRightDom γ f g := ho
+  replace hb : AsympBoundedBelow γ f g := hΩ
   exact not_asymp_pos_bounded_below_of_right_dom hg hd hb
 
 lemma not_pos_theta_and_omega [PosSMulMono γ β] (hg : AsympPos g) : 
     ¬(f ∈ Θ γ g ∧ f ∈ ω γ g) := by
   intro h
   rcases h with ⟨⟨hO, _⟩, hω⟩
-  have hb : AsympBoundedAbove γ f g := hO
-  have hd : AsympLeftDom γ f g := hω
+  replace hb : AsympBoundedAbove γ f g := hO
+  replace hd : AsympLeftDom γ f g := hω
   exact not_asymp_pos_bounded_above_and_left_dom hg (And.intro hb hd)
 
 lemma not_pos_omega_of_theta [PosSMulMono γ β] (hg : AsympPos g)
@@ -112,8 +112,8 @@ lemma not_pos_o_and_omega [PosSMulStrictMono γ β] (hg : AsympPos g) :
     ¬(f ∈ o γ g ∧ f ∈ ω γ g) := by
   intro h
   rcases h with ⟨ho, hω⟩
-  have ha : AsympRightDom γ f g := ho
-  have hb : AsympLeftDom γ f g := hω
+  replace ha : AsympRightDom γ f g := ho
+  replace hb : AsympLeftDom γ f g := hω
   exact not_asymp_pos_left_and_right_dom hg (And.intro hb ha)
 
 lemma not_pos_omega_of_o [PosSMulStrictMono γ β] (hg : AsympPos g) 
@@ -135,18 +135,29 @@ section Properties
 
 section Refl
 
-variable [LinearOrder α] [Preorder β] [PartialOrder γ] [One α] 
+variable [LinearOrder α] [Preorder β] [PartialOrder γ]
   [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] 
   [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
 
-lemma theta_refl : f ∈ Θ γ f := by
+@[simp]
+lemma theta_refl [One α] : f ∈ Θ γ f := by
   exact asymp_bounded_refl
 
-lemma O_refl : f ∈ O γ f := by
+@[simp]
+lemma O_refl [One α] : f ∈ O γ f := by
   exact asymp_bounded_above_refl
 
-lemma Omega_refl : f ∈ Ω γ f := by
+@[simp]
+lemma Omega_refl [One α] : f ∈ Ω γ f := by
   exact asymp_bounded_below_refl
+
+lemma O_of_asymp_le {g : α → β} (hle : AsympLE f g) :
+    f ∈ O γ g := by
+  exact asymp_bounded_above_of_asymp_le hle
+
+lemma Omega_of_asymp_ge {g : α → β} (hle : AsympGE f g) :
+    AsympBoundedBelow γ f g := by
+  exact asymp_bounded_below_of_asymp_ge hle
 
 end Refl
 
