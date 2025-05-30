@@ -1,0 +1,442 @@
+\section{Basic asymptotic properties of functions}
+
+\begin{definition}
+    \label{def:asymp_pos}
+    \lean{AsympPos}
+    \leanok
+    $f$ is asymptotically positive if there exists $x_0$ such that $f(x) > 0$
+    for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_neg}
+    \lean{AsympNeg}
+    \leanok
+    $f$ is asymptotically negative if there exists $x_0$ such that $f(x) < 0$
+    for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_nonpos}
+    \lean{AsympNonpos}
+    \leanok
+    $f$ is asymptotically nonpositive if there exists $x_0$ such that $f(x) \ge 0$
+    for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_nonneg}
+    \lean{AsympNonneg}
+    \leanok
+    $f$ is asymptotically negative if there exists $x_0$ such that $f(x) \le 0$
+    for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition} 
+    \label{def:asymp_le} 
+    \lean{AsympLE}
+    \leanok
+    $f$ is asymptotically less than $g$ if there exists $x_0$ such that
+    $f(x) \le g(x)$ for all $x \ge x_0$.
+
+\end{definition}
+
+\begin{definition}
+    \label{def:asymp_ge}
+    \lean{AsympGE}
+    \leanok
+    $f$ is asymptotically greater than $g$ if there exists $x_0$ such that
+    $f(x) \ge g(x)$ for all $x \ge x_0$.
+
+\end{definition}
+
+\section{Asymptotic positivity and negativity}
+
+\begin{lemma}
+    \label{lemma:asymp_neg_of_pos}
+    \lean{asymp_neg_of_pos}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_neg}
+    If $f$ is asymptotically negative, then $-f$ is asymptotically positive.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    By definition of asymptotic positivity, there exists an $x\_0$ such that $f(x) > 0$
+    for all $x > x\_0$. It follows that $-f(x) > 0$, which is what is needed.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_pos_of_neg}
+    \lean{asymp_pos_of_neg}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_neg}
+    If $f$ is asymptotically positive, then $-f$ is asymptotically negative.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    By definition of asymptotic negativity, there exists an $x\_0$ such that $f(x) < 0$
+    for all $x > x\_0$. It follows that $-f(x) < 0$, which is what is needed.
+\end{proof}
+
+\section{Asymptotic inequality}
+
+\subsection{Positivity and negativity}
+
+\begin{lemma}
+    \label{lemma:asymp_pos_of_pos_le}
+    \lean{asymp_pos_of_pos_le}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_le}
+    Let $f$ be asymptotically positive and let it be asymptotically less than $g$.
+    Then $g$ is asymptotically positive.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    Assume with no loss of generality that $f(x) > 0$ for all $x > x\_0$ and that
+    $f(y) \le g(y)$ for all $y > y\_0$. Let $z\_0 = \max \{ x\_0, y\_0 \}$. By transitivity
+    of the inequality relations, we have $g(z) > 0$ for all $z > z\_0$. 
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_neg_of_le_neg}
+    \lean{asymp_neg_of_le_neg}
+    \leanok
+    \uses{def:asymp_neg, def:asymp_le}
+    Let $f$ be asymptotically less than $g$ and let $g$ be asymptotically negative.
+    Then $f$ is asymptotically negative.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    Assume with no loss of generality that $g(x) < 0$ for all $x > x\_0$ and that
+    $f(y) \le g(y)$ for all $y > y\_0$. Let $z\_0 = \max \{ x\_0, y\_0 \}$. By transitivity
+    of the inequality relations, we have $f(z) < 0$ for all $z > z\_0$. 
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_pos_of_ge_pos}
+    \lean{asymp_pos_of_ge_pos}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_ge}
+    Let $f$ be asymptotically greater than $g$ and let $g$ be asymptotically negative.
+    Then $g$ is asymptotically negative.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_pos_of_pos_le}
+    By Lemma \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
+    \ref{lemma:asymp_pos_of_pos_le}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_neg_of_neg_ge}
+    \lean{asymp_neg_of_neg_ge}
+    \leanok
+    \uses{def:asymp_neg, def:asymp_ge}
+    Let $f$ be asymptotically negative and let it be asymptotically greater than $g$.
+    Then $g$ is asymptotically negative.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_neg_of_le_neg}
+    By Theorem \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
+    \ref{lemma:asymp_neg_of_le_neg}.
+\end{proof}
+
+
+\subsection{Reflexivity}
+
+\begin{lemma}
+    \label{lemma:asymp_le_refl}
+    \lean{asymp_le_refl}
+    \leanok
+    \uses{def:asymp_le}
+    $f$ is asymptotically less than $f$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    By reflexivity of $\le$, we have $f(x) \le f(x)$ for any given $x$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_refl}
+    \lean{asymp_ge_refl}
+    \leanok
+    \uses{def:asymp_ge}
+    $f$ is asymptotically greater than $f$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    By reflexivity of $\ge$, we have $f(x) \ge f(x)$ for any given $x$.
+\end{proof}
+
+
+\subsection{Equivalence}
+
+\begin{lemma}
+    \label{lemma:asymp_le_of_ge}
+    \lean{asymp_le_of_ge}
+    \leanok
+    \uses{def:asymp_le, def:asymp_ge}
+    Let $f$ be asymptotically less than $g$. Then $g$ is asymptotically
+    greater than $f$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    Since $f(x) \le g(x)$ for all $x > x\_0$, we have $g(x) \ge f(x)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_of_le}
+    \lean{asymp_ge_of_le}
+    \leanok
+    \uses{def:asymp_le, def:asymp_ge}
+    Let $f$ be asymptotically greater than $g$. Then $g$ is asymptotically
+    less than $f$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    Since $f(x) \ge g(x)$ for all $x > x\_0$, we have $g(x) \le f(x)$.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_le_ge_iff}
+    \lean{asymp_le_ge_iff}
+    \leanok
+    \uses{def:asymp_le, def:asymp_ge}
+    $f$ is asymptotically less than $g$ if and only if $g$ is asymptotically
+    greater than $f$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_le_of_ge, lemma:asymp_ge_of_le}
+    Lemma \ref{lemma:asymp_le_of_ge} and Lemma \ref{lemma:asymp_ge_of_le} are both directions
+    respectively.
+\end{proof}
+
+
+\subsection{Transitivity}
+
+\begin{lemma}
+    \label{lemma:asymp_le_trans}
+    \lean{asymp_le_trans}
+    \leanok
+    If $f$ is asymptotically less than $g$ and $g$ is asymptotically less than $h$,
+    then $f$ is asymptotically less than $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    By assumption, $f(x) \le g(x)$ for all $x \ge x\_0$ and $g(y) \le h(y)$ for all
+    $y \ge y\_0$. Let $z\_0 = \max \{ x\_0, y\_0 \}$. By transitivity, we have 
+    $f(z) \le g(z)$ for all $z \ge z\_0$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_trans}
+    \lean{asymp_ge_trans}
+    \leanok
+    If $f$ is asymptotically greater than $g$ and $g$ is asymptotically greater than $h$,
+    then $f$ is asymptotically greater than $h$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_trans}
+    By the equivalence given by Lemma \ref{thm:asymp_le_ge_iff}, we can apply
+    Lemma \ref{lemma:asymp_le_trans} in reverse, since $h$ is asymptotically less than
+    $g$ and $g$ is asymptotically less than $f$.
+\end{proof}
+
+
+\subsection{Additivity}
+
+\begin{lemma}
+    \label{lemma:asymp_le_add}
+    \lean{asymp_le_add}
+    \leanok
+    \uses{def:asymp_le}
+    Let $f\_1$ be asymptotically less than $g\_1$ and $f\_2$ be asymptotically less
+    than $g\_2$. Then $f\_1 + f\_2$ is asymptotically less than $g\_1 + g\_2$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    Let $x\_0$ be such that $f\_1(x) \le g\_1(x)$ for all $x > x\_0$ and let $y\_0$ be
+    such that $f\_2(y) \le g\_2(y)$ for all $y > y\_0$. Those exist due to assumptions.
+    Now let $z\_0 = \max \{ x\_0, y\_0 \}$. By transitivity, $f\_1(z) \le g\_1(z)$ and 
+    $f\_2(z) \le g\_2(z)$ for all $z > z\_0$. By additivity, we can merge both 
+    inequalities by adding both terms on the left side and both terms on the right side.
+    We thus get $f\_1(z) + f\_2(z) \le g\_1(z) + g\_2(z)$, which by definition and 
+    and extensionality means that $f\_1 + f\_2$ is asymptotically less than $g\_1 + g\_2$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_add}
+    \lean{asymp_ge_add}
+    \leanok
+    \uses{def:asymp_ge}
+    Let $f\_1$ be asymptotically greater than $g\_1$ and $f\_2$ be asymptotically greater
+    than $g\_2$. Then $f\_1 + f\_2$ is asymptotically greater than $g\_1 + g\_2$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, def:asymp_le, lemma:asymp_le_add}
+    By Theorem \ref{thm:asymp_le_ge_iff}, $g\_1$ and $g\_2$ are asymptotically less 
+    than $f\_1$ and $f\_2$ respectively. It suffices to show that $g\_1 + g\_2$ is
+    asymptotically less than $f\_1 + f\_2$, which is precisely the result of
+    Lemma \ref{lemma:asymp_le_add}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_add_pos}
+    \lean{asymp_ge_add_pos}
+    \leanok
+    \uses{def:asymp_pos, def:asymp_ge}
+    Let $f\_1$ be asymptotically positive. Let also $f\_2$ be asymptotically greater 
+    than $g$. Then $f\_1 + f\_2$ is asymptotically greater than $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    By definition, there exists some $x\_0$ such that $f\_1(x) > 0$ for all $x > x\_0$.
+    We also have $f\_2(y) \ge g(y)$ for all $y > y\_0$ for some $y\_0$. Let
+    $z\_0 = \max \{ x\_0, y\_0, \}$. We now have, for all $z > z\_0$ both $f\_1(z) > 0$
+    and $f\_2(z) \ge g(z)$. By additivity, we have $f\_1(z) + f\_2(z) \ge g(z)$. 
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_le_add_neg}
+    \lean{asymp_le_add_neg}
+    \leanok
+    \uses{def:asymp_neg, def:asymp_ge}
+    Let $f\_1$ be asymptotically negative. Let also $f\_2$ be asymptotically less 
+    than $g$. Then $f\_1 + f\_2$ is asymptotically less than $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    By definition, there exists some $x\_0$ such that $f\_1(x) < 0$ for all $x > x\_0$.
+    We also have $f\_2(y) \le g(y)$ for all $y > y\_0$ for some $y\_0$. Let
+    $z\_0 = \max \{ x\_0, y\_0, \}$. We now have, for all $z > z\_0$ both $f\_1(z) < 0$
+    and $f\_2(z) \le g(z)$. By additivity, we have $f\_1(z) + f\_2(z) \le g(z)$. 
+\end{proof}
+
+
+\subsection{Scalar multiplicativity}
+
+\begin{lemma}
+    \label{lemma:asymp_le_pos_smul}
+    \lean{asymp_le_pos_smul}
+    \leanok
+    \uses{def:asymp_le}
+    Let $c > 0$ and let $f$ be asymptotically less than $g$. Then $c \cdot f$ is asymptotically
+    less than $c \cdot g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    This is a simple consequence of scalar multiplication by a positive constant.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_pos_smul}
+    \lean{asymp_ge_pos_smul}
+    \leanok
+    \uses{def:asymp_ge}
+    Let $c > 0$ and let $f$ be asymptotically greater than $g$. Then $c \cdot f$ is asymptotically
+    greater than $c \cdot g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_pos_smul}
+    By applying Theorem \ref{thm:asymp_le_ge_iff}, the proof boils down to proving that
+    $c \cdot g$ is asymptotically less than $c \cdot f$, which is precisely shown
+    by Lemma \ref{lemma:asymp_le_pos_smul}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_le_neg_smul}
+    \lean{asymp_le_neg_smul}
+    \leanok
+    \uses{def:asymp_neg, def:asymp_le, def:asymp_ge}
+    Let $c < 0$ and let $f$ be asymptotically less than $g$. Then $c \cdot f$ is asymptotically
+    greater than $c \cdot g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    This is a simple consequence of the fact that if $f(x) \le g(x)$, then for a $c < 0$
+    we have $c \cdot f(x) \ge c \cdot g(x)$.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:asymp_ge_neg_smul}
+    \lean{asymp_ge_neg_smul}
+    \leanok
+    \uses{def:asymp_neg, def:asymp_ge, def:asymp_le}
+    Let $c < 0$ and let $f$ be asymptotically greater than $g$. Then $c \cdot f$ is asymptotically
+    less than $c \cdot g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_neg_smul}
+    Similar to above, the proof is a direct application of Theorem \ref{thm:asymp_le_ge_iff}
+    and Lemma \ref{lemma:asymp_le_neg_smul}.
+\end{proof}
+
+
+\subsection{Multiplicativity}
+
+\begin{theorem}
+    \label{thm:asymp_le_nonneg_mul}
+    \lean{asymp_le_nonneg_mul}
+    \leanok
+    \uses{def:asymp_nonneg, def:asymp_le}
+    Let $f\_1$ and $f\_2$ be asymptotically nonnegative functions. If f$\_1$ is asymptotically
+    less than $g\_1$ and $f\_2$ is asymptotically less than $g\_2$, then $f\_1 * f\_2$
+    is asymptotically less than $g\_1 * g\_2$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    Asymptotic properties give constants $x\_i, 0 \le i \le 3$, above which each property holds.
+    We take $x_M = \max_{0 \le i \le 3} x_i$ as the constant of the needed property. 
+    For all $x > x_M$, all given asymptotic properties hold, so the wanted property holds
+    by properties of the inequality relation.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:asymp_ge_nonpos_mul}
+    \lean{asymp_ge_nonpos_mul}
+    \leanok
+    \uses{def:asymp_nonpos, def:asymp_ge, def:asymp_le}
+    Let $f\_1$ and $f\_2$ be asymptotically nonpositive functions. If f$\_1$ is asymptotically
+    greater than $g\_1$ and $f\_2$ is asymptotically greater than $g\_2$, then $f\_1 * f\_2$
+    is asymptotically less than $g\_1 * g\_2$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    Analogously to above, the proof comes from taking the maximum of asymptotic constants 
+    as the asymptotic lower bound for nonpositivity. This time, however, the inequality
+    flips due to nonpositive terms in $f\_1(n) * f\_2(n) \le g\_1(n) * g\_2(n)$, since 
+    $n$ is larger than all of the asymptotic lower bounds.
+\end{proof}

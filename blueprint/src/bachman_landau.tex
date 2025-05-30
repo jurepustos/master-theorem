@@ -1,0 +1,626 @@
+\section{Bachman-Landau notation}
+
+Bachman-Landau family of notations is the name of a few closely related notations used in 
+algorithm analysis. The most famous of them is the so-called big-O notation. While
+most formulations are defined on functions from naturals or reals to reals, we define 
+them more generally - requirements for the types of the domain and codomain vary between 
+different properties. However, all properties hold for functions from a linearly ordered 
+commutative ring to a linearly ordered field. In the rest of this page, we let $R$ be a linearly 
+ordered commutative ring and $F$ be a linearly ordered field. We will also use symbols $f$, 
+$f\_1$, $f\_2$, $g$, $g\_1$ and $g\_2$ for functions $R \to F$. Also, we let $M$ be 
+a right $R$-module, although it is often only required be a (distributive) left multiplicative 
+action on $R$.
+
+
+\subsection{Asymptotic sets}
+
+\begin{definition}(Big O notation)
+    \label{def:big_o}
+    \lean{O}
+    \leanok
+    \uses{def:asymp_bounded_above}
+    $f(x) \in O(g(x))$ if it is asymptotically bounded above by $g(x)$.
+\end{definition}
+
+\begin{definition}(Big Omega notation)
+    \label{def:big_omega}
+    \lean{Omega}
+    \leanok
+    \uses{def:asymp_bounded_below}
+    $f(x) \in \Omega(g(x))$ if it is asymptotically bounded below by $g(x)$.
+\end{definition}
+
+\begin{definition}(Big Theta notation)
+    \label{def:big_theta}
+    \lean{theta}
+    \leanok
+    \uses{def:asymp_bounded}
+    $f(x) \in \Theta(g(x))$ if it is asymptotically bounded by $g(x)$. 
+\end{definition}
+
+\begin{definition}(Small O notation)
+    \label{def:small_o}
+    \lean{o}
+    \leanok
+    \uses{def:asymp_right_dom}
+    $f(x) \in o(g(x))$ if it is asymptotically dominated by $g(x)$.
+\end{definition}
+
+\begin{definition}(Small Omega notation)
+    \label{def:small_omega}
+    \lean{omega}
+    \leanok
+    \uses{def:asymp_left_dom}
+    $f(x) \in \omega(g(x))$ if it asymptotically dominates $g(x)$.
+\end{definition}
+
+
+\subsection{Relations between asymptotic sets} 
+
+\begin{lemma}
+    \label{lemma:big_o_of_small_o}
+    \lean{O_of_o}
+    \leanok
+    \uses{def:small_o, def:big_o}
+    If $f(x) \in o(g(x))$, then $f(x) \in O(f(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_of_right_dom}
+    Since $o(g(x))$ and $O(f(x))$, we can simply use Lemma 
+    \ref{lemma:asymp_bounded_above_of_right_dom}.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:big_omega_of_small_omega}
+    \lean{Omega_of_omega}
+    \leanok
+    \uses{def:small_omega, def:big_omega}
+    If $f(x) \in \omega(g(x))$, then $f(x) \in \Omega(g(x))$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_below_of_left_dom}
+    The proof is a simple application of Theorem 
+    \ref{lemma:asymp_bounded_below_of_left_dom}.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:big_o_and_omega_iff_theta}
+    \lean{O_Omega_theta_iff}
+    \leanok
+    \uses{def:big_o, def:big_omega, def:big_theta}
+    $f(x) \in O(g(x))$ and $f(x) \in \Omega(g(x))$ if and only if $f(x) \in \Theta(g(x))$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_iff}
+    Similarly to previous proofs, the proof is a direct application of Lemma 
+    \ref{lemma:asymp_bounded_iff}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_theta_and_small_o}
+    \lean{not_asymp_pos_theta_and_o}
+    \leanok
+    Let $g$ be asymptotically positive. Then $f(x) \in \Theta(g(x))$ and $f(x) \in o(g(x))$
+    are not both true.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_bounded_below_and_right_dom}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_bounded_below_and_right_dom}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_small_o_of_theta}
+    \lean{not_asymp_pos_o_of_theta}
+    \leanok
+    Let $g$ be asymptotically positive. If $f(x) \in \Theta(g(x))$ then $f(x) \notin o(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_theta_and_small_o}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_theta_and_small_o}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_theta_of_small_o}
+    \lean{not_asymp_pos_o_of_Omega}
+    \leanok
+    Let $g$ be asymptotically positive. If $f(x) \in o(g(x))$ then $f(x) \notin \Theta(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_theta_and_small_o}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_theta_and_small_o}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_o_of_big_omega}
+    \lean{not_asymp_pos_o_of_Omega}
+    \leanok
+    Let $g$ be asymptotically positive. If $f(x) \in \Omega(g(x))$ then $f(x) \notin o(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:not_asymp_pos_right_dom_of_bounded_below}
+    A direct application of Lemma \ref{thm:not_asymp_pos_right_dom_of_bounded_below}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_big_omega_of_o}
+    \lean{not_asymp_pos_Omega_of_o}
+    \leanok
+    Let $g$ be asymptotically positive. If $f(x) \in o(g(x))$ then $f(x) \notin \Omega(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{thm:not_asymp_pos_bounded_below_of_right_dom}
+    A direct application of Lemma \ref{thm:not_asymp_pos_bounded_below_of_right_dom}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_theta_and_small_omega}
+    \lean{not_asymp_pos_theta_and_omega}
+    \leanok
+    Let $g$ be asymptotically positive. Then $f(x) \in \Theta(g(x))$ and 
+    $f(x) \in \omega(g(x))$ are not both true.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_bounded_above_and_left_dom}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_bounded_above_and_left_dom}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_small_omega_of_theta}
+    \lean{not_asymp_pos_omega_of_theta}
+    \leanok
+    Let $g$ be asymptotically positive. If $f(x) \in \Theta(g(x))$ then $f(x) \notin \omega(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_theta_and_small_omega}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_theta_and_small_omega}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_theta_of_small_omega}
+    \lean{not_asymp_pos_omega_of_theta}
+    \leanok
+    Let $g$ be asymptotically positive. If $f(x) \in \omega(g(x))$ then $f(x) \notin \Theta(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_theta_and_small_omega}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_theta_and_small_omega}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_o_and_small_omega}
+    \lean{not_asymp_pos_o_and_omega}
+    \leanok
+    Let $g$ be asymptotically positive. Then $f(x) \in o(g(x))$ and 
+    $f(x) \in \omega(g(x))$ are not both true.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_left_and_right_dom}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_left_and_right_dom}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_small_omega_of_o}
+    \lean{not_asymp_pos_omega_of_o}
+    \leanok
+    Let $g$ be asymptotically positive. If $f(x) \in o(g(x))$ then $f(x) \notin \omega(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_o_and_small_omega}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_o_and_small_omega}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:not_asymp_pos_o_of_small_omega}
+    \lean{not_asymp_pos_o_of_omega}
+    \leanok
+    Let $g$ be asymptotically positive. If $f(x) \in o(g(x))$ then $f(x) \notin \omega(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:not_asymp_pos_o_and_small_omega}
+    A direct application of Lemma \ref{lemma:not_asymp_pos_o_and_small_omega}.
+\end{proof}
+
+
+\subsection{Reflexivity}
+
+\begin{lemma}
+    \label{lemma:theta_refl}
+    \lean{theta_refl}
+    \leanok
+    \uses{def:theta}
+    $f(x) \in \Theta(f(x))$.
+
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_refl}
+    Direct consequence of Lemma \ref{lemma:asymp_bounded_refl}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:O_refl}
+    \lean{O_refl}
+    \leanok
+    \uses{def:O}
+    $f(x) \in O(f(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_refl}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_above_refl}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:Omega_refl}
+    \lean{Omega_refl}
+    \leanok
+    \uses{def:Omega}
+    $f(x) \in \Omega(f(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_below_refl}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_below_refl}.
+\end{proof}
+
+
+\subsection{Transitivity}
+
+\begin{lemma}
+    \label{lemma:O_trans}
+    \lean{O_trans}
+    \leanok
+    \uses{def:O}
+    If $f(x) \in O(g(x))$ and $g(x) \in O(h(x))$, then $f(x) \in O(h(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_trans}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_above_trans}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:Omega_trans}
+    \lean{Omega_trans}
+    \leanok
+    \uses{def:Omega}
+    If $f(x) \in \Omega(g(x))$ and $g(x) \in \Omega(h(x))$, then $f(x) \in \Omega(h(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_below_trans}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_below_trans}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:theta_trans}
+    \lean{theta_trans}
+    \leanok
+    \uses{def:theta}
+    If $f(x) \in \Theta(g(x))$ and $g(x) \in \Theta(h(x))$, then $f(x) \in \Theta(h(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_trans}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_trans}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:o_trans}
+    \lean{o_trans}
+    \leanok
+    \uses{def:o}
+    If $f(x) \in o(g(x))$ and $g(x) \in o(h(x))$, then $f(x) \in o(h(x))$. 
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_right_dom_trans}
+    This follows directly from Lemma \ref{lemma:asymp_right_dom_trans}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:omega_trans}
+    \lean{omega_trans}
+    \leanok
+    \uses{def:omega}
+    If $f(x) \in \omega(g(x))$ and $g(x) \in \omega(h(x))$, then $f(x) \in \omega(h(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_left_dom_trans}
+    This follows directly from Lemma \ref{lemma:asymp_left_dom_trans}.
+\end{proof}
+
+
+\subsection{Scalar multiplicativity}
+
+\begin{lemma}
+    \label{lemma:O_pos_smul}
+    \lean{O_pos_smul}
+    \leanok
+    \uses{def:O}
+    Let $c > 0$. If $f(x) \in O(g(x))$, then $c \cdot f(x) \in O(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_pos_smul}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_above_pos_smul}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:Omega_pos_smul}
+    \lean{Omega_pos_smul}
+    \leanok
+    \uses{def:Omega}
+    Let $c > 0$. If $f(x) \in \Omega(g(x))$, then $c \cdot f(x) \in \Omega(g(x))$ is also bounded
+    below by $g$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_below_pos_smul}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_below_pos_smul}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:theta_pos_smul}
+    \lean{theta_pos_smul}
+    \leanok
+    \uses{def:theta}
+    Let $c > 0$. If $f(x) \in \Theta(g(x))$, then $c \cdot f(x) \in \Theta(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_pos_smul}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_pos_smul}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:O_neg_smul}
+    \lean{O_neg_smul}
+    \leanok
+    \uses{def:O}
+    Let $c < 0$. If $f(x) \in O(g(x))$, then $c \cdot f(x) \in O(-g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_neg_smul}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_above_neg_smul}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:Omega_neg_smul}
+    \lean{Omega_neg_smul}
+    \leanok
+    \uses{def:Omega}
+    Let $c < 0$. If $f \in \Omega(g(x))$, then $c \cdot f(x) \in \Omega(-g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_below_neg_smul}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_below_neg_smul}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:theta_neg_smul}
+    \lean{theta_neg_smul}
+    \leanok
+    \uses{def:theta}
+    Let $c < 0$. If $f(x) \in \Theta(g(x))$, then $c \cdot f \in \Theta(-g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_neg_smul}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_neg_smul}.
+\end{proof}
+
+
+\subsection{Additivity}
+
+\begin{lemma}
+    \label{lemma:O_add}
+    \lean{O_add}
+    \leanok
+    \uses{def:O}
+    Let $f\_1(x), f\_2(x) \in O(g(x))$. Then $f\_1(x) + f\_2(x) \in O(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_add}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_above_add}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:Omega_add}
+    \lean{Omega_add}
+    \leanok
+    \uses{def:Omega}
+    Let $f\_1(x), f\_2(x) \in \Omega(g(x))$. Then $f\_1(x) + f\_2(x) \in \Omega(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_below_add}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_below_add}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:theta_add}
+    \lean{theta_add}
+    \leanok
+    \uses{def:theta}
+    Let $f\_1(x), f\_2(x) \in \Theta(g(x))$. Then $f\_1(x) + f\_2(x) \in \Theta(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_add}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_add}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:Omega_add_pos}
+    \lean{Omega_add_pos}
+    \leanok
+    \uses{def:Omega, def:asymp_pos}
+    Let $f\_1(x) \in \Omega(g(x))$ and let $f\_2$ be asymptotically positive. 
+    Then $f\_1(x) + f\_2(x) \in \Omega(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_below_add_pos}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_below_add_pos}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:O_add_neg}
+    \lean{O_add_neg}
+    \leanok
+    \uses{def:O, def:asymp_neg}
+    Let $f\_1(x) \in O(g(x))$ and let $f\_2$ be asymptotically negative. 
+    Then $f\_1(x) + f\_2(x) \in O(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_add_neg}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_above_add_neg}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:theta_add_pos_O}
+    \lean{theta_add_pos_O}
+    \leanok
+    \uses{def:theta, def:O, def:asymp_pos}
+    Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically positive and
+    $f\_2(x) \in O(g(x))$. Then $f\_1(x) + f\_2(x) \in \Theta(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_add_pos_above}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_add_pos_above}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:theta_add_neg_Omega}
+    \lean{theta_add_neg_Omega}
+    \leanok
+    \uses{def:theta, def:Omega, def:asymp_neg}
+    Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically negative
+    and $f\_2(x) \in \Omega(g(x))$. Then $f\_1(x) + f\_2(x) \in \Theta(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_add_neg_below}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_add_neg_below}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:theta_add_pos_o}
+    \lean{theta_add_pos_o}
+    \leanok
+    \uses{def:theta, def:o, def:asymp_pos}
+    Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically positive and
+    $f\_2(x) \in o(g(x))$. Then $f\_1(x) + f\_2(x) \in \Theta(g(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_add_pos_right_dom}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_add_pos_right_dom}.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:theta_add_neg_omega}
+    \lean{theta_add_neg_omega}
+    \leanok
+    \uses{def:theta, def:omega, def:asymp_neg}
+    Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically negative and
+    $f\_2(x) \in \omega(g(x))$. Then $f\_1(X) + f\_2(x) \in \Theta(g(x))$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_add_neg_left_dom}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_add_neg_left_dom}.
+\end{proof}
+
+
+\subsection{Multiplicativity}
+
+\begin{lemma}
+    \label{lemma:O_nonneg_mul}
+    \lean{O_nonneg_mul}
+    \leanok
+    \uses{def:O, def:asymp_nonneg}
+    Let $f\_1$ and $f\_2$ be asymptotically nonnegative functions such that 
+    $f\_1(x) \in O(g\_1(x))$ and $f\_2(x) \in O(g\_2(x))$. Then 
+    $f\_1(x) * f\_2(x) \in O(g\_1(x) * g\_2(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_above_nonneg_mul}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_above_nonneg_mul}.
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:Omega_nonpos_mul}
+    \lean{Omega_nonpos_mul}
+    \leanok
+    \uses{def:Omega, def:asymp_nonpos}
+    Let $f\_1$ and $f\_2$ be asymptotically nonpositive functions such that 
+    $f\_1(x) \in \Omega(g\_1(x))$ and $f\_2(x) \in \Omega(g\_2(x)$. 
+    Then $f\_1(x) * f\_2(x) \in \Omega(g\_1(x) * g\_2(x))$.
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \uses{lemma:asymp_bounded_below_nonpos_mul}
+    This follows directly from Lemma \ref{lemma:asymp_bounded_below_nonpos_mul}.
+\end{proof}
