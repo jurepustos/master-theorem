@@ -569,14 +569,14 @@
     This property immediately follows from Lemma \ref{lemma:asymp_le_add_neg}.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_bounded_add_pos_above}
+\begin{lemma}
+    \label{lemma:asymp_bounded_add_pos_above}
     \lean{asymp_bounded_add_pos_above}
     \leanok
     \uses{def:asymp_bounded, def:asymp_bounded_above, def:asymp_pos}
     Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically positive and
     bounded above by $g$. Then $f\_1 + f\_2$ is bounded by $g$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
     \leanok
@@ -585,14 +585,14 @@
     and Lemma \ref{lemma:asymp_bounded_below_add_pos}.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_bounded_add_neg_below}
+\begin{lemma}
+    \label{lemma:asymp_bounded_add_neg_below}
     \lean{asymp_bounded_add_neg_below}
     \leanok
     \uses{def:asymp_bounded, def:asymp_bounded_below, def:asymp_neg}
     Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically negative and
     bounded below by $g$. Then $f\_1 + f\_2$ is bounded by $g$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
     \leanok
@@ -601,35 +601,35 @@
     and Lemma \ref{lemma:asymp_bounded_above_add_neg}.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_bounded_add_pos_right_dom}
+\begin{lemma}
+    \label{lemma:asymp_bounded_add_pos_right_dom}
     \lean{asymp_bounded_add_pos_above}
     \leanok
     \uses{def:asymp_bounded, def:asymp_right_dom, def:asymp_pos}
     Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically positive and
     let $f\_2$ be dominated by $g$. Then $f\_1 + f\_2$ is bounded by $g$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
     \leanok
     \uses{thm:asymp_bounded_add_pos_above, lemma:asymp_bounded_above_of_right_dom}
-    We prove this with an application of Theorem \ref{thm:asymp_bounded_add_pos_above}
+    We prove this with an application of Lemma \ref{lemma:asymp_bounded_add_pos_above}
     on Lemma \ref{lemma:asymp_bounded_above_of_right_dom}.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:asymp_bounded_add_neg_left_dom}
+\begin{lemma}
+    \label{lemma:asymp_bounded_add_neg_left_dom}
     \lean{asymp_bounded_add_neg_left_dom}
     \leanok
     \uses{def:asymp_bounded, def:asymp_bounded_below, def:asymp_neg}
     Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically negative and
     let $f\_2$ dominate $g$. Then $f\_1 + f\_2$ is bounded by $g$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
     \leanok
     \uses{thm:asymp_bounded_add_neg_below, lemma:asymp_bounded_below_of_left_dom}
-    We prove this with an application of Theorem \ref{thm:asymp_bounded_add_neg_below}
+    We prove this with an application of Lemma \ref{lemma:asymp_bounded_add_neg_below}
     on Lemma \ref{lemma:asymp_bounded_below_of_left_dom}.
 \end{proof}
 
@@ -661,7 +661,7 @@
     \leanok
     \uses{def:asymp_bounded_below, def:asymp_nonpos}
     Let $f\_1$ and $f\_2$ be asymptotically nonpositive functions such that $f\_1$ 
-    be asymptotically bounded below by $g\_1$ and $f\_2$ be asymptotically bounded 
+    is asymptotically bounded below by $g\_1$ and $f\_2$ is asymptotically bounded 
     below by $g\_2$. Then $f\_1 * f\_2$ is asymptotically bounded below by $g\_1 * g\_2$.
 \end{lemma}
 

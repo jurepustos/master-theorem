@@ -59,38 +59,38 @@ section Pos
 variable [LinearOrder α] [PartialOrder β] [AddCommMonoid β] [Field γ] 
   [LinearOrder γ] [IsStrictOrderedRing γ] [Module γ β] [SMulPosStrictMono γ β] 
 
-lemma not_pos_theta_and_o (hg : AsympPos g) : ¬(f ∈ Θ γ g ∧ f ∈ o γ g) := by
+lemma not_asymp_pos_theta_and_o (hg : AsympPos g) : ¬(f ∈ Θ γ g ∧ f ∈ o γ g) := by
   intro hb
   rcases hb with ⟨⟨_, hΩ⟩, ho⟩ 
   have hbound : AsympBoundedBelow γ f g := hΩ
   have hdom : AsympRightDom γ f g := ho
   exact not_asymp_pos_bounded_below_and_right_dom hg (And.intro hbound hdom)
 
-lemma not_pos_o_of_theta [PosSMulMono γ β] (hg : AsympPos g) (hΘ : f ∈ Θ γ g) : 
+lemma not_asymp_pos_o_of_theta [PosSMulMono γ β] (hg : AsympPos g) (hΘ : f ∈ Θ γ g) : 
     ¬f ∈ o γ g := by
   intro ho
-  exact not_pos_theta_and_o hg (And.intro hΘ ho)
+  exact not_asymp_pos_theta_and_o hg (And.intro hΘ ho)
 
-lemma not_pos_theta_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ o γ g) : 
+lemma not_asymp_pos_theta_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ o γ g) : 
     ¬(f ∈ Θ γ g) := by
   intro hΘ
-  exact not_pos_theta_and_o hg (And.intro hΘ ho)
+  exact not_asymp_pos_theta_and_o hg (And.intro hΘ ho)
 
-lemma not_pos_o_of_Omega [PosSMulMono γ β] (hg : AsympPos g) (hΩ : f ∈ Ω γ g) : 
+lemma not_asymp_pos_o_of_Omega [PosSMulMono γ β] (hg : AsympPos g) (hΩ : f ∈ Ω γ g) : 
     ¬(f ∈ o γ g) := by
   intro ho
   have hd : AsympRightDom γ f g := ho
   have hb : AsympBoundedBelow γ f g := hΩ
   apply not_asymp_pos_right_dom_of_bounded_below hg hb hd
 
-lemma not_pos_Omega_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ o γ g) : 
+lemma not_asymp_pos_Omega_of_o [PosSMulMono γ β] (hg : AsympPos g) (ho : f ∈ o γ g) : 
     ¬(f ∈ Ω γ g) := by
   intro hΩ
   replace hd : AsympRightDom γ f g := ho
   replace hb : AsympBoundedBelow γ f g := hΩ
   exact not_asymp_pos_bounded_below_of_right_dom hg hd hb
 
-lemma not_pos_theta_and_omega [PosSMulMono γ β] (hg : AsympPos g) : 
+lemma not_asymp_pos_theta_and_omega [PosSMulMono γ β] (hg : AsympPos g) : 
     ¬(f ∈ Θ γ g ∧ f ∈ ω γ g) := by
   intro h
   rcases h with ⟨⟨hO, _⟩, hω⟩
@@ -98,17 +98,17 @@ lemma not_pos_theta_and_omega [PosSMulMono γ β] (hg : AsympPos g) :
   replace hd : AsympLeftDom γ f g := hω
   exact not_asymp_pos_bounded_above_and_left_dom hg (And.intro hb hd)
 
-lemma not_pos_omega_of_theta [PosSMulMono γ β] (hg : AsympPos g)
+lemma not_asymp_pos_omega_of_theta [PosSMulMono γ β] (hg : AsympPos g)
     (hΘ : f ∈ Θ γ g) : ¬f ∈ ω γ g := by
   intro hω
-  exact not_pos_theta_and_omega hg (And.intro hΘ hω)
+  exact not_asymp_pos_theta_and_omega hg (And.intro hΘ hω)
 
-lemma not_pos_theta_of_omega [PosSMulMono γ β] (hg : AsympPos g)
+lemma not_asymp_pos_theta_of_omega [PosSMulMono γ β] (hg : AsympPos g)
     (hω : f ∈ ω γ g) : ¬f ∈ Θ γ g := by
   intro hΘ
-  exact not_pos_theta_and_omega hg (And.intro hΘ hω)
+  exact not_asymp_pos_theta_and_omega hg (And.intro hΘ hω)
 
-lemma not_pos_o_and_omega [PosSMulStrictMono γ β] (hg : AsympPos g) : 
+lemma not_asymp_pos_o_and_omega [PosSMulStrictMono γ β] (hg : AsympPos g) : 
     ¬(f ∈ o γ g ∧ f ∈ ω γ g) := by
   intro h
   rcases h with ⟨ho, hω⟩
@@ -116,15 +116,15 @@ lemma not_pos_o_and_omega [PosSMulStrictMono γ β] (hg : AsympPos g) :
   replace hb : AsympLeftDom γ f g := hω
   exact not_asymp_pos_left_and_right_dom hg (And.intro hb ha)
 
-lemma not_pos_omega_of_o [PosSMulStrictMono γ β] (hg : AsympPos g) 
+lemma not_asymp_pos_omega_of_o [PosSMulStrictMono γ β] (hg : AsympPos g) 
     (ho : f ∈ o γ g) : ¬f ∈ ω γ g := by
   intro hω
-  exact not_pos_o_and_omega hg (And.intro ho hω)
+  exact not_asymp_pos_o_and_omega hg (And.intro ho hω)
 
-lemma not_pos_o_of_omega [PosSMulStrictMono γ β] (hg : AsympPos g) 
+lemma not_asymp_pos_o_of_omega [PosSMulStrictMono γ β] (hg : AsympPos g) 
     (hω : f ∈ ω γ g) : ¬f ∈ o γ g := by
   intro ho
-  exact not_pos_o_and_omega hg (And.intro ho hω)
+  exact not_asymp_pos_o_and_omega hg (And.intro ho hω)
 
 end Pos
 
