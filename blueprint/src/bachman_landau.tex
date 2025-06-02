@@ -24,7 +24,7 @@ action on $R$.
 
 \begin{definition}(Big Omega notation)
     \label{def:big_omega}
-    \lean{Omega}
+    \lean{Ω}
     \leanok
     \uses{def:asymp_bounded_below}
     $f(x) \in \Omega(g(x))$ if it is asymptotically bounded below by $g(x)$.
@@ -32,7 +32,7 @@ action on $R$.
 
 \begin{definition}(Big Theta notation)
     \label{def:big_theta}
-    \lean{theta}
+    \lean{Θ}
     \leanok
     \uses{def:asymp_bounded}
     $f(x) \in \Theta(g(x))$ if it is asymptotically bounded by $g(x)$. 
@@ -48,7 +48,7 @@ action on $R$.
 
 \begin{definition}(Small Omega notation)
     \label{def:small_omega}
-    \lean{omega}
+    \lean{ω}
     \leanok
     \uses{def:asymp_left_dom}
     $f(x) \in \omega(g(x))$ if it asymptotically dominates $g(x)$.
@@ -74,7 +74,7 @@ action on $R$.
 
 \begin{theorem}
     \label{thm:big_omega_of_small_omega}
-    \lean{Omega_of_omega}
+    \lean{Ω_of_ω}
     \leanok
     \uses{def:small_omega, def:big_omega}
     If $f(x) \in \omega(g(x))$, then $f(x) \in \Omega(g(x))$.
@@ -89,7 +89,7 @@ action on $R$.
 
 \begin{theorem}
     \label{thm:big_o_and_omega_iff_theta}
-    \lean{O_Omega_theta_iff}
+    \lean{O_Ω_Θ_iff}
     \leanok
     \uses{def:big_o, def:big_omega, def:big_theta}
     $f(x) \in O(g(x))$ and $f(x) \in \Omega(g(x))$ if and only if $f(x) \in \Theta(g(x))$.
@@ -104,7 +104,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_theta_and_small_o}
-    \lean{not_asymp_pos_theta_and_o}
+    \lean{not_asymp_pos_Θ_and_o}
     \leanok
     Let $g$ be asymptotically positive. Then $f(x) \in \Theta(g(x))$ and $f(x) \in o(g(x))$
     are not both true.
@@ -118,7 +118,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_small_o_of_theta}
-    \lean{not_asymp_pos_o_of_theta}
+    \lean{not_asymp_pos_o_of_Θ}
     \leanok
     Let $g$ be asymptotically positive. If $f(x) \in \Theta(g(x))$ then $f(x) \notin o(g(x))$.
 \end{lemma}
@@ -131,7 +131,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_theta_of_small_o}
-    \lean{not_asymp_pos_o_of_Omega}
+    \lean{not_asymp_pos_o_of_Ω}
     \leanok
     Let $g$ be asymptotically positive. If $f(x) \in o(g(x))$ then $f(x) \notin \Theta(g(x))$.
 \end{lemma}
@@ -144,7 +144,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_o_of_big_omega}
-    \lean{not_asymp_pos_o_of_Omega}
+    \lean{not_asymp_pos_o_of_Ω}
     \leanok
     Let $g$ be asymptotically positive. If $f(x) \in \Omega(g(x))$ then $f(x) \notin o(g(x))$.
 \end{lemma}
@@ -157,7 +157,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_big_omega_of_o}
-    \lean{not_asymp_pos_Omega_of_o}
+    \lean{not_asymp_pos_Ω_of_o}
     \leanok
     Let $g$ be asymptotically positive. If $f(x) \in o(g(x))$ then $f(x) \notin \Omega(g(x))$.
 \end{lemma}
@@ -170,7 +170,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_theta_and_small_omega}
-    \lean{not_asymp_pos_theta_and_omega}
+    \lean{not_asymp_pos_Θ_and_ω}
     \leanok
     Let $g$ be asymptotically positive. Then $f(x) \in \Theta(g(x))$ and 
     $f(x) \in \omega(g(x))$ are not both true.
@@ -184,7 +184,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_small_omega_of_theta}
-    \lean{not_asymp_pos_omega_of_theta}
+    \lean{not_asymp_pos_ω_of_Θ}
     \leanok
     Let $g$ be asymptotically positive. If $f(x) \in \Theta(g(x))$ then $f(x) \notin \omega(g(x))$.
 \end{lemma}
@@ -197,7 +197,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_theta_of_small_omega}
-    \lean{not_asymp_pos_omega_of_theta}
+    \lean{not_asymp_pos_ω_of_Θ}
     \leanok
     Let $g$ be asymptotically positive. If $f(x) \in \omega(g(x))$ then $f(x) \notin \Theta(g(x))$.
 \end{lemma}
@@ -210,7 +210,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_o_and_small_omega}
-    \lean{not_asymp_pos_o_and_omega}
+    \lean{not_asymp_pos_o_and_ω}
     \leanok
     Let $g$ be asymptotically positive. Then $f(x) \in o(g(x))$ and 
     $f(x) \in \omega(g(x))$ are not both true.
@@ -224,7 +224,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_small_omega_of_o}
-    \lean{not_asymp_pos_omega_of_o}
+    \lean{not_asymp_pos_ω_of_o}
     \leanok
     Let $g$ be asymptotically positive. If $f(x) \in o(g(x))$ then $f(x) \notin \omega(g(x))$.
 \end{lemma}
@@ -237,7 +237,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:not_asymp_pos_o_of_small_omega}
-    \lean{not_asymp_pos_o_of_omega}
+    \lean{not_asymp_pos_o_of_ω}
     \leanok
     Let $g$ be asymptotically positive. If $f(x) \in o(g(x))$ then $f(x) \notin \omega(g(x))$.
 \end{lemma}
@@ -253,7 +253,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:theta_refl}
-    \lean{theta_refl}
+    \lean{Θ_refl}
     \leanok
     \uses{def:theta}
     $f(x) \in \Theta(f(x))$.
@@ -282,7 +282,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:Omega_refl}
-    \lean{Omega_refl}
+    \lean{Ω_refl}
     \leanok
     \uses{def:Omega}
     $f(x) \in \Omega(f(x))$.
@@ -313,7 +313,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:Omega_trans}
-    \lean{Omega_trans}
+    \lean{Ω_trans}
     \leanok
     \uses{def:Omega}
     If $f(x) \in \Omega(g(x))$ and $g(x) \in \Omega(h(x))$, then $f(x) \in \Omega(h(x))$.
@@ -327,7 +327,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:theta_trans}
-    \lean{theta_trans}
+    \lean{Θ_trans}
     \leanok
     \uses{def:theta}
     If $f(x) \in \Theta(g(x))$ and $g(x) \in \Theta(h(x))$, then $f(x) \in \Theta(h(x))$.
@@ -355,7 +355,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:omega_trans}
-    \lean{omega_trans}
+    \lean{ω_trans}
     \leanok
     \uses{def:omega}
     If $f(x) \in \omega(g(x))$ and $g(x) \in \omega(h(x))$, then $f(x) \in \omega(h(x))$.
@@ -386,7 +386,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:Omega_pos_smul}
-    \lean{Omega_pos_smul}
+    \lean{Ω_pos_smul}
     \leanok
     \uses{def:Omega}
     Let $c > 0$. If $f(x) \in \Omega(g(x))$, then $c \cdot f(x) \in \Omega(g(x))$ is also bounded
@@ -401,7 +401,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:theta_pos_smul}
-    \lean{theta_pos_smul}
+    \lean{Θ_pos_smul}
     \leanok
     \uses{def:theta}
     Let $c > 0$. If $f(x) \in \Theta(g(x))$, then $c \cdot f(x) \in \Theta(g(x))$.
@@ -429,7 +429,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:Omega_neg_smul}
-    \lean{Omega_neg_smul}
+    \lean{Ω_neg_smul}
     \leanok
     \uses{def:Omega}
     Let $c < 0$. If $f \in \Omega(g(x))$, then $c \cdot f(x) \in \Omega(-g(x))$.
@@ -443,7 +443,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:theta_neg_smul}
-    \lean{theta_neg_smul}
+    \lean{Θ_neg_smul}
     \leanok
     \uses{def:theta}
     Let $c < 0$. If $f(x) \in \Theta(g(x))$, then $c \cdot f \in \Theta(-g(x))$.
@@ -474,7 +474,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:Omega_add}
-    \lean{Omega_add}
+    \lean{Ω_add}
     \leanok
     \uses{def:Omega}
     Let $f\_1(x), f\_2(x) \in \Omega(g(x))$. Then $f\_1(x) + f\_2(x) \in \Omega(g(x))$.
@@ -488,7 +488,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:theta_add}
-    \lean{theta_add}
+    \lean{Θ_add}
     \leanok
     \uses{def:theta}
     Let $f\_1(x), f\_2(x) \in \Theta(g(x))$. Then $f\_1(x) + f\_2(x) \in \Theta(g(x))$.
@@ -502,7 +502,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:Omega_add_pos}
-    \lean{Omega_add_pos}
+    \lean{Ω_add_pos}
     \leanok
     \uses{def:Omega, def:asymp_pos}
     Let $f\_1(x) \in \Omega(g(x))$ and let $f\_2$ be asymptotically positive. 
@@ -532,7 +532,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:theta_add_pos_O}
-    \lean{theta_add_pos_O}
+    \lean{Θ_add_pos_O}
     \leanok
     \uses{def:theta, def:O, def:asymp_pos}
     Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically positive and
@@ -547,7 +547,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:theta_add_neg_Omega}
-    \lean{theta_add_neg_Omega}
+    \lean{Θ_add_neg_Ω}
     \leanok
     \uses{def:theta, def:Omega, def:asymp_neg}
     Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically negative
@@ -562,7 +562,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:theta_add_pos_o}
-    \lean{theta_add_pos_o}
+    \lean{Θ_add_pos_o}
     \leanok
     \uses{def:theta, def:o, def:asymp_pos}
     Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically positive and
@@ -577,7 +577,7 @@ action on $R$.
 
 \begin{theorem}
     \label{thm:theta_add_neg_omega}
-    \lean{theta_add_neg_omega}
+    \lean{Θ_add_neg_ω}
     \leanok
     \uses{def:theta, def:omega, def:asymp_neg}
     Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically negative and
@@ -611,7 +611,7 @@ action on $R$.
 
 \begin{lemma}
     \label{lemma:Omega_nonpos_mul}
-    \lean{Omega_nonpos_mul}
+    \lean{Ω_nonpos_mul}
     \leanok
     \uses{def:Omega, def:asymp_nonpos}
     Let $f\_1$ and $f\_2$ be asymptotically nonpositive functions such that 
