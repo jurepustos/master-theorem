@@ -197,7 +197,8 @@ lemma self_subst (self : MasterRecurrence T a b n₀ f) (hd : d ≥ 1)
       (fun n ↦ T (n + b)) (a^k) (b^k) (n₀ * b^k) 
       (fun n ↦ C * ⌈GeometricSum (K := ℝ) (a/b^d) (k - 1)⌉₊ * 
         ⌈Nat.cast (R := ℝ) n^d⌉₊) := by
-  apply exists_pos_smul_asymp_le_iff_asymp_bounded_above.2 at hf_poly
+  rw [O_iff_asymp_bounded_above, 
+      ← exists_pos_smul_asymp_le_iff_asymp_bounded_above] at hf_poly
   rcases hf_poly with ⟨C₀, C₀_pos, f_poly'⟩
   have ceil_poly_pos : ∀ n > 0, 0 < C₀ * ⌈Nat.cast (R := ℝ) n ^ d⌉₊ := by {
     intro n n_pos

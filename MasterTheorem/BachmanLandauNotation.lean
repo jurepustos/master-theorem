@@ -133,7 +133,7 @@ end Conversions
 
 section Properties
 
-section Refl
+section Constructors
 
 variable [LinearOrder α] [Preorder β] [PartialOrder γ]
   [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] 
@@ -156,10 +156,43 @@ lemma O_of_asymp_le {g : α → β} (hle : AsympLE f g) :
   exact asymp_bounded_above_of_asymp_le hle
 
 lemma Ω_of_asymp_ge {g : α → β} (hle : AsympGE f g) :
-    AsympBoundedBelow γ f g := by
+     f ∈ Ω γ g := by
   exact asymp_bounded_below_of_asymp_ge hle
 
-end Refl
+end Constructors
+
+
+section Iff
+
+variable [LinearOrder α] [Preorder β] [PartialOrder γ]
+  [γ_monoid : MonoidWithZero γ] [MulAction γ β] {f : α → β}
+
+@[simp]
+lemma O_iff_asymp_bounded_above {g : α → β} :
+    f ∈ O γ g ↔ AsympBoundedAbove γ f g := by
+  rfl
+
+@[simp]
+lemma Ω_iff_asymp_bounded_below {g : α → β} :
+    f ∈ Ω γ g ↔ AsympBoundedBelow γ f g := by
+  rfl
+
+@[simp]
+lemma Θ_iff_asymp_bounded {g : α → β} :
+    f ∈ Θ γ g ↔ AsympBounded γ f g := by
+  rfl
+
+@[simp]
+lemma o_iff_asymp_right_dom {g : α → β} :
+    f ∈ o γ g ↔ AsympRightDom γ f g := by
+  rfl
+
+@[simp]
+lemma ω_iff_asymp_left_dom {g : α → β} :
+    f ∈ ω γ g ↔ AsympLeftDom γ f g := by
+  rfl
+
+end Iff
 
 
 section Trans
