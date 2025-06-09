@@ -215,14 +215,14 @@ end Conversions
 
 section Properties
 
-section Refl
+section Constructors
 
 variable [LinearOrder α] [Preorder β] [PartialOrder γ] 
   [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] 
-  [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
+  [@NeZero γ γ_monoid.toZero γ_monoid.one] [One α] {f : α → β}
 
 @[simp]
-lemma asymp_bounded_refl [One α] : AsympBounded γ f f := by
+lemma asymp_bounded_refl : AsympBounded γ f f := by
   constructor <;>
   . use 1
     constructor
@@ -232,12 +232,21 @@ lemma asymp_bounded_refl [One α] : AsympBounded γ f f := by
       simp
 
 @[simp]
-lemma asymp_bounded_above_refl [One α] : AsympBoundedAbove γ f f := by
+lemma asymp_bounded_above_refl : AsympBoundedAbove γ f f := by
   exact asymp_bounded_refl.1
 
 @[simp]
-lemma asymp_bounded_below_refl [One α] : AsympBoundedBelow γ f f := by
+lemma asymp_bounded_below_refl : AsympBoundedBelow γ f f := by
   exact asymp_bounded_refl.2
+
+end Constructors
+
+
+section OfAsympLE
+
+variable [LinearOrder α] [Preorder β] [PartialOrder γ] 
+  [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] 
+  [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
 
 lemma asymp_bounded_above_of_asymp_le {g : α → β} (hle : AsympLE f g) :
     AsympBoundedAbove γ f g := by
@@ -255,7 +264,35 @@ lemma asymp_bounded_below_of_asymp_ge {g : α → β} (hle : AsympGE f g) :
   . simp
     exact hle
 
-end Refl
+end OfAsympLE
+
+
+section Iff
+
+variable [LinearOrder α] [Preorder β] [PartialOrder γ] 
+  [γ_monoid : MonoidWithZero γ] [MulAction γ β] {f : α → β}
+
+@[simp]
+lemma exists_pos_smul_asymp_le_iff_asymp_bounded_above {g : α → β} :
+    (∃ k : γ, k > 0 ∧ AsympLE f (k • g)) ↔ AsympBoundedAbove γ f g := by
+  rfl
+
+@[simp]
+lemma exists_pos_smul_asymp_ge_iff_asymp_bounded_below {g : α → β} :
+    (∃ k : γ, k > 0 ∧ AsympGE f (k • g)) ↔ AsympBoundedBelow γ f g := by
+  rfl
+
+@[simp]
+lemma forall_pos_smul_asymp_le_iff_asymp_right_dom {g : α → β} :
+    (∀ k : γ, k > 0 → AsympLE f (k • g)) ↔ AsympRightDom γ f g := by
+  rfl
+
+@[simp]
+lemma forall_pos_smul_asymp_ge_iff_asymp_left_dom {g : α → β} :
+    (∀ k : γ, k > 0 → AsympGE f (k • g)) ↔ AsympLeftDom γ f g := by
+  rfl
+
+end Iff
 
 
 section Trans

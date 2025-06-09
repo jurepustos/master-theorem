@@ -137,8 +137,6 @@ theorem O_of_O_poly_of_lt (self : MasterRecurrence T a b n₀ f)
     (hd : d ≥ 1) (hf_poly : f ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊)
     (hlt : a < Nat.cast (R := ℝ) b^d) : 
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
-  unfold O
-  simp
   have poly_bound := self.O_of_O_poly hd hf_poly
 
   apply O_trans poly_bound
@@ -194,8 +192,6 @@ theorem O_of_O_poly_of_eq (self : MasterRecurrence T a b n₀ f)
     (hd : d ≥ 1) (hf_poly : f ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊)
     (heq : ↑a = Nat.cast (R := ℝ) b^d) : 
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d * Real.logb b n⌉₊ := by
-  unfold O
-  simp
   have poly_bound := self.O_of_O_poly hd hf_poly
 
   apply O_trans poly_bound
@@ -290,8 +286,6 @@ theorem O_of_O_poly_of_gt (self : MasterRecurrence T a b n₀ f)
     (hd : d ≥ 1) (hf_poly : f ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊)
     (hgt : ↑a > Nat.cast (R := ℝ) b^d) : 
     T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^Real.logb b a⌉₊ := by
-  unfold O
-  simp
   have poly_bound := self.O_of_O_poly hd hf_poly
 
   apply O_trans poly_bound

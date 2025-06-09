@@ -6,7 +6,7 @@ import MasterTheorem.GeometricSum
 import MasterTheorem.CeilDiv
 
 
-theorem bounded_above_of_asymp_le {f g : ℕ → ℕ}
+lemma bounded_above_of_asymp_le {f g : ℕ → ℕ}
     (h : AsympLE f g) (N : ℕ) (hg : ∀ n > N, g n > 0) : 
     ∃ C > 0, ∀ n > N, f n ≤ C * g n := by
   rcases h with ⟨N', hbound⟩
@@ -197,6 +197,7 @@ lemma self_subst (self : MasterRecurrence T a b n₀ f) (hd : d ≥ 1)
       (fun n ↦ T (n + b)) (a^k) (b^k) (n₀ * b^k) 
       (fun n ↦ C * ⌈GeometricSum (K := ℝ) (a/b^d) (k - 1)⌉₊ * 
         ⌈Nat.cast (R := ℝ) n^d⌉₊) := by
+  apply exists_pos_smul_asymp_le_iff_asymp_bounded_above.2 at hf_poly
   rcases hf_poly with ⟨C₀, C₀_pos, f_poly'⟩
   have ceil_poly_pos : ∀ n > 0, 0 < C₀ * ⌈Nat.cast (R := ℝ) n ^ d⌉₊ := by {
     intro n n_pos
