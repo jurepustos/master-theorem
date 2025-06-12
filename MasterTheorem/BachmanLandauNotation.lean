@@ -192,6 +192,22 @@ lemma ω_iff_asymp_left_dom {g : α → β} :
     f ∈ ω γ g ↔ AsympLeftDom γ f g := by
   rfl
 
+lemma exists_pos_smul_asymp_le_iff_O {g : α → β} :
+    (∃ k : γ, k > 0 ∧ AsympLE f (k • g)) ↔ f ∈ O γ g := by
+  rfl
+
+lemma exists_pos_smul_asymp_ge_iff_Ω {g : α → β} :
+    (∃ k : γ, k > 0 ∧ AsympGE f (k • g)) ↔ f ∈ Ω γ g := by
+  rfl
+
+lemma forall_pos_smul_asymp_le_iff_o {g : α → β} :
+    (∀ k : γ, k > 0 → AsympLE f (k • g)) ↔ f ∈ o γ g := by
+  rfl
+
+lemma forall_pos_smul_asymp_ge_iff_ω {g : α → β} :
+    (∀ k : γ, k > 0 → AsympGE f (k • g)) ↔ f ∈ ω γ g := by
+  rfl
+
 end Iff
 
 
