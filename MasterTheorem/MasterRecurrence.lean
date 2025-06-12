@@ -226,7 +226,6 @@ lemma self_subst (self : MasterRecurrence T a b n₀ f d) :
   use ⌈↑C₁ * (2 : ℝ) * C₀ * 2^(d-1) * ↑b^d⌉₊
   apply And.intro const_ceil_pos
 
-
   intro k hk
   exact {
     one_lt_n₀ := one_lt_mul_of_lt_of_le self.one_lt_n₀ (pow_pos self.b_pos k),
