@@ -412,7 +412,7 @@ lemma asymp_bounded_above_neg_smul (hc : c < 0) (h : AsympBoundedAbove γ f g) :
   use -c * k
   constructor
   . exact mul_pos (neg_pos_of_neg hc) k_pos
-  . rw [← asymp_le_ge_iff]
+  . rw [← asymp_le_iff_asymp_ge]
     simp [mul_smul]
     suffices AsympGE (fun n ↦ c • f n) (fun n ↦ c • k • g n) by {
       rcases this with ⟨N, h⟩
@@ -427,7 +427,7 @@ lemma asymp_bounded_below_neg_smul (hc : c < 0) (h : AsympBoundedBelow γ f g) :
   constructor
   . exact mul_pos (neg_pos_of_neg hc) k_pos
   . simp [mul_smul]
-    rw [asymp_le_ge_iff]
+    rw [asymp_le_iff_asymp_ge]
     suffices AsympLE (fun n ↦ c • f n) (fun n ↦ c • k • g n) by {
       rcases this with ⟨N, h⟩
       use N

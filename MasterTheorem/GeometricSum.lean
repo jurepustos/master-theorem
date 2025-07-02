@@ -9,17 +9,15 @@ def GeometricSum (x : K) (n : ℕ) : K :=
 
 namespace GeometricSum
 
+@[simp]
 lemma def_zero (x : K) : GeometricSum x 0 = 1 := by
   rfl
 
 lemma def_succ (x : K) (k : ℕ) : 
     x^(k + 1) + GeometricSum x k = GeometricSum x (k + 1) := by
   unfold GeometricSum
-  split
-  . simp
-    rw [GeometricSum.def_zero]
-  . simp
-    apply GeometricSum.def_succ
+  split <;> simp
+  apply GeometricSum.def_succ
 
 lemma pos_of_pos [LinearOrder K] [IsStrictOrderedRing K]
     {x : K} (hx : x > 0) (n : ℕ) : GeometricSum x n > 0 := by
@@ -30,6 +28,7 @@ lemma pos_of_pos [LinearOrder K] [IsStrictOrderedRing K]
   }
   | succ k hk => exact add_pos (pow_pos hx k.succ) hk
 
+@[simp]
 theorem base_eq_one (n : ℕ) : GeometricSum (1 : K) n = ↑n + 1 := by
   induction n with
   | zero => {

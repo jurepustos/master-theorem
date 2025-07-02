@@ -48,7 +48,7 @@ lemma Ω_of_ω [IsStrictOrderedRing γ] (h : f ∈ ω γ g) : f ∈ Ω γ g := b
   apply asymp_bounded_below_of_left_dom
   apply h
 
-lemma O_Ω_Θ_iff : f ∈ O γ g ∧ f ∈ Ω γ g ↔ f ∈ Θ γ g := by
+lemma O_Ω_iff_Θ : f ∈ O γ g ∧ f ∈ Ω γ g ↔ f ∈ Θ γ g := by
   apply asymp_bounded_iff
 
 end Simple

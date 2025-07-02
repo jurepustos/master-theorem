@@ -133,17 +133,17 @@ section Equivalence
 
 variable [Preorder α] [LE β] {f g : α → β} 
 
-lemma asymp_le_of_ge (h : AsympGE f g) : AsympLE g f := by
+lemma asymp_le_of_asymp_ge (h : AsympGE f g) : AsympLE g f := by
   rcases h with ⟨N, h⟩
   use N
 
-lemma asymp_ge_of_le (h : AsympLE f g) : AsympGE g f := by
-  exact asymp_le_of_ge h
+lemma asymp_ge_of_asymp_le (h : AsympLE f g) : AsympGE g f := by
+  exact asymp_le_of_asymp_ge h
 
-theorem asymp_le_ge_iff : AsympLE f g ↔ AsympGE g f := by
+theorem asymp_le_iff_asymp_ge : AsympLE f g ↔ AsympGE g f := by
   constructor <;> intro h
-  . exact asymp_ge_of_le h
-  . exact asymp_le_of_ge h
+  . exact asymp_ge_of_asymp_le h
+  . exact asymp_le_of_asymp_ge h
 
 end Equivalence
 
@@ -162,7 +162,7 @@ lemma asymp_le_trans (ha : AsympLE f g) (hb : AsympLE g h) : AsympLE f h := by
   exact le_trans ha hb
 
 lemma asymp_ge_trans (ha : AsympGE f g) (hb : AsympGE g h) : AsympGE f h := by
-  rw [← asymp_le_ge_iff] at *
+  rw [← asymp_le_iff_asymp_ge] at *
   exact asymp_le_trans hb ha
 
 end Trans
@@ -191,11 +191,11 @@ lemma asymp_neg_of_le_neg (hg : AsympNeg g) (h : AsympLE f g) : AsympNeg f := by
   exact lt_of_le_of_lt h hg
 
 lemma asymp_neg_of_neg_ge (hf : AsympNeg f) (h : AsympGE f g) : AsympNeg g := by
-  rw [← asymp_le_ge_iff] at h
+  rw [← asymp_le_iff_asymp_ge] at h
   exact asymp_neg_of_le_neg hf h
 
 lemma asymp_pos_of_ge_pos (hg : AsympPos g) (h : AsympGE f g) : AsympPos f := by
-  rw [← asymp_le_ge_iff] at h
+  rw [← asymp_le_iff_asymp_ge] at h
   exact asymp_pos_of_pos_le hg h
 
 end PosNeg
@@ -220,7 +220,7 @@ lemma asymp_le_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α �
 lemma asymp_ge_add [Add β] [AddLeftMono β] [AddRightMono β] {g₁ g₂ : α → β} 
     (ha : AsympGE f₁ g₁) (hb : AsympGE f₂ g₂) : 
     AsympGE (f₁ + f₂) (g₁ + g₂) := by
-  rw [← asymp_le_ge_iff] at *
+  rw [← asymp_le_iff_asymp_ge] at *
   exact asymp_le_add ha hb
 
 lemma asymp_ge_add_pos [AddMonoid β] [AddLeftMono β] [AddRightMono β] 
@@ -277,7 +277,7 @@ lemma asymp_le_pos_smul (hc : c > 0) (h : AsympLE f g) :
 
 lemma asymp_ge_nonneg_smul (hc : c ≥ 0) (h : AsympGE f g) : 
     AsympGE (c • f) (c • g) := by
-  rw [← asymp_le_ge_iff]
+  rw [← asymp_le_iff_asymp_ge]
   exact asymp_le_nonneg_smul hc h
 
 lemma asymp_ge_pos_smul (hc : c > 0) (h : AsympGE f g) :
@@ -305,7 +305,7 @@ lemma asymp_le_neg_smul (hc : c < 0) (h : AsympLE f g) :
 
 theorem asymp_ge_nonpos_smul (hc : c ≤ 0) (h : AsympGE f g) : 
     AsympLE (fun n ↦ c • f n) (fun n ↦ c • g n) := by
-  rw [asymp_le_ge_iff]
+  rw [asymp_le_iff_asymp_ge]
   exact asymp_le_nonpos_smul hc h
 
 lemma asymp_ge_neg_smul (hc : c < 0) (h : AsympGE f g) :
