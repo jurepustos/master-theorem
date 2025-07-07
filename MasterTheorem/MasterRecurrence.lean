@@ -6,53 +6,6 @@ import MasterTheorem.GeometricSum
 import MasterTheorem.CeilDiv
 
 
-namespace Nat
-
-lemma bounded_above_of_asymp_le {f g : ℕ → ℕ}
-    (h : AsympLE f g) {N : ℕ} (hg : ∀ n > N, g n > 0) : 
-    ∃ C > 0, ∀ n > N, f n ≤ C * g n := by
-  rcases h with ⟨N', hbound⟩
-  rcases func_le_mul_func_of_lt N' with ⟨C, C_pos, hle⟩
-  use C
-  apply And.intro C_pos
-  intro n n_gt
-  if hn : N' ≤ n then {
-    apply le_trans (hbound n hn)
-    specialize hg n n_gt
-    apply le_mul_of_one_le_left <;> linarith
-  }
-  else {
-    simp at hn
-    exact hle n n_gt hn
-  }
-where
-  func_le_mul_func_of_lt (N' : ℕ) : ∃ C > 0, ∀ n > N, n < N' → f n ≤ C * g n := by
-    induction' N' with m hm
-    . use 1
-      apply And.intro one_pos
-      intro n n_pos n_lt
-      contrapose n_lt
-      exact Nat.not_lt_zero n
-    . rcases hm with ⟨C, C_pos, f_le⟩
-      use C + f m
-      apply And.intro (add_pos_of_pos_of_nonneg C_pos (Nat.zero_le (f m)))
-      intro n n_gt n_lt_succ
-      rw [add_mul]
-      if hn_m : n < m then {
-        apply le_add_of_le_of_nonneg (f_le n n_gt hn_m)
-        apply mul_nonneg <;> apply Nat.zero_le
-      }
-      else {
-        simp at hn_m
-        have n_eq_m : n = m := eq_of_le_of_le (Nat.le_of_lt_add_one n_lt_succ) hn_m
-        apply le_add_of_nonneg_of_le (mul_nonneg (le_of_lt C_pos) (zero_le (g n)))
-        rw [← mul_one (f n), ← n_eq_m]
-        exact Nat.mul_le_mul_left (f n) (hg n n_gt)
-      }
-
-end Nat
-
-
 /- We formalize the proof at https://www.cs.dartmouth.edu/~deepc/Courses/S20/lecs/lec3supp.pdf -/
 
 /- Divide and conquer recurrence -/
@@ -113,17 +66,24 @@ private lemma formula_subst_once {T : ℕ → ℕ} {a b k n : ℕ} {d C : ℝ}
       apply zero_le
   }
 
-private theorem formula_subst {T : ℕ → ℕ} {a b n₀ n k : ℕ} {d C : ℝ} 
-    (ha : a > 0) (hb : b > 1) (hn : n ≥ n₀ * b^k) (hC : C > 0) (hd : d ≥ 1)
-    (hrec : ∀ m : ℕ, m ≥ n₀ → T m ≤ a * T (m / b) + C * (Nat.cast (R := ℝ) m)^d) :
-    T n ≤ a^k * T (n / b^k) + C * GeometricSum (K := ℝ) (↑a / ↑b^d) (k-1) * Nat.cast (R := ℝ) n^d := by
-  induction' k with x hx
-  . simp
+private theorem formula_subst {T k : ℕ → ℕ} {a b n₀ : ℕ} {d C : ℝ}
+    (ha : a > 0) (hb : b > 1) (hC : C > 0) (hd : d ≥ 1)
+    (hrec : ∀ n ≥ n₀, T n ≤ a * T (n / b) + 
+                            C * (Nat.cast (R := ℝ) n)^d) :
+    ∀ {n : ℕ}, n ≥ n₀ * b^k n → 
+      T n ≤ a^k n * T (n / b^k n) + 
+            C * GeometricSum (K := ℝ) (↑a / ↑b^d) (k n - 1) * 
+            Nat.cast (R := ℝ) n^d := by
+  intro n
+  induction' k n with x hx
+  . intros
+    simp
     apply mul_nonneg
     . linarith
     . apply Real.rpow_nonneg
       apply Nat.cast_nonneg
-  . have n₀_mul_b_pow_x_le_n : n₀ * b^x ≤ n := by {
+  . intro hn
+    have n₀_mul_b_pow_x_le_n : n₀ * b^x ≤ n := by {
       rw [pow_succ, ← mul_assoc] at hn
       exact le_of_mul_le_of_one_le_left hn (le_of_lt hb)
     }
@@ -282,65 +242,143 @@ private lemma add_poly (hd : d ≥ 1) (hb : b > 1) {n : ℕ} (hn : n > 1) :
       norm_cast
     . norm_cast
 
-private lemma f_of_add_b_poly {C : ℕ} (hd : d ≥ 1) (hC : C > 0) (hb : b > 1)
-    (hf_poly : ∀ n > 0, f n ≤ C * Nat.cast (R := ℝ) n^d) {n : ℕ} (hn : n > 1) : 
-    f (n + b) ≤ C * (2 : ℝ)^(d-1) * b^d * Nat.cast (R := ℝ) n^d := by
-  specialize hf_poly (n + b) (le_add_of_le_of_nonneg (le_of_lt hn) (zero_le b))
+private lemma f_of_add_b_poly {C N : ℕ} (hd : d ≥ 1) (hC : C > 0) (hb : b > 1)
+    (hf_poly : ∀ n ≥ N, f n ≤ C * Nat.cast (R := ℝ) n^d) (hN : N > 1) : 
+    ∀ n ≥ N, f (n + b) ≤ C * (2 : ℝ)^(d-1) * b^d * Nat.cast (R := ℝ) n^d := by
+  intro n hn
+  specialize hf_poly (n + b) (le_add_of_le_of_nonneg hn (zero_le b))
   apply le_trans hf_poly
   have poly_le : Nat.cast (R := ℝ) (n + b) ^ d ≤ (2 : ℝ)^(d - 1) * 
-      ↑b ^ d * Nat.cast (R := ℝ) n^d := by {
-    apply add_poly hd hb hn
+                ↑b ^ d * Nat.cast (R := ℝ) n^d := by {
+    apply add_poly hd hb
+    linarith
   }
   apply le_trans ((mul_le_mul_left (Nat.cast_pos.2 hC)).2 poly_le)
   rw [← mul_assoc, ← mul_assoc, mul_le_mul_right]
-  exact Real.rpow_pos_of_pos (Nat.cast_pos.2 (lt_trans one_pos hn)) d
+  apply Real.rpow_pos_of_pos
+  norm_cast
+  linarith
 
 
-lemma self_subst (self : MasterRecurrence T a b n₀ f d) : 
-    ∃ C > 0, ∀ k > 0, MasterRecurrence 
-      (fun n ↦ T (n + b)) (a^k) (b^k) (n₀ * b^k) 
-      (fun n ↦ C * ⌈GeometricSum (K := ℝ) (a/b^d) (k - 1)⌉₊ * 
-        ⌈Nat.cast (R := ℝ) n^d⌉₊) d := by
-  obtain ⟨C₀, C₀_pos, f_poly₀⟩ := exists_pos_smul_asymp_le_iff_O.2 self.f_poly
-  have ceil_poly_pos : ∀ n > 0, 0 < C₀ * ⌈Nat.cast (R := ℝ) n ^ d⌉₊ := by {
+private lemma k_subst (self : MasterRecurrence T a b n₀ f d) : 
+    ∃ C > 0, ∃ N ≥ n₀, ∀ k : ℕ → ℕ, ∀ n ≥ N * b^k n, 
+      T (n + b) ≤ a^k n * (T ∘ flip Add.add b) (n / b^k n) + 
+                  C * ⌈GeometricSum (K := ℝ) (a/b^d) (k n - 1)⌉₊ * 
+                  ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
+  obtain ⟨C, C_pos, N, f_poly₁⟩ := exists_pos_smul_asymp_le_iff_O.2 self.f_poly
+
+  have ceil_poly_pos : ∀ n > 0, 0 < C * ⌈Nat.cast (R := ℝ) n ^ d⌉₊ := by {
     intro n n_pos
-    apply mul_pos C₀_pos
+    apply mul_pos C_pos
     rw [Nat.ceil_pos]
     apply Real.rpow_pos_of_pos
     norm_cast
   }
-  apply Nat.bounded_above_of_asymp_le at f_poly₀
-  specialize f_poly₀ ceil_poly_pos
-  rcases f_poly₀ with ⟨C₁, C₁_pos, f_poly₁⟩
-
-  have const_pos : 0 < ↑C₁ * (2 : ℝ) * C₀ * 2^(d-1) * ↑b^d := by {
+  have const_pos : 0 < (2 : ℝ) * C * 2^(d-1) * ↑b^d := by {
     repeat' apply mul_pos <;> norm_cast
     all_goals apply Real.rpow_pos_of_pos; norm_cast
     exact self.b_pos
   }
 
-  have const_ceil_pos : 0 < ⌈↑C₁ * (2 : ℝ) * C₀ * 2^(d-1) * ↑b^d⌉₊ := by {
+  have const_ceil_pos : 0 < ⌈(2 : ℝ) * C * 2^(d-1) * ↑b^d⌉₊ := by {
     rw [Nat.ceil_pos]
     exact const_pos
   }
-  use ⌈↑C₁ * (2 : ℝ) * C₀ * 2^(d-1) * ↑b^d⌉₊
+  use ⌈(2 : ℝ) * C * 2^(d-1) * ↑b^d⌉₊
   apply And.intro const_ceil_pos
 
-  intro k hk
-  exact {
-    one_lt_n₀ := one_lt_mul_of_lt_of_le self.one_lt_n₀ (pow_pos self.b_pos k),
-    a_pos := pow_pos self.a_pos k,
-    one_lt_b := one_lt_pow₀ self.one_lt_b (zero_lt_iff.1 hk),
-    one_le_d := self.one_le_d,
-    f_poly := by {
-      rw [O_iff_asymp_bounded_above, 
-          ← exists_pos_smul_asymp_le_iff_asymp_bounded_above]
-      use ⌈↑C₁ * (2 : ℝ) * ↑C₀ * 2 ^ (d - 1) * ↑b ^ d⌉₊ * 
-          ⌈GeometricSum (K := ℝ) (↑a / ↑b ^ d) (k - 1)⌉₊
-      apply And.intro (by {
-        apply mul_pos
-        . exact const_ceil_pos
-        . rw [Nat.ceil_pos]
+  generalize M_def : N ⊔ n₀ = M
+  have M_ge_N : M ≥ N := by {
+    rw [← M_def]
+    apply le_max_left
+  }
+  have M_ge_n₀ : M ≥ n₀ := by {
+    rw [← M_def]
+    apply le_max_right
+  }
+  have one_lt_M : 1 < M := by linarith [self.one_lt_n₀]
+
+  use M
+  apply And.intro M_ge_n₀
+
+  have f_poly₂ : ∀ n ≥ M, f n ≤ ↑(2 * C) * Nat.cast (R := ℝ) n^d := by {
+    intro n n_ge
+    have one_le_n_pow : 1 ≤ Nat.cast (R := ℝ) n^d := by {
+      apply Real.one_le_rpow <;> norm_cast
+      all_goals linarith [self.one_le_d]
+    }
+    rw [Nat.cast_mul, Nat.cast_two, mul_comm 2, mul_assoc]
+
+    specialize f_poly₁ n (by linarith)
+    simp at f_poly₁
+    apply le_trans' ((mul_le_mul_left _).2 (Nat.ceil_le_two_mul _))
+    . norm_cast
+    . norm_cast
+    . linarith
+  }
+
+  generalize S_def : (fun n ↦ T (n + b)) = S
+  have S_apply : ∀ (n : ℕ), T (n + b) = S n := by {
+    intro n
+    rw [← S_def]
+  }
+
+  have rec_apply : ∀ n ≥ M, S n ≤ a * S (n / b) + 
+      2 * C * (2 : ℝ)^(d-1) * b^d * Nat.cast (R := ℝ) n^d := by {
+    intro n n_ge_M
+    have n_gt_one : n > 1 := by linarith
+    have ceilDiv_apply := self.T_rec (n + b) (le_add_right (by linarith))
+    have ceilDiv_le : a * T ((n + b) ⌈/⌉ b) ≤ a * T ((n + b) / b + 1) := by {
+      apply Nat.mul_le_mul_left
+      apply self.T_monotone
+      exact Nat.ceilDiv_le_div_succ self.b_pos
+    }
+
+    apply flip le_add_of_le_add_right ceilDiv_le at ceilDiv_apply
+    rw [Nat.add_div self.b_pos, Nat.div_self self.b_pos] at ceilDiv_apply
+    split_ifs at ceilDiv_apply with hrec_mod <;> simp at hrec_mod
+    . contrapose hrec_mod
+      intro hmod
+      have hcontra := Nat.mod_lt n self.b_pos
+      linarith
+    . simp at ceilDiv_apply
+      rw [add_assoc, one_add_one_eq_two] at ceilDiv_apply
+      have rec_T_le_n_add_b : a * T (n / b + 2) ≤ a * T (n / b + b) := by {
+        apply Nat.mul_le_mul_left
+        apply self.T_monotone
+        apply add_le_add_left self.one_lt_b
+      }
+      apply flip le_add_of_le_add_right rec_T_le_n_add_b at ceilDiv_apply
+      rw [S_apply, S_apply, ← Nat.cast_le (α := ℝ), Nat.cast_add,
+          Nat.cast_mul] at ceilDiv_apply
+      
+      have C_mul_two_pos : 2 * C > 0 := by {
+        apply mul_pos <;> linarith
+      }
+      have f_le := f_of_add_b_poly self.one_le_d C_mul_two_pos 
+        self.one_lt_b f_poly₂ (by linarith) n n_ge_M
+      push_cast at f_le
+      exact le_add_of_le_add_left ceilDiv_apply f_le
+  }
+
+  intro k n hn
+
+  suffices add_b : T (n + b) ≤ a ^ k n * T (n / b ^ k n + b) + 
+      ((2 * C * 2^(d-1) * b^d) * GeometricSum (K := ℝ) (↑a / ↑b^d) 
+      (k n - 1)) * Nat.cast (R := ℝ) n^d by {
+    rw [← Nat.cast_le (α := ℝ)]
+    push_cast
+    apply le_trans add_b (add_le_add _ _)
+    . rw [mul_le_mul_left, Nat.cast_le, ← Nat.floorDiv_eq_div]
+      apply self.T_monotone
+      . trivial
+      . norm_cast
+        exact pow_pos self.a_pos (k n)
+    . apply mul_le_mul
+      . apply mul_le_mul
+        . apply Nat.le_ceil
+        . apply Nat.le_ceil
+        . apply le_of_lt
           apply GeometricSum.pos_of_pos
           apply div_pos
           . norm_cast
@@ -348,122 +386,72 @@ lemma self_subst (self : MasterRecurrence T a b n₀ f d) :
           . apply Real.rpow_pos_of_pos
             norm_cast
             exact self.b_pos
-      })
-      apply asymp_le_refl
-    },
-    T_monotone := by {
-      intro x y x_le_y
-      exact self.T_monotone (add_le_add x_le_y (le_refl b))
-    }
-    T_rec := by {
-      intro n hn
-      have n_pos := le_trans (mul_pos self.n₀_pos (pow_pos self.b_pos k)) hn
-
-      generalize S_def : (fun n ↦ T (n + b)) = S
-      have S_apply : ∀ (n : ℕ), T (n + b) = S n := by {
-        intro n
-        rw [← S_def]
-      }
-
-      have f_poly₂ : ∀ n > 0, f n ≤ ↑(C₁ * 2 * C₀) * Nat.cast (R := ℝ) n^d := by {
-        intro n' n'_pos
-        have one_le_n'_pow : 1 ≤ Nat.cast (R := ℝ) n' ^ d := by {
-          apply Real.one_le_rpow <;> norm_cast
-          linarith [self.one_le_d]
-        }
-        rw [Nat.cast_mul, Nat.cast_mul, Nat.cast_two]
-
-        specialize f_poly₁ n' n'_pos
-        rw [← Nat.cast_le (α := ℝ), Nat.cast_mul] at f_poly₁
-        rw [mul_assoc (Nat.cast (R := ℝ) C₁), mul_assoc]
-        apply le_trans' ((mul_le_mul_left (by norm_cast)).2 _) f_poly₁
-        simp
-        rw [mul_comm 2, mul_assoc, mul_le_mul_left] <;> norm_cast
-        apply Nat.ceil_le_two_mul
+        . apply Nat.cast_nonneg
+      . apply Nat.le_ceil
+      . apply Real.rpow_nonneg
+        norm_cast
         linarith
-      }
-
-      have rec_apply : ∀ n ≥ n₀, S n ≤ a * S (n / b) + 
-          C₁ * 2 * C₀ * (2 : ℝ)^(d-1) * b^d * Nat.cast (R := ℝ) n^d := by {
-        intro n n₀_le_n 
-        have n_gt_one : n > 1 := lt_of_lt_of_le self.one_lt_n₀ n₀_le_n
-        have ceilDiv_apply := self.T_rec (n + b) (le_add_right n₀_le_n) 
-        have ceilDiv_le : a * T ((n + b) ⌈/⌉ b) ≤ a * T ((n + b) / b + 1) := by {
-          apply Nat.mul_le_mul_left
-          apply self.T_monotone
-          exact Nat.ceilDiv_le_div_succ self.b_pos
-        }
-
-        apply flip le_add_of_le_add_right ceilDiv_le at ceilDiv_apply
-        rw [Nat.add_div self.b_pos, Nat.div_self self.b_pos] at ceilDiv_apply
-        split_ifs at ceilDiv_apply with hrec_mod <;> simp at hrec_mod
-        . contrapose hrec_mod
-          intro hmod
-          have hcontra := Nat.mod_lt n self.b_pos
-          linarith
-        . simp at ceilDiv_apply
-          rw [add_assoc, one_add_one_eq_two] at ceilDiv_apply
-          have rec_T_le_n_add_b : a * T (n / b + 2) ≤ a * T (n / b + b) := by {
-            apply Nat.mul_le_mul_left
-            apply self.T_monotone
-            apply add_le_add_left self.one_lt_b
-          }
-          apply flip le_add_of_le_add_right rec_T_le_n_add_b at ceilDiv_apply
-          rw [S_apply, S_apply, ← Nat.cast_le (α := ℝ), Nat.cast_add,
-              Nat.cast_mul] at ceilDiv_apply
-          
-          have C_mul_two_pos : C₁ * 2 * C₀ > 0 := by {
-            apply mul_pos <;> linarith
-          }
-          have f_le := f_of_add_b_poly self.one_le_d C_mul_two_pos 
-            self.one_lt_b f_poly₂ n_gt_one
-          push_cast at f_le
-          exact le_add_of_le_add_left ceilDiv_apply f_le
-      }
-
-      suffices add_b : T (n + b) ≤ a ^ k * T (n / b ^ k + b) + 
-          ((C₁ * 2 * C₀ * 2^(d-1) * b^d) * GeometricSum (K := ℝ) (↑a / ↑b^d) 
-          (k - 1)) * Nat.cast (R := ℝ) n^d by {
-        rw [← Nat.cast_le (α := ℝ)]
-        push_cast
-        apply le_trans add_b (add_le_add _ _)
-        . rw [mul_le_mul_left, Nat.cast_le, ← Nat.floorDiv_eq_div]
-          apply self.T_monotone
-          apply add_le_add_right floorDiv_le_ceilDiv
-          norm_cast
-          exact pow_pos self.a_pos k
-        . apply mul_le_mul
-          . apply mul_le_mul
-            . apply Nat.le_ceil
-            . apply Nat.le_ceil
-            . apply le_of_lt
-              apply GeometricSum.pos_of_pos
-              apply div_pos
-              . norm_cast
-                exact self.a_pos
-              . apply Real.rpow_pos_of_pos
-                norm_cast
-                exact self.b_pos
-            . apply Nat.cast_nonneg
-          . apply Nat.le_ceil
-          . apply Real.rpow_nonneg
-            norm_cast
-            linarith
-          . apply mul_nonneg 
-            all_goals apply Nat.cast_nonneg
-      }
-
-      rw [S_apply, S_apply]
-      exact formula_subst self.a_pos self.one_lt_b hn const_pos 
-                          self.one_le_d rec_apply
-    }
+      . apply mul_nonneg 
+        all_goals apply Nat.cast_nonneg
   }
 
+  rw [S_apply, S_apply]
+  exact formula_subst self.a_pos self.one_lt_b const_pos 
+                      self.one_le_d rec_apply hn
+
+private lemma k_subst' (self : MasterRecurrence T a b n₀ f d) {g : ℕ → ℕ}
+    (hg_poly_bound : g ∈ Ω ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊): 
+    ∃ C > 0, ∀ k > 0, ∃ N ≥ n₀ * b^k, ∀ n ≥ N, 
+      T (n + b) ≥ a^k * (T ∘ flip Add.add b) (n / b^k) + 
+                  C * ⌈GeometricSum (K := ℝ) (a/b^d) (k - 1)⌉₊ * 
+                  ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
+  obtain ⟨C, C_pos, g_poly₀⟩ := exists_pos_smul_asymp_ge_iff_Ω.2 hg_poly_bound
+  have ceil_poly_pos : ∀ n > 0, 0 < C * ⌈Nat.cast (R := ℝ) n ^ d⌉₊ := by {
+    intro n n_pos
+    apply mul_pos C_pos
+    rw [Nat.ceil_pos]
+    apply Real.rpow_pos_of_pos
+    norm_cast
+  }
+  rcases g_poly₀ with ⟨N, g_poly₁⟩
+  use 1
+  apply And.intro one_pos
+  intro k k_pos
+
+  generalize M_def : N ⊔ n₀ = M
+  have M_ge_N : M ≥ N := by {
+    rw [← M_def]
+    apply le_max_left
+  }
+  have M_ge_n₀ : M ≥ n₀ := by {
+    rw [← M_def]
+    apply le_max_right
+  }
+  have one_lt_M : 1 < M := by linarith [self.one_lt_n₀]
+  have one_lt_b_pow : 1 < b^k := by {
+    apply one_lt_pow₀ <;> linarith [self.one_lt_b]
+  }
+  have M_mul_ge : M * b^k ≥ n₀ * b^k := by
+    rw [ge_iff_le, mul_le_mul_right] <;> linarith
+  have M_mul_ge_M : M * b^k ≥ M := by
+    rw [ge_iff_le, le_mul_iff_one_le_right] <;> linarith
+  have one_lt_M_mul : 1 < M * b^k := by {
+    apply one_lt_mul <;> linarith
+  }
+
+  use M * b^k
+  apply And.intro M_mul_ge
+  sorry
+
+
 private lemma O_rec (self : MasterRecurrence T a b n₀ f d) : 
-    T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n ^ 
-      (Real.logb b a)⌉₊ + ⌈GeometricSum (K := ℝ) (↑a / ↑b^d) 
-      (⌈Real.logb b n⌉₊ - 1)⌉₊ * ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
-  obtain ⟨C, C_pos, subst_master⟩ := self.self_subst
+    T ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n ^ (Real.logb b a)⌉₊ 
+      + ⌈GeometricSum (K := ℝ) (↑a / ↑b^d) (⌈Real.logb b n⌉₊ - 1)⌉₊ 
+      * ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
+  obtain ⟨C, C_pos, N, N_ge, subst_master⟩ := self.k_subst
+  generalize k_def : (fun n : ℕ ↦ ⌊Real.logb ↑b (↑n / ↑N)⌋₊) = k
+  specialize subst_master k
+
   have T_of_add_b_asymp_le : AsympLE T (fun n ↦ T (n + b)) := by {
     use 0
     intro n hn
@@ -473,38 +461,39 @@ private lemma O_rec (self : MasterRecurrence T a b n₀ f d) :
   }
   apply O_trans (O_of_asymp_le T_of_add_b_asymp_le)
 
-  have n₀_le_n {n : ℕ} : n ≥ n₀ * b → n ≥ n₀ := by {
-    intro hn
-    apply le_of_mul_le_of_one_le hn <;> linarith [self.one_lt_b]
+  have N_le_mul_b : N ≤ N * b := by {
+    apply le_mul_of_one_le_right <;> linarith [self.one_lt_b]
   }
-  have one_le_cast_n_div_n₀ {n : ℕ} : 
-      n ≥ n₀ → 1 ≤ Nat.cast (R := ℝ) n / ↑n₀ := by {
-    intro hn
+  have n_ge_N {n : ℕ} (hn : n ≥ N * b) : n ≥ N := by linarith
+  have one_le_cast_n_div_N {n : ℕ} (hn : n ≥ N) : 
+      1 ≤ Nat.cast (R := ℝ) n / ↑N := by {
     rw [one_le_div] <;> norm_cast
-    exact self.n₀_pos
+    linarith [self.one_lt_n₀]
   }
-  have cast_n_div_n₀_pos {n : ℕ} : 
-      n ≥ n₀ → 0 < Nat.cast (R := ℝ) n / ↑n₀ := by {
-    intro hn
-    apply one_le_cast_n_div_n₀ at hn
+  have cast_n_div_N_pos {n : ℕ} (hn : n ≥ N) : 
+      0 < Nat.cast (R := ℝ) n / ↑N := by {
+    apply one_le_cast_n_div_N at hn
     linarith
   }
 
-  generalize k_def : (fun n ↦ ⌊Real.logb b (n / n₀)⌋₊) = k
-  have k_pos {n : ℕ} : n ≥ n₀ * b → 0 < k n := by {
-    intro hn
+  have k_pos {n : ℕ} (hn : n ≥ N * b) : 0 < k n := by {
     rw [← k_def]
     rw [Nat.floor_pos, ← Real.logb_self_eq_one, Real.logb_le_logb]
     apply le_trans' Nat.cast_div_le
     all_goals norm_cast
     rw [Nat.le_div_iff_mul_le, mul_comm]
 
-    case _ : 0 < (Nat.cast (R := ℝ)) n / n₀ := cast_n_div_n₀_pos (n₀_le_n hn)
+    case _ : 0 < (Nat.cast (R := ℝ)) n / ↑N := cast_n_div_N_pos (n_ge_N hn)
     all_goals linarith [self.one_lt_b, self.one_lt_n₀]
   }
 
-  have subst_rec (n : ℕ) (hn : n ≥ n₀ * b) :=
-      (subst_master (k n) (k_pos hn)).T_rec n (by {
+  have subst_rec : ∀ n ≥ N, T (n + b) ≤ a^(k n) * 
+      (T ∘ flip Add.add b) (n / b ^ (k n)) + 
+      C * ⌈GeometricSum (K := ℝ) (↑a / ↑b ^ d) (k n - 1)⌉₊ * 
+      ⌈Nat.cast (R := ℝ) n ^ d⌉₊ := by {
+    intro n hn
+
+    apply subst_master n
     rw [← k_def, ge_iff_le, ← Nat.cast_le (α := ℝ), Nat.cast_mul, mul_comm]
     apply mul_le_of_le_div₀ <;> norm_cast
     repeat apply zero_le
@@ -513,20 +502,23 @@ private lemma O_rec (self : MasterRecurrence T a b n₀ f d) :
     apply le_trans ((Real.rpow_le_rpow_left_iff _).2 (Nat.floor_le _))
     all_goals norm_cast
     . rw [Real.rpow_logb] <;> norm_cast
-      all_goals linarith [self.one_lt_b, cast_n_div_n₀_pos (n₀_le_n hn)]
+      case _ : 0 < Nat.cast (R := ℝ) n / ↑N => (
+        apply div_pos <;> norm_cast <;> linarith [self.one_lt_n₀]
+      )
+      all_goals linarith [self.one_lt_b, self.one_lt_n₀]
     . linarith [self.one_lt_b]
     . apply Real.logb_nonneg
       . norm_cast
         linarith [self.one_lt_b]
       . rw [one_le_div] <;> norm_cast
-        apply le_of_mul_le_of_one_le_left (b := b)
-        all_goals linarith [self.one_lt_n₀, self.one_lt_b]
-  })
+        linarith [self.one_lt_n₀]
+  }
+
   apply O_trans (O_of_asymp_le (asymp_le_of_le_of_forall_ge subst_rec))
   apply O_add
-  . use C * (T ((n₀ + 1) * b + 1) + 1)
+  . use C * (T ((N + 1) * b + 1) + 1)
     apply And.intro (mul_pos C_pos (Nat.add_one_pos _))
-    apply asymp_le_of_le_of_forall_ge (N := n₀ * b)
+    apply asymp_le_of_le_of_forall_ge (N := N)
     intro n hn
     rw [mul_add, add_smul]
     apply le_add_of_le_left
@@ -534,41 +526,35 @@ private lemma O_rec (self : MasterRecurrence T a b n₀ f d) :
     apply le_add_of_le_left
     simp
     rw [mul_comm]
-    specialize n₀_le_n hn
-    specialize one_le_cast_n_div_n₀ n₀_le_n
+    specialize cast_n_div_N_pos hn 
+    specialize one_le_cast_n_div_N hn
 
     apply mul_le_mul
     . apply le_trans' (le_mul_of_one_le_left _ _)
       apply self.T_monotone
       rw [← k_def, add_mul, one_mul, add_assoc, add_comm b, ← add_assoc]
       apply add_le_add_right
-      apply le_trans (Nat.ceilDiv_le_div_succ (pow_pos self.b_pos _))
-      apply add_le_add_right
+      apply le_add_right
       simp
       rw [← Nat.cast_le (α := ℝ), Real.logb_div]
       apply le_trans Nat.cast_div_le
       push_cast
       rw [← Real.rpow_logb (b := b) (x := n), ← Real.rpow_natCast, 
           ← Real.rpow_sub, Real.rpow_logb, ← Real.rpow_one b, 
-          ← Real.rpow_logb (b := b) (x := n₀), ← Real.rpow_add, 
+          ← Real.rpow_logb (b := b) (x := N), ← Real.rpow_add, 
           Real.rpow_one b, Real.rpow_logb, Real.rpow_le_rpow_left_iff]
-      have le_log_sub : Real.logb b n - Real.logb b n₀ -1 ≤ 
-                        ⌊Real.logb b n - Real.logb b n₀⌋₊ := by {
-        rw [sub_le_iff_le_add', add_comm]
-        apply le_trans (Nat.le_ceil _)
-        norm_cast
-        apply Nat.ceil_le_floor_add_one
-      }
-      apply le_trans (sub_le_sub_left le_log_sub _)
+      rw [sub_le_iff_le_add', add_left_comm, ← sub_le_iff_le_add']
+      apply le_trans (Nat.le_ceil _)
+      norm_cast
+      apply Nat.ceil_le_floor_add_one
       all_goals norm_cast
       all_goals linarith [self.one_lt_b, self.one_lt_n₀]
     . rw [← k_def, ← Nat.cast_le (α := ℝ), Nat.cast_pow, ← Real.rpow_natCast]
       apply le_trans' (Nat.le_ceil _)
       rw [← Real.rpow_logb (b := b) (x := Nat.cast (R := ℝ) n),
-          ← Real.rpow_mul, mul_comm, Real.rpow_mul, Real.rpow_logb, 
-          Real.rpow_logb]
+          ← Real.rpow_mul, mul_comm, Real.rpow_mul, Real.rpow_logb]
       apply Real.rpow_le_rpow_of_exponent_le
-      case _ : Nat.cast (R := ℝ) ⌊_⌋₊ ≤ _ => (
+      case _ : Nat.cast (R := ℝ) ⌊Real.logb _ _⌋₊ ≤ Real.logb _ _ => (
         apply le_trans (Nat.floor_le (Real.logb_nonneg _ _))
         rw [Real.logb_le_logb]
         apply div_le_self
@@ -580,11 +566,10 @@ private lemma O_rec (self : MasterRecurrence T a b n₀ f d) :
     all_goals apply zero_le
   . use C
     apply And.intro C_pos
-    apply asymp_le_of_le_of_forall_ge (N := n₀ * b)
+    apply asymp_le_of_le_of_forall_ge (N := N)
     intro n hn
-    specialize n₀_le_n hn
-    specialize one_le_cast_n_div_n₀ n₀_le_n
-    specialize cast_n_div_n₀_pos n₀_le_n
+    specialize cast_n_div_N_pos hn 
+    specialize one_le_cast_n_div_N hn
 
     rw [smul_add]
     apply le_add_of_le_right
@@ -610,6 +595,13 @@ private lemma O_rec (self : MasterRecurrence T a b n₀ f d) :
       apply Real.rpow_pos_of_pos
       norm_cast
       linarith [self.one_lt_n₀]
+
+private lemma Ω_rec (self : MasterRecurrence T a b n₀ f d) : 
+    T ∈ Ω ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n ^ (Real.logb b a)⌉₊ 
+      + ⌈GeometricSum (K := ℝ) (↑a / ↑b^d) (⌈Real.logb b n⌉₊ - 1)⌉₊ 
+      * ⌈Nat.cast (R := ℝ) n^d⌉₊ := by
+  sorry
+
 
 theorem O_of_lt (self : MasterRecurrence T a b n₀ f d)
     (hlt : a < Nat.cast (R := ℝ) b^d) : 
