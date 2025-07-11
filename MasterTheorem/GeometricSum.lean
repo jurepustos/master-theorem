@@ -28,6 +28,15 @@ lemma pos_of_pos [LinearOrder K] [IsStrictOrderedRing K]
   }
   | succ k hk => exact add_pos (pow_pos hx k.succ) hk
 
+lemma nonneg_of_nonneg [LinearOrder K] [IsStrictOrderedRing K]
+    {x : K} (hx : x ≥ 0) (n : ℕ) : GeometricSum x n ≥ 0 := by
+  induction n with
+  | zero => {
+    rw [GeometricSum.def_zero]
+    linarith
+  }
+  | succ k hk => exact add_nonneg (pow_nonneg hx k.succ) hk
+
 @[simp]
 theorem base_eq_one (n : ℕ) : GeometricSum (1 : K) n = ↑n + 1 := by
   induction n with
