@@ -53,11 +53,10 @@ lemma asymp_bounded_above_of_right_dom [IsStrictOrderedRing γ]
 
 lemma asymp_bounded_below_of_left_dom [IsStrictOrderedRing γ] 
     (h : AsympLeftDom γ f g) : AsympBoundedBelow γ f g := by
-  specialize h 1
   use 1
   constructor
   . exact one_pos
-  . exact h one_pos
+  . exact h 1 one_pos
 
 lemma asymp_bounded_iff : AsympBoundedAbove γ f g ∧ AsympBoundedBelow γ f g ↔ AsympBounded γ f g := by
   constructor <;> (
