@@ -245,7 +245,7 @@ section OfAsympLE
 
 variable [LinearOrder α] [Preorder β] [PartialOrder γ] 
   [γ_monoid : MonoidWithZero γ] [MulAction γ β] [ZeroLEOneClass γ] 
-  [@NeZero γ γ_monoid.toZero γ_monoid.one] {f : α → β}
+  [NeZero (1 : γ)] {f : α → β}
 
 lemma asymp_bounded_above_of_asymp_le {g : α → β} (hle : AsympLE f g) :
     AsympBoundedAbove γ f g := by
