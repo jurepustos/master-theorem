@@ -22,23 +22,23 @@ where
   /-T is monotone -/
   T_monotone : Monotone T
 
-structure LowerMasterRec (T : ℕ → ℕ) (a b n₀ : ℕ) (f : ℕ → ℕ) (d : ℝ) 
-    extends MasterRecBase T a b n₀ f d where
-  /- f is polynomially bounded above -/
-  f_lower_poly : Nat.cast ∘ f ∈ O ℝ fun n ↦ Nat.cast (R := ℝ) n^d
-  /- The recurrence formula -/
-  T_lower_rec : ∀ n ≥ n₀, T n ≤ a * T (n ⌈/⌉ b) + f n
-
 structure UpperMasterRec (T : ℕ → ℕ) (a b n₀ : ℕ) (f : ℕ → ℕ) (d : ℝ) 
     extends MasterRecBase T a b n₀ f d where
   /- f is polynomially bounded above -/
-  f_upper_poly : Nat.cast ∘ f ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n^d
+  f_upper_poly : Nat.cast ∘ f ∈ O ℝ fun n ↦ Nat.cast (R := ℝ) n^d
   /- The recurrence formula -/
-  T_upper_rec : ∀ n ≥ n₀, T n ≥ a * T (n / b) + f n
+  T_upper_rec : ∀ n ≥ n₀, T n ≤ a * T (n ⌈/⌉ b) + f n
+
+structure LowerMasterRec (T : ℕ → ℕ) (a b n₀ : ℕ) (f : ℕ → ℕ) (d : ℝ) 
+    extends MasterRecBase T a b n₀ f d where
+  /- f is polynomially bounded above -/
+  f_lower_poly : Nat.cast ∘ f ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n^d
+  /- The recurrence formula -/
+  T_lower_rec : ∀ n ≥ n₀, T n ≥ a * T (n / b) + f n
 
 structure MasterRec (T : ℕ → ℕ) (a b n₀ : ℕ) (f : ℕ → ℕ) (d : ℝ)
-  extends LowerMasterRec T a b n₀ f d, 
-          UpperMasterRec T a b n₀ f d
+  extends UpperMasterRec T a b n₀ f d, 
+          LowerMasterRec T a b n₀ f d
 
 
 private lemma add_poly {b n : ℕ} {d : ℝ} (hd : d ≥ 1) 
@@ -101,7 +101,7 @@ private lemma b_pos (self: MasterRecBase T a b n₀ f d) : b > 0 :=
 end MasterRecBase
 
 
-namespace LowerMasterRec
+namespace UpperMasterRec
 
 
 private lemma formula_subst_once {k n : ℕ} {C : ℝ}
@@ -180,12 +180,12 @@ private theorem formula_subst {k : ℕ → ℕ} {C : ℝ}
     apply Real.rpow_le_rpow (Nat.cast_nonneg _) Nat.cast_div_le
     linarith
 
-private lemma k_subst (self : LowerMasterRec T a b n₀ f d) : 
+private lemma k_subst (self : UpperMasterRec T a b n₀ f d) : 
     ∃ C > 0, ∃ N ≥ n₀, ∀ {k : ℕ → ℕ}, ∀ {n : ℕ}, n ≥ N * b^k n →
       ↑(T (n + b)) ≤ ↑a^k n * ↑(T (n / b^k n + b)) + 
                      C * GeometricSum (K := ℝ) (a/b^d) (k n - 1) * ↑n^d := by
   obtain ⟨C, C_pos, N, f_poly₁⟩ := 
-    exists_pos_smul_asymp_le_iff_O.2 self.f_lower_poly
+    exists_pos_smul_asymp_le_iff_O.2 self.f_upper_poly
 
   have const_pos : 0 < C * 2^(d-1) * ↑b^d := by {
     repeat' apply mul_pos <;> norm_cast
@@ -230,7 +230,7 @@ private lemma k_subst (self : LowerMasterRec T a b n₀ f d) :
                                   Nat.cast (R := ℝ) n^d := by {
     intro n n_ge_M
     have n_gt_one : n > 1 := by linarith
-    have ceilDiv_apply := self.T_lower_rec (n + b) (le_add_right (by linarith))
+    have ceilDiv_apply := self.T_upper_rec (n + b) (le_add_right (by linarith))
     have ceilDiv_le : a * T ((n + b) ⌈/⌉ b) ≤ a * T ((n + b) / b + 1) := by {
       apply Nat.mul_le_mul_left
       apply self.T_monotone
@@ -269,7 +269,7 @@ private lemma k_subst (self : LowerMasterRec T a b n₀ f d) :
   exact formula_subst self.a_pos self.one_lt_b const_pos 
                       self.one_le_d rec_apply hn
 
-private lemma O_rec (self : LowerMasterRec T a b n₀ f d) : 
+private lemma O_rec (self : UpperMasterRec T a b n₀ f d) : 
     Nat.cast ∘ T ∈ O ℝ fun n ↦ Nat.cast (R := ℝ) n ^ (Real.logb b a) +
                     GeometricSum (K := ℝ) (↑a / ↑b^d) (⌊Real.logb b n⌋₊ - 1) *
                     Nat.cast (R := ℝ) n^d := by
@@ -462,7 +462,7 @@ private lemma O_rec (self : LowerMasterRec T a b n₀ f d) :
     . apply Real.rpow_nonneg
       linarith
 
-theorem O_of_lt (self : LowerMasterRec T a b n₀ f d)
+theorem O_of_lt (self : UpperMasterRec T a b n₀ f d)
     (hlt : a < Nat.cast (R := ℝ) b^d) : 
     Nat.cast ∘ T ∈ O ℝ fun n ↦ Nat.cast (R := ℝ) n^d := by
   apply O_trans self.O_rec
@@ -502,7 +502,7 @@ theorem O_of_lt (self : LowerMasterRec T a b n₀ f d)
       linarith
     . linarith
 
-theorem O_of_eq (self : LowerMasterRec T a b n₀ f d)
+theorem O_of_eq (self : UpperMasterRec T a b n₀ f d)
     (heq : ↑a = Nat.cast (R := ℝ) b^d) : 
     Nat.cast ∘ T ∈ O ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
   apply O_trans self.O_rec
@@ -557,7 +557,7 @@ theorem O_of_eq (self : LowerMasterRec T a b n₀ f d)
     apply O_trans (O_of_asymp_le (asymp_le_of_le_of_forall_ge geom_indep))
     apply O_refl
 
-theorem O_of_gt (self : LowerMasterRec T a b n₀ f d)
+theorem O_of_gt (self : UpperMasterRec T a b n₀ f d)
     (hgt : ↑a > Nat.cast (R := ℝ) b^d) : 
     Nat.cast ∘ T ∈ O ℝ fun n ↦ Nat.cast (R := ℝ) n^Real.logb b a := by
   apply O_trans self.O_rec
@@ -652,10 +652,10 @@ theorem O_of_gt (self : LowerMasterRec T a b n₀ f d)
     rw [gt_iff_lt, one_div_pos]
     linarith
 
-end LowerMasterRec
+end UpperMasterRec
 
 
-namespace UpperMasterRec
+namespace LowerMasterRec
 
 
 private lemma formula_subst_once {k n : ℕ} {C : ℝ}
@@ -782,12 +782,12 @@ private theorem formula_subst {C : ℝ} (ha : a > 0) (hb : b > 1)
           linarith [pow_le_pow_left' (le_max_right n₀ b) (x + 1)]
     all_goals linarith
 
-private lemma k_subst (self : UpperMasterRec T a b n₀ f d) :
+private lemma k_subst (self : LowerMasterRec T a b n₀ f d) :
     ∃ C > 0, ∃ N ≥ n₀, ∀ {k : ℕ → ℕ}, ∀ {n : ℕ}, k n > 0 → n ≥ (N ⊔ b)^k n →
     ↑(T n) ≥ ↑a^k n * ↑(T (n / b^k n)) + 
              C * GeometricSum (K := ℝ) (↑a / ↑b^d) (k n - 1) * n^d := by
   obtain ⟨C, C_pos, N, g_poly₁⟩ := 
-    exists_pos_smul_asymp_ge_iff_Ω.2 self.f_upper_poly
+    exists_pos_smul_asymp_ge_iff_Ω.2 self.f_lower_poly
 
   generalize M_def : N ⊔ n₀ = M
   have M_ge_N : M ≥ N := by {
@@ -811,7 +811,7 @@ private lemma k_subst (self : UpperMasterRec T a b n₀ f d) :
     intro n hn
     apply flip add_le_of_add_le_left (f_poly₂ n hn)
     norm_cast
-    apply self.T_upper_rec n
+    apply self.T_lower_rec n
     linarith
   }
 
@@ -829,7 +829,7 @@ private lemma k_subst (self : UpperMasterRec T a b n₀ f d) :
                                    self.one_le_d rec_apply hk hn
   linarith
 
-lemma Ω_rec (self : UpperMasterRec T a b n₀ f d) :
+lemma Ω_rec (self : LowerMasterRec T a b n₀ f d) :
     ∃ c ≥ b, Nat.cast ∘ T ∈ Ω ℝ fun n : ℕ ↦ GeometricSum (K := ℝ) (↑a / ↑b^d) 
                                               (⌊Real.logb ↑c ↑n⌋₊ - 1) *
                                             Nat.cast (R := ℝ) n^d := by
@@ -894,7 +894,29 @@ lemma Ω_rec (self : UpperMasterRec T a b n₀ f d) :
       linarith
     . linarith
 
-theorem Ω_of_eq (self : UpperMasterRec T a b n₀ f d)  
+theorem Ω_pow_d (self : LowerMasterRec T a b n₀ f d) :
+    Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n^d := by
+  rw [← exists_pos_smul_asymp_ge_iff_Ω]
+  rcases self.f_lower_poly with ⟨C, C_pos, N, f_poly⟩
+
+  use C
+  apply And.intro C_pos
+  apply asymp_ge_of_ge_of_forall_ge (N := N ⊔ n₀)
+
+  intro n hn
+  have n_ge_N : n ≥ N := by linarith [le_max_left N n₀]
+  have n_ge_n₀ : n ≥ n₀ := by linarith [le_max_right N n₀]
+  specialize f_poly n (by linarith)
+
+  simp
+  apply le_trans' (Nat.cast_le.2 (self.T_lower_rec n n_ge_n₀))
+  push_cast
+  apply le_add_of_le_add_right (b := 0)
+  . simp
+    exact f_poly
+  . apply mul_nonneg <;> linarith
+
+theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)  
     (heq : a = Nat.cast (R := ℝ) b^d) :
     Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
   rcases self.Ω_rec with ⟨c, c_ge_b, Ω_poly⟩
@@ -968,19 +990,32 @@ theorem Ω_of_eq (self : UpperMasterRec T a b n₀ f d)
 
   all_goals (norm_cast <;> linarith [self.one_lt_b])
 
-end UpperMasterRec
+theorem Ω_of_gt (self : LowerMasterRec T a b n₀ f d)  
+    (heq : ↑a > Nat.cast (R := ℝ) b^d) :
+    Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n ^ Real.logb b a := by
+  sorry
+
+end LowerMasterRec
 
 
 namespace MasterRec
 
 
+theorem Θ_of_lt (self : MasterRec T a b n₀ f d)  
+    (hlt : ↑a < Nat.cast (R := ℝ) b^d) :
+    Nat.cast ∘ T ∈ Θ ℝ fun n ↦ Nat.cast (R := ℝ) n^d := by
+  rw [← O_Ω_iff_Θ]
+  constructor
+  . exact self.toUpperMasterRec.O_of_lt hlt
+  . exact self.toLowerMasterRec.Ω_pow_d
+
 theorem Θ_of_eq (self : MasterRec T a b n₀ f d)  
-    (heq : a = Nat.cast (R := ℝ) b^d) :
+    (heq : ↑a = Nat.cast (R := ℝ) b^d) :
     Nat.cast ∘ T ∈ Θ ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
   rw [← O_Ω_iff_Θ]
   constructor
-  . exact self.toLowerMasterRec.O_of_eq heq
-  . exact self.toUpperMasterRec.Ω_of_eq heq
+  . exact self.toUpperMasterRec.O_of_eq heq
+  . exact self.toLowerMasterRec.Ω_of_eq heq
 
 end MasterRec
 
