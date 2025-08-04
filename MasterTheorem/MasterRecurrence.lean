@@ -618,7 +618,7 @@ private lemma O_rec (self : MasterRecurrence T a b n₀ f d) :
 lemma Ω_rec (self : MasterRecurrence T a b n₀ f d) {g : ℕ → ℕ} 
     (hg_poly : Nat.cast ∘ g ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n^d) 
     (hrec : ∀ n ≥ n₀, T n ≥ a * T (n / b) + g n) : 
-    ∃ c : ℕ, Nat.cast ∘ T ∈ Ω ℝ fun n : ℕ ↦ GeometricSum (K := ℝ) (↑a / ↑b^d) 
+    ∃ c ≥ b, Nat.cast ∘ T ∈ Ω ℝ fun n : ℕ ↦ GeometricSum (K := ℝ) (↑a / ↑b^d) 
                                               (⌊Real.logb ↑c ↑n⌋₊ - 1) *
                                             Nat.cast (R := ℝ) n^d := by
   obtain ⟨C, C_pos, N, N_ge, subst_master⟩ := self.k_subst' hg_poly hrec
@@ -661,6 +661,7 @@ lemma Ω_rec (self : MasterRecurrence T a b n₀ f d) {g : ℕ → ℕ}
   }
 
   use N ⊔ b
+  apply And.intro (le_max_right N b)
 
   apply Ω_trans (Ω_of_asymp_ge (asymp_ge_of_ge_of_forall_ge subst_rec))
   rw [← exists_pos_smul_asymp_ge_iff_Ω]
@@ -776,14 +777,90 @@ theorem O_of_eq (self : MasterRecurrence T a b n₀ f d)
     apply O_trans (O_of_asymp_le (asymp_le_of_le_of_forall_ge geom_indep))
     apply O_refl
 
+theorem Ω_of_eq_of_rec_of_Ω (self : MasterRecurrence T a b n₀ f d)  
+    (heq : a = Nat.cast (R := ℝ) b^d) {g : ℕ → ℕ}
+    (hg : Nat.cast ∘ g ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n^d)
+    (hrec : ∀ n ≥ n₀, T n ≥ a * T (n / b) + g n) :
+    Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
+  obtain ⟨c, c_ge_b, Ω_poly⟩ := self.Ω_rec hg hrec
+  apply Ω_trans Ω_poly
+  rw [← exists_pos_smul_asymp_ge_iff_Ω]
+
+  use 1 / 2 * Real.logb c b
+  have one_lt_c : 1 < c := by linarith [self.one_lt_b]
+  apply And.intro (by {
+    apply mul_pos
+    . linarith
+    . apply Real.logb_pos <;> norm_cast 
+      exact self.one_lt_b
+  }) 
+  apply asymp_ge_of_ge_of_forall_ge (N := c^2)
+  intro n hn
+
+  have c_sq_pos : 0 < c ^ 2 := by {
+    apply pow_pos
+    linarith
+  }
+  have n_pos : 0 < n := by linarith
+  have n_sq_pos : 0 < n ^ 2 := by {
+    apply pow_pos
+    linarith
+  }
+  have n_pow_d_pos : 0 < Nat.cast (R := ℝ) n ^ d := by {
+    apply Real.rpow_pos_of_pos
+    norm_cast
+  }
+  have b_pow_d_pos : 0 < Nat.cast (R := ℝ) b ^ d := by {
+    apply Real.rpow_pos_of_pos
+    norm_cast
+    exact self.b_pos
+  }
+  have natLog_n_pos : 0 < Nat.log c n := by {
+    apply Nat.log_pos one_lt_c
+    rw [← pow_one c]
+    apply le_trans (pow_le_pow_right₀ _ one_le_two) hn
+    linarith
+  }
+  have c_pow_logb_nonneg : 
+      0 ≤ Nat.cast (R := ℝ) c ^ (Real.logb ↑c ↑n - 1) := by {
+    apply Real.rpow_nonneg
+    linarith
+  }
+
+  rw [heq, div_self, GeometricSum.base_eq_one]
+  norm_cast
+  rw [Nat.sub_one_add_one]
+  simp
+  rw [← mul_assoc, mul_le_mul_right, mul_assoc, Real.mul_logb]
+
+  apply le_trans ((mul_le_mul_left _).2 (Nat.le_ceil _))
+  rw [inv_mul_le_iff₀]
+  norm_cast
+  rw [← Nat.le_pow_iff_clog_le, mul_comm, pow_mul,
+      ← Real.natFloor_logb_natCast]
+  rw [← Nat.cast_le (α := ℝ), Nat.cast_pow, Nat.cast_pow,
+      ← Real.rpow_natCast (n := ⌊_⌋₊)]
+  apply le_trans' (pow_le_pow_left₀ _ 
+                  (Real.rpow_le_rpow_of_exponent_le _ 
+                  (le_of_lt (Nat.sub_one_lt_floor _))) _)
+  rw [Real.rpow_sub, Real.rpow_logb]
+  simp
+  rw [div_pow]
+  have hn' : Nat.cast (R := ℝ) n ≥ ↑c^2 := by norm_cast
+  apply le_trans' ((div_le_div_iff_of_pos_left _ _ _).2 hn')
+  rw [div_eq_mul_inv, pow_two, mul_assoc, mul_inv_cancel₀, mul_one]
+
+  all_goals (norm_cast <;> linarith [self.one_lt_b])
+
 theorem Θ_of_eq_of_rec_of_Ω (self : MasterRecurrence T a b n₀ f d)  
     (heq : a = Nat.cast (R := ℝ) b^d) {g : ℕ → ℕ}
-    (hg : g ∈ O ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d⌉₊)
-    (hrec : ∀ n ≥ n₀, T n ≥ a * T (n ⌈/⌉ b) + g n) :
-    T ∈ Θ ℕ fun n ↦ ⌈Nat.cast (R := ℝ) n^d * Real.logb b n⌉₊ := by
+    (hg : Nat.cast ∘ g ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n^d)
+    (hrec : ∀ n ≥ n₀, T n ≥ a * T (n / b) + g n) :
+    Nat.cast ∘ T ∈ Θ ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
   rw [← O_Ω_iff_Θ]
-  rcases hg with ⟨C, C_pos, N, g_poly⟩
-  sorry
+  constructor
+  . exact self.O_of_eq heq
+  . exact self.Ω_of_eq_of_rec_of_Ω heq hg hrec
 
 theorem O_of_gt (self : MasterRecurrence T a b n₀ f d)
     (hgt : ↑a > Nat.cast (R := ℝ) b^d) : 
