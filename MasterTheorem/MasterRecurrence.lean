@@ -16,7 +16,7 @@ where
   /-a is positive -/
   a_pos : a > 0
   /- we always divide into more than than one part -/
-  one_lt_b : 1 < b
+  n₀_lt_b : n₀ < b
   /- polynomial degree is at least 1 -/
   one_le_d : 1 ≤ d
   /-T is monotone -/
@@ -31,6 +31,8 @@ structure UpperMasterRec (T : ℕ → ℕ) (a b n₀ : ℕ) (f : ℕ → ℕ) (d
 
 structure LowerMasterRec (T : ℕ → ℕ) (a b n₀ : ℕ) (f : ℕ → ℕ) (d : ℝ) 
     extends MasterRecBase T a b n₀ f d where
+  /- f is positive -/
+  f_pos : ∀ n ≥ n₀, f n > 0
   /- f is polynomially bounded above -/
   f_lower_poly : Nat.cast ∘ f ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n^d
   /- The recurrence formula -/
@@ -93,10 +95,13 @@ namespace MasterRecBase
 
 
 private lemma n₀_pos (self: MasterRecBase T a b n₀ f d) : n₀ > 0 := 
-  lt_trans one_pos self.one_lt_n₀ 
+  lt_trans one_pos self.one_lt_n₀
+
+private lemma one_lt_b (self: MasterRecBase T a b n₀ f d) : b > 1 := by 
+  linarith [self.one_lt_n₀, self.n₀_lt_b]
 
 private lemma b_pos (self: MasterRecBase T a b n₀ f d) : b > 0 := 
-  lt_trans one_pos self.one_lt_b 
+  lt_trans one_pos self.one_lt_b
 
 end MasterRecBase
 
@@ -697,10 +702,10 @@ private lemma formula_subst_once {k n : ℕ} {C : ℝ}
   }
 
 private theorem formula_subst {C : ℝ} (ha : a > 0) (hb : b > 1) 
-    (hn₀ : 1 < n₀) (hC : C > 0) (hd : d ≥ 1)
+    (hn₀ : n₀ < b) (hC : C > 0) (hd : d ≥ 1)
     (hrec : ∀ n ≥ n₀, T n ≥ a * T (n / b) + 
                             C * (Nat.cast (R := ℝ) n)^d) :
-    ∀ {k : ℕ → ℕ}, ∀ {n : ℕ}, k n > 0 → n ≥ (n₀ ⊔ b)^k n → 
+    ∀ {k : ℕ → ℕ}, ∀ {n : ℕ}, k n > 0 → n ≥ b^k n → 
       T n ≥ a^k n * T (n / b^k n) +
             C / 2^d * GeometricSum (K := ℝ) (↑a / ↑b^d) (k n - 1) * 
             Nat.cast (R := ℝ) n^d := by
@@ -720,8 +725,7 @@ private theorem formula_subst {C : ℝ} (ha : a > 0) (hb : b > 1)
   induction' k' with x hx
   . simp
     simp at hn
-    obtain ⟨n_ge_n₀, n_ge_b⟩ := hn
-    specialize hrec n n_ge_n₀
+    specialize hrec n (by linarith)
 
     apply le_trans' hrec
     apply add_le_add_left
@@ -735,30 +739,21 @@ private theorem formula_subst {C : ℝ} (ha : a > 0) (hb : b > 1)
   . have b_pos : b > 0 := by linarith
     have b_pow_pos : b^(x+1) > 0 := pow_pos b_pos (x+1)
 
-    have n_ge_max_ind : n ≥ (n₀ ⊔ b) ^ (x + 1) := by {
-      apply le_trans' hn
-      apply pow_le_pow_right₀ <;> linarith [le_max_left n₀ b]
-    }
-    have b_pow_le_max_pow : b^(x+1) ≤ (n₀ ⊔ b) ^ (x + 1) := by {
-      apply pow_le_pow_left'
-      apply le_max_right
+    have n_ge_ind : n ≥ b^(x+1) := by {
+      apply le_trans (pow_le_pow_right₀ _ (Nat.le_succ _)) hn
+      linarith
     }
     have cast_n_div_b_pow_nonneg : 0 ≤ Nat.cast (R := ℝ) n / ↑b ^ (x+1) := by {
       apply div_nonneg <;> norm_cast <;> linarith
     }
 
-    specialize hx n_ge_max_ind
+    specialize hx n_ge_ind
     apply flip (formula_subst_once ha) hx
     specialize hrec (n / b^(x+1)) (by {
-      apply le_trans (le_max_left n₀ b)
+      apply le_trans (le_of_lt hn₀)
       rw [Nat.le_div_iff_mul_le]
-      . apply le_trans ((mul_le_mul_left _).2 b_pow_le_max_pow)
-        . rw [mul_comm, ← pow_succ]
-          exact hn
-        . apply lt_max_of_lt_left
-          linarith
-      . apply pow_pos
-        linarith
+      rw [← pow_succ']
+      all_goals assumption
     })
 
     apply le_trans' hrec
@@ -779,40 +774,20 @@ private theorem formula_subst {C : ℝ} (ha : a > 0) (hb : b > 1)
       . apply le_mul_of_one_le_right
         . linarith
         . rw [one_le_div₀] <;> norm_cast
-          linarith [pow_le_pow_left' (le_max_right n₀ b) (x + 1)]
     all_goals linarith
 
 private lemma k_subst (self : LowerMasterRec T a b n₀ f d) :
-    ∃ C > 0, ∃ N ≥ n₀, ∀ {k : ℕ → ℕ}, ∀ {n : ℕ}, k n > 0 → n ≥ (N ⊔ b)^k n →
-    ↑(T n) ≥ ↑a^k n * ↑(T (n / b^k n)) + 
-             C * GeometricSum (K := ℝ) (↑a / ↑b^d) (k n - 1) * n^d := by
-  obtain ⟨C, C_pos, N, g_poly₁⟩ := 
-    exists_pos_smul_asymp_ge_iff_Ω.2 self.f_lower_poly
-
-  generalize M_def : N ⊔ n₀ = M
-  have M_ge_N : M ≥ N := by {
-    rw [← M_def]
-    apply le_max_left
-  }
-  have M_ge_n₀ : M ≥ n₀ := by {
-    rw [← M_def]
-    apply le_max_right
-  }
-  have one_lt_M : 1 < M := by linarith [self.one_lt_n₀]
-
-  have f_poly₂ : ∀ n ≥ M, f n ≥ ↑C * Nat.cast (R := ℝ) n^d := by {
-    intro n n_ge
-    apply g_poly₁ n
-    linarith
-  }
-
-  have rec_apply : ∀ n ≥ M, T n ≥ ↑a * ↑(T (n / b)) + 
-                                  ↑C * Nat.cast (R := ℝ) n^d := by {
+    ∃ C > 0, ∀ {k : ℕ → ℕ}, ∀ {n : ℕ}, k n > 0 → n ≥ b^k n →
+      ↑(T n) ≥ ↑a^k n * ↑(T (n / b^k n)) + 
+               C * GeometricSum (K := ℝ) (↑a / ↑b^d) (k n - 1) * n^d := by
+  rcases f_lower_poly with ⟨C, C_pos, f_poly⟩
+  have rec_apply : ∀ n ≥ n₀, T n ≥ ↑a * ↑(T (n / b)) + 
+                                  C * Nat.cast (R := ℝ) n^d := by {
     intro n hn
-    apply flip add_le_of_add_le_left (f_poly₂ n hn)
+    apply flip add_le_of_add_le_left (f_poly n hn)
     norm_cast
     apply self.T_lower_rec n
-    linarith
+    linarith [self.n₀_lt_b]
   }
 
   use C / 2^d
@@ -822,44 +797,141 @@ private lemma k_subst (self : LowerMasterRec T a b n₀ f d) :
     exact two_pos
   })
 
-  use M
-  apply And.intro M_ge_n₀
   intro k n hk hn
-  have subst_rec := formula_subst self.a_pos self.one_lt_b one_lt_M C_pos 
-                                   self.one_le_d rec_apply hk hn
+  have subst_rec := formula_subst self.a_pos self.one_lt_b self.n₀_lt_b C_pos 
+                                  self.one_le_d rec_apply hk hn
   linarith
+where
+  f_lower_poly : ∃ C > 0, ∀ n ≥ n₀, f n ≥ C * Nat.cast (R := ℝ) n^d := by {
+    obtain ⟨C, C_pos, N, f_poly⟩ := 
+      exists_pos_smul_asymp_ge_iff_Ω.2 self.f_lower_poly
+
+    if hN : N ≤ n₀ then {
+      use C
+      apply And.intro C_pos
+      intro n hn
+      specialize f_poly n (by linarith)
+      exact f_poly
+    }
+    else {
+      simp at hN
+      generalize g_def : (fun n : Fin (N - n₀) ↦ n + n₀) = g
+      have g_inj : Function.Injective g := by {
+        unfold Function.Injective
+        intro x y hg
+        rw [← g_def] at hg 
+        simp at hg
+        rw [Fin.val_eq_val] at hg
+        exact hg
+      }
+      have g_image_eq : Set.range g = {x | x < N ∧ x ≥ n₀} := by {
+        rw [← g_def]
+        ext x
+        constructor
+        . intro h
+          simp at h
+          rcases h with ⟨y, hy⟩
+          simp
+          constructor
+          . rw [← hy]
+            have y_le := Nat.le_sub_one_of_lt (Fin.is_lt y)
+            apply lt_of_le_of_lt (add_le_add_right y_le _)
+            omega
+          . linarith
+        . intro h
+          simp at h
+          rcases h with ⟨x_le_N, x_ge_n₀⟩
+          simp
+          use Fin.mk (x - n₀) (by {
+            apply Nat.sub_lt_sub_right <;> assumption
+          })
+          simp
+          omega
+      }
+      have domain_finite : {x | x < N ∧ x ≥ n₀}.Finite := by {
+        rw [← Set.finite_coe_iff, ← g_image_eq]
+        apply Nat.finite_of_card_ne_zero
+        rw [Nat.card_range_of_injective g_inj, 
+            Nat.card_eq_of_equiv_fin (Equiv.refl _)]
+        apply Nat.sub_ne_zero_of_lt
+        exact hN
+      }
+      have domain_nonempty : {x | x < N ∧ x ≥ n₀}.Nonempty := by {
+        rw [Set.nonempty_def]
+        simp
+        use n₀
+      }
+
+      have f_image_finite : (f '' {x | x < N ∧ x ≥ n₀}).Finite :=
+        Set.Finite.image f domain_finite
+      have f_image_nonempty : f_image_finite.toFinset.Nonempty := by {
+        simp
+        exact domain_nonempty
+      }
+
+      obtain ⟨m, m_in_image, min_m⟩ := 
+        f_image_finite.toFinset.exists_minimal f_image_nonempty
+
+      rw [Set.Finite.mem_toFinset, Set.mem_image] at m_in_image
+      rcases m_in_image with ⟨x, x_in_domain, fx_eq⟩
+      simp at x_in_domain
+      rcases x_in_domain with ⟨x_lt_N, n₀_le_x⟩
+
+      use C ⊓ ↑m / ↑N^d
+      apply And.intro (by {
+        apply lt_min C_pos
+        apply div_pos
+        . rw [← fx_eq]
+          norm_cast
+          apply self.f_pos
+          linarith
+        . apply Real.rpow_pos_of_pos
+          norm_cast
+          linarith
+      })
+
+      intro n hn
+      rw [min_mul_of_nonneg, mul_comm (_ / _), mul_div, 
+          mul_comm (Nat.cast (R := ℝ) n^d), ← mul_div, ge_iff_le]
+      . if hn_N : n < N then {
+          apply le_trans (min_le_right _ _)
+          apply le_trans (mul_le_of_le_one_right _ _)
+          . norm_cast
+            simp at min_m
+            exact min_m (f n) n hn_N hn (Eq.refl (f n))
+          . linarith
+          . rw [div_le_one₀]
+            . apply Real.rpow_le_rpow <;> norm_cast
+                                      <;> linarith [self.one_le_d]
+            . apply Real.rpow_pos_of_pos
+              norm_cast
+              linarith [self.one_lt_n₀]
+        }
+        else {
+          apply le_trans (min_le_left _ _)
+          simp at hn_N
+          exact f_poly n hn_N
+        }
+      . apply Real.rpow_nonneg
+        linarith
+    }
+  }
 
 lemma Ω_rec (self : LowerMasterRec T a b n₀ f d) :
-    ∃ c ≥ b, Nat.cast ∘ T ∈ Ω ℝ fun n : ℕ ↦ GeometricSum (K := ℝ) (↑a / ↑b^d) 
-                                              (⌊Real.logb ↑c ↑n⌋₊ - 1) *
-                                            Nat.cast (R := ℝ) n^d := by
-  rcases self.k_subst with ⟨C, C_pos, N, N_ge, subst_master⟩
+    Nat.cast ∘ T ∈ Ω ℝ fun n : ℕ ↦ GeometricSum (K := ℝ) (↑a / ↑b^d) 
+                                      (⌊Real.logb ↑b ↑n⌋₊ - 1) *
+                                    Nat.cast (R := ℝ) n^d := by
+  rcases self.k_subst with ⟨C, C_pos, subst_master⟩
 
-  have n_ge_N {n : ℕ} (hn : n ≥ N ⊔ b) : n ≥ N := by {
-    apply le_trans' hn
-    apply le_max_left
-  }
-  have one_le_cast_n_div_N {n : ℕ} (hn : n ≥ N) : 
-      1 ≤ Nat.cast (R := ℝ) n / ↑N := by {
-    rw [one_le_div] <;> norm_cast
-    linarith [self.one_lt_n₀]
-  }
-  have cast_n_div_N_pos {n : ℕ} (hn : n ≥ N) : 
-      0 < Nat.cast (R := ℝ) n / ↑N := by {
-    apply one_le_cast_n_div_N at hn
-    linarith
-  }
-
-  generalize k_def : (fun n : ℕ ↦ ⌊Real.logb ↑(N ⊔ b) ↑n⌋₊) = k
-  have k_pos {n : ℕ} (hn : n ≥ N ⊔ b) : 0 < k n := by {
+  generalize k_def : (fun n : ℕ ↦ ⌊Real.logb ↑b ↑n⌋₊) = k
+  have k_pos {n : ℕ} (hn : n ≥ b) : 0 < k n := by {
     rw [← k_def]
-    have one_lt_max := lt_max_of_lt_right (b := N) self.one_lt_b
-    rw [Nat.floor_pos, ← Real.logb_self_eq_one (b := ↑(N ⊔ b)), 
+    rw [Nat.floor_pos, ← Real.logb_self_eq_one (b := ↑b), 
         Real.logb_le_logb] <;> norm_cast
-    all_goals linarith [self.one_lt_n₀]
+    all_goals linarith [self.one_lt_b]
   }
 
-  have subst_rec : ∀ n ≥ N ⊔ b, 
+  have subst_rec : ∀ n ≥ b, 
       ↑(T n) ≥ ↑a^(k n) * ↑(T (n / b ^ (k n))) + 
                C * GeometricSum (K := ℝ) (↑a / ↑b ^ d) (k n - 1) *
                Nat.cast (R := ℝ) n ^ d := by {
@@ -868,13 +940,10 @@ lemma Ω_rec (self : LowerMasterRec T a b n₀ f d) :
     apply le_trans (le_refl _) (subst_master (k_pos hn) _)
     rw [← k_def, ge_iff_le, ← Nat.cast_le (α := ℝ), Nat.cast_le]
     simp
-    rw [← Nat.cast_max, Real.natFloor_logb_natCast]
+    rw [Real.natFloor_logb_natCast]
     apply Nat.pow_log_le_self
-    linarith [le_max_right N b, self.one_lt_b]
+    linarith [self.b_pos]
   }
-
-  use N ⊔ b
-  apply And.intro (le_max_right N b)
 
   apply Ω_trans (Ω_of_asymp_ge (asymp_ge_of_ge_of_forall_ge subst_rec))
   rw [← exists_pos_smul_asymp_ge_iff_Ω]
@@ -884,8 +953,7 @@ lemma Ω_rec (self : LowerMasterRec T a b n₀ f d) :
   intro n n_ge_one
   apply le_add_of_le_add_right (b := 0)
   . simp
-    rw [← k_def, mul_assoc, mul_le_mul_left C_pos,
-        mul_le_mul_right, Nat.cast_max]
+    rw [← k_def, mul_assoc, mul_le_mul_left C_pos, mul_le_mul_right]
     apply Real.rpow_pos_of_pos
     norm_cast
   . norm_cast
@@ -919,26 +987,17 @@ theorem Ω_pow_d (self : LowerMasterRec T a b n₀ f d) :
 theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)  
     (heq : a = Nat.cast (R := ℝ) b^d) :
     Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
-  rcases self.Ω_rec with ⟨c, c_ge_b, Ω_poly⟩
-
-  apply Ω_trans Ω_poly
+  apply Ω_trans self.Ω_rec
   rw [← exists_pos_smul_asymp_ge_iff_Ω]
 
-  use 1 / 2 * Real.logb c b
-  have one_lt_c : 1 < c := by linarith [self.one_lt_b]
+  use 1 / 2
   apply And.intro (by {
-    apply mul_pos
-    . linarith
-    . apply Real.logb_pos <;> norm_cast 
-      exact self.one_lt_b
+    apply mul_pos <;> linarith
   }) 
-  apply asymp_ge_of_ge_of_forall_ge (N := c^2)
+  apply asymp_ge_of_ge_of_forall_ge (N := b^2)
   intro n hn
 
-  have c_sq_pos : 0 < c ^ 2 := by {
-    apply pow_pos
-    linarith
-  }
+  have c_sq_pos : 0 < b ^ 2 := pow_pos self.b_pos 2
   have n_pos : 0 < n := by linarith
   have n_sq_pos : 0 < n ^ 2 := by {
     apply pow_pos
@@ -953,14 +1012,14 @@ theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)
     norm_cast
     exact self.b_pos
   }
-  have natLog_n_pos : 0 < Nat.log c n := by {
-    apply Nat.log_pos one_lt_c
-    rw [← pow_one c]
+  have natLog_n_pos : 0 < Nat.log b n := by {
+    apply Nat.log_pos self.one_lt_b
+    rw [← pow_one b]
     apply le_trans (pow_le_pow_right₀ _ one_le_two) hn
-    linarith
+    linarith [self.one_lt_b]
   }
-  have c_pow_logb_nonneg : 
-      0 ≤ Nat.cast (R := ℝ) c ^ (Real.logb ↑c ↑n - 1) := by {
+  have b_pow_logb_nonneg : 
+      0 ≤ Nat.cast (R := ℝ) b ^ (Real.logb ↑b ↑n - 1) := by {
     apply Real.rpow_nonneg
     linarith
   }
@@ -969,7 +1028,7 @@ theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)
   norm_cast
   rw [Nat.sub_one_add_one]
   simp
-  rw [← mul_assoc, mul_le_mul_right, mul_assoc, Real.mul_logb]
+  rw [← mul_assoc, mul_le_mul_right]
 
   apply le_trans ((mul_le_mul_left _).2 (Nat.le_ceil _))
   rw [inv_mul_le_iff₀]
@@ -984,16 +1043,96 @@ theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)
   rw [Real.rpow_sub, Real.rpow_logb]
   simp
   rw [div_pow]
-  have hn' : Nat.cast (R := ℝ) n ≥ ↑c^2 := by norm_cast
+  have hn' : Nat.cast (R := ℝ) n ≥ ↑b^2 := by norm_cast
   apply le_trans' ((div_le_div_iff_of_pos_left _ _ _).2 hn')
   rw [div_eq_mul_inv, pow_two, mul_assoc, mul_inv_cancel₀, mul_one]
 
   all_goals (norm_cast <;> linarith [self.one_lt_b])
 
 theorem Ω_of_gt (self : LowerMasterRec T a b n₀ f d)  
-    (heq : ↑a > Nat.cast (R := ℝ) b^d) :
-    Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n ^ Real.logb b a := by
-  sorry
+    (hgt : ↑a > Nat.cast (R := ℝ) b^d) :
+    Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n ^ Real.logb ↑b ↑a := by
+  apply Ω_trans self.Ω_rec
+  rw [← exists_pos_smul_asymp_ge_iff_Ω]
+  use (Nat.cast (R := ℝ) a / ↑b^d - 1)⁻¹ * (Nat.cast (R := ℝ) a / ↑b^d)⁻¹ * 2⁻¹
+  apply And.intro (by sorry)
+  generalize K_def : 
+    ⌈(Nat.cast (R := ℝ) a / ↑b^d * 2)^((Real.logb ↑b ↑a + -d)⁻¹)⌉₊ = K
+  apply asymp_ge_of_ge_of_forall_ge (N := K + b + 1)
+
+  intro n hn
+
+  have b_pow_pos : 0 < Nat.cast (R := ℝ) b^d := by {
+    apply Real.rpow_pos_of_pos
+    norm_cast
+    exact self.b_pos
+  }
+  have one_lt_a_div_b_pow : 1 < Nat.cast (R := ℝ) a / ↑b^d := by {
+    rw [one_lt_div] <;> assumption
+  }
+  have n_ge_K : n ≥ K := by linarith
+  have n_ge_b_succ : n ≥ b + 1 := by {
+    rw [add_assoc] at hn
+    apply le_trans (Nat.le_add_left _ _) at hn
+    exact hn
+  }
+  have n_gt_one : n > 1 := by linarith [self.b_pos]
+  have n_pow_le : Nat.cast (R := ℝ) n^d < ↑n^Real.logb ↑b ↑a := by {
+    apply Real.rpow_lt_rpow_of_exponent_lt <;> norm_cast
+    rw [← Real.logb_rpow (b := ↑b) (x := d)] <;> norm_cast
+    apply Real.logb_lt_logb <;> norm_cast
+    . exact self.one_lt_b
+    . exact self.b_pos
+    . linarith [self.one_lt_b]
+  }
+
+  rw [GeometricSum.base_ne_one, Nat.sub_one_add_one, mul_comm, mul_div, 
+      div_eq_mul_inv, mul_comm]
+  simp
+  rw [mul_assoc, mul_assoc, mul_le_mul_left, ← Real.rpow_natCast,
+      ← div_le_iff₀']
+  have pow_logb_swap : 
+      Nat.cast (R := ℝ) a^Real.logb ↑b ↑n = ↑n^Real.logb ↑b ↑a := by {
+    rw [← Real.rpow_logb (b := ↑b) (x := ↑a), ← Real.rpow_mul, mul_comm,
+        Real.rpow_mul, Real.rpow_logb, Real.rpow_logb] <;> norm_cast
+    all_goals linarith [self.one_lt_b, self.a_pos]
+  }
+  apply le_trans' (sub_le_sub_right 
+                  (Real.rpow_le_rpow_of_exponent_le _ 
+                  (le_of_lt (Nat.sub_one_lt_floor _))) _)
+  rw [Real.rpow_sub, Real.rpow_one, mul_comm, ← div_mul, mul_comm_div, 
+      Real.div_rpow, pow_logb_swap, ← Real.rpow_mul, mul_comm d, 
+      Real.rpow_mul, Real.rpow_logb]
+
+  rw [mul_assoc, ← mul_comm (_/_), ← mul_comm (_/_), ← mul_assoc, ← mul_div,
+      le_sub_iff_add_le, mul_assoc]
+  apply le_trans (add_one_le_two_mul _)
+  rw [← mul_assoc, ← mul_assoc, mul_inv_cancel₀, one_mul]
+
+  all_goals norm_cast
+  all_goals try linarith [self.one_lt_b]
+  . rw [le_inv_mul_iff₀, ← inv_mul_le_iff₀, 
+        div_eq_mul_inv (Nat.cast (R := ℝ) n^_), ← Real.rpow_neg, 
+        ← Real.rpow_add, ← Real.rpow_inv_le_iff_of_pos]
+    simp
+    apply le_trans (Nat.le_ceil _)
+    rw [K_def]
+    all_goals norm_cast
+    all_goals try linarith
+    . simp
+      linarith
+    . simp
+      rw [Real.lt_logb_iff_rpow_lt] <;> norm_cast
+      . exact self.one_lt_b
+      . exact self.a_pos
+    . apply div_pos <;> norm_cast
+      exact self.a_pos
+  . apply Real.rpow_pos_of_pos
+    norm_cast
+    linarith
+  . simp [one_lt_a_div_b_pow]
+  . apply ne_zero_of_lt (b := 0)
+    apply Nat.log_pos <;> linarith [self.one_lt_b]
 
 end LowerMasterRec
 
@@ -1011,11 +1150,19 @@ theorem Θ_of_lt (self : MasterRec T a b n₀ f d)
 
 theorem Θ_of_eq (self : MasterRec T a b n₀ f d)  
     (heq : ↑a = Nat.cast (R := ℝ) b^d) :
-    Nat.cast ∘ T ∈ Θ ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
+    Nat.cast ∘ T ∈ Θ ℝ fun n ↦ Real.logb ↑b (Nat.cast (R := ℝ) n) * ↑n^d := by
   rw [← O_Ω_iff_Θ]
   constructor
   . exact self.toUpperMasterRec.O_of_eq heq
   . exact self.toLowerMasterRec.Ω_of_eq heq
+
+theorem Θ_of_gt (self : MasterRec T a b n₀ f d)  
+    (hgt : ↑a > Nat.cast (R := ℝ) b^d) :
+    Nat.cast ∘ T ∈ Θ ℝ fun n ↦ Nat.cast (R := ℝ) n^Real.logb ↑b ↑a := by
+  rw [← O_Ω_iff_Θ]
+  constructor
+  . exact self.toUpperMasterRec.O_of_gt hgt
+  . exact self.toLowerMasterRec.Ω_of_gt hgt
 
 end MasterRec
 

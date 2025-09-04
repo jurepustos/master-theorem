@@ -117,14 +117,12 @@ lemma asymp_ge_refl [Inhabited α] : AsympGE f f := by
   exact asymp_le_refl
 
 lemma asymp_le_of_le_of_forall_ge {g : α → β} {N : α} (hle : ∀ n ≥ N, f n ≤ g n) : 
-    AsympLE f g := by {
+    AsympLE f g := by
   use N
-}
 
 lemma asymp_ge_of_ge_of_forall_ge {g : α → β} {N : α} (hle : ∀ n ≥ N, f n ≥ g n) : 
-    AsympGE f g := by {
+    AsympGE f g := by
   use N
-}
 
 end Refl
 
