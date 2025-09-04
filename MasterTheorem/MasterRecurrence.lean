@@ -1055,13 +1055,6 @@ theorem Ω_of_gt (self : LowerMasterRec T a b n₀ f d)
   apply Ω_trans self.Ω_rec
   rw [← exists_pos_smul_asymp_ge_iff_Ω]
   use (Nat.cast (R := ℝ) a / ↑b^d - 1)⁻¹ * (Nat.cast (R := ℝ) a / ↑b^d)⁻¹ * 2⁻¹
-  apply And.intro (by sorry)
-  generalize K_def : 
-    ⌈(Nat.cast (R := ℝ) a / ↑b^d * 2)^((Real.logb ↑b ↑a + -d)⁻¹)⌉₊ = K
-  apply asymp_ge_of_ge_of_forall_ge (N := K + b + 1)
-
-  intro n hn
-
   have b_pow_pos : 0 < Nat.cast (R := ℝ) b^d := by {
     apply Real.rpow_pos_of_pos
     norm_cast
@@ -1070,6 +1063,22 @@ theorem Ω_of_gt (self : LowerMasterRec T a b n₀ f d)
   have one_lt_a_div_b_pow : 1 < Nat.cast (R := ℝ) a / ↑b^d := by {
     rw [one_lt_div] <;> assumption
   }
+  apply And.intro (by {
+    simp
+    apply mul_pos
+    . rw [inv_pos]
+      simp [one_lt_a_div_b_pow]
+    . rw [div_eq_mul_inv]
+      apply mul_pos <;> norm_cast
+      simp
+      exact self.a_pos
+  })
+  generalize K_def : 
+    ⌈(Nat.cast (R := ℝ) a / ↑b^d * 2)^((Real.logb ↑b ↑a + -d)⁻¹)⌉₊ = K
+  apply asymp_ge_of_ge_of_forall_ge (N := K + b + 1)
+
+  intro n hn
+
   have n_ge_K : n ≥ K := by linarith
   have n_ge_b_succ : n ≥ b + 1 := by {
     rw [add_assoc] at hn
