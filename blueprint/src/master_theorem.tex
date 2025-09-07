@@ -3,17 +3,26 @@
 Analyzing the time complexity of algorithms, especially recursive ones, is more often 
 than not a non-trivial task. For a recursive algorithm, its time complexity can be 
 written as a recurrence formula, which is generally not easy, sometimes even impossible 
-to solve with a closed formula. In some cases, though, it turns out that we can find 
-asymptotic bounds of the solution, despite not being able to necessarily find the 
-precise solution to the recurrence. One class of such cases is the class of 
-divide-and-conquer algorithms, i.e. algorithms that work by recursively splitting the input 
-problem into similarly-sized subproblems. Those have especially nice recurrence formulas 
-which can be asymptotically bounded with an elegant formula that is known as the Master theorem.
+to solve with a closed formula. In some cases, though, we can find asymptotic bounds 
+of the solution, despite not being able to necessarily find the 
+precise solution to the recurrence. One large class of such cases is the class of 
+divide-and-conquer algorithms, i.e. algorithms that recursively split the
+problem into smaller, similarly-sized subproblems. The Master theorem puts asymptotic 
+bounds on divide-and-conquer recurrences.
 
 \begin{theorem}[Master theorem for divide-and-conquer recurrences]
-TODO
+    Let $T f : \mathbb{N} \rightarrow \mathbb{N}$ be functions such that the recurrence
+    \[
+        T(n) = a T(n/b) + f(n)
+    \]
+    holds for some $a > 0$ and $b > 1$. Assume that $f(n) \in \Theta(n^d)$ for some $d \ge 1$. 
+    Then the following holds:
+    \begin{enumerate}
+        \item if $a < b^d$, then $T(n) \in \Theta(n^d)$,
+        \item if $a = b^d$, then $T(n) \in \Theta(n^d \log_b{n})$ and
+        \item if $a > b^d$, then $T(n) \in \Theta(n^{\log_b{a}})$.
+    \end{enumerate}
+    In cases where $f$ is bounded by $n^d$ only above or only below,
+    $T$ is also bounded only above or only below by the respective function.
 \end{theorem}
 
-The full statement of the Master theorem is a bit stronger than the one presented
-and proved here. Specifically, the second and third case can both be extended
-to a tight asymptotic bound, rather than a just an upper bound.

@@ -131,8 +131,8 @@
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_le_ge_iff, lemma:asymp_pos_of_pos_le}
-    By Lemma \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
+    \uses{thm:asymp_le_iff_asymp_ge, lemma:asymp_pos_of_pos_le}
+    By Lemma \ref{thm:asymp_le_iff_asymp_ge}, this statement is equivalent to Lemma
     \ref{lemma:asymp_pos_of_pos_le}.
 \end{proof}
 
@@ -147,8 +147,8 @@
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_le_ge_iff, lemma:asymp_neg_of_le_neg}
-    By Theorem \ref{thm:asymp_le_ge_iff}, this statement is equivalent to Lemma
+    \uses{thm:asymp_le_iff_asymp_ge, lemma:asymp_neg_of_le_neg}
+    By Theorem \ref{thm:asymp_le_iff_asymp_ge}, this statement is equivalent to Lemma
     \ref{lemma:asymp_neg_of_le_neg}.
 \end{proof}
 
@@ -185,8 +185,8 @@
 \subsection{Equivalence}
 
 \begin{lemma}
-    \label{lemma:asymp_le_of_ge}
-    \lean{asymp_le_of_ge}
+    \label{lemma:asymp_le_of_asymp_ge}
+    \lean{asymp_le_of_asymp_ge}
     \leanok
     \uses{def:asymp_le, def:asymp_ge}
     Let $f$ be asymptotically less than $g$. Then $g$ is asymptotically
@@ -199,8 +199,8 @@
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:asymp_ge_of_le}
-    \lean{asymp_ge_of_le}
+    \label{lemma:asymp_ge_of_asymp_le}
+    \lean{asymp_ge_of_asymp_le}
     \leanok
     \uses{def:asymp_le, def:asymp_ge}
     Let $f$ be asymptotically greater than $g$. Then $g$ is asymptotically
@@ -213,8 +213,8 @@
 \end{proof}
 
 \begin{theorem}
-    \label{thm:asymp_le_ge_iff}
-    \lean{asymp_le_ge_iff}
+    \label{thm:asymp_le_iff_asymp_ge}
+    \lean{asymp_le_iff_asymp_ge}
     \leanok
     \uses{def:asymp_le, def:asymp_ge}
     $f$ is asymptotically less than $g$ if and only if $g$ is asymptotically
@@ -223,8 +223,8 @@
 
 \begin{proof}
     \leanok
-    \uses{lemma:asymp_le_of_ge, lemma:asymp_ge_of_le}
-    Lemma \ref{lemma:asymp_le_of_ge} and Lemma \ref{lemma:asymp_ge_of_le} are both directions
+    \uses{lemma:asymp_le_of_asymp_ge, lemma:asymp_ge_of_asymp_le}
+    Lemma \ref{lemma:asymp_le_of_asymp_ge} and Lemma \ref{lemma:asymp_ge_of_asymp_le} are both directions
     respectively.
 \end{proof}
 
@@ -256,8 +256,8 @@
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_trans}
-    By the equivalence given by Lemma \ref{thm:asymp_le_ge_iff}, we can apply
+    \uses{thm:asymp_le_iff_asymp_ge, lemma:asymp_le_trans}
+    By the equivalence given by Lemma \ref{thm:asymp_le_iff_asymp_ge}, we can apply
     Lemma \ref{lemma:asymp_le_trans} in reverse, since $h$ is asymptotically less than
     $g$ and $g$ is asymptotically less than $f$.
 \end{proof}
@@ -296,8 +296,8 @@
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_le_ge_iff, def:asymp_le, lemma:asymp_le_add}
-    By Theorem \ref{thm:asymp_le_ge_iff}, $g\_1$ and $g\_2$ are asymptotically less 
+    \uses{thm:asymp_le_iff_asymp_ge, def:asymp_le, lemma:asymp_le_add}
+    By Theorem \ref{thm:asymp_le_iff_asymp_ge}, $g\_1$ and $g\_2$ are asymptotically less 
     than $f\_1$ and $f\_2$ respectively. It suffices to show that $g\_1 + g\_2$ is
     asymptotically less than $f\_1 + f\_2$, which is precisely the result of
     Lemma \ref{lemma:asymp_le_add}.
@@ -365,8 +365,8 @@
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_pos_smul}
-    By applying Theorem \ref{thm:asymp_le_ge_iff}, the proof boils down to proving that
+    \uses{thm:asymp_le_iff_asymp_ge, lemma:asymp_le_pos_smul}
+    By applying Theorem \ref{thm:asymp_le_iff_asymp_ge}, the proof boils down to proving that
     $c \cdot g$ is asymptotically less than $c \cdot f$, which is precisely shown
     by Lemma \ref{lemma:asymp_le_pos_smul}.
 \end{proof}
@@ -397,8 +397,8 @@
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_le_ge_iff, lemma:asymp_le_neg_smul}
-    Similar to above, the proof is a direct application of Theorem \ref{thm:asymp_le_ge_iff}
+    \uses{thm:asymp_le_iff_asymp_ge, lemma:asymp_le_neg_smul}
+    Similar to above, the proof is a direct application of Theorem \ref{thm:asymp_le_iff_asymp_ge}
     and Lemma \ref{lemma:asymp_le_neg_smul}.
 \end{proof}
 

@@ -274,7 +274,7 @@ private lemma k_subst (self : UpperMasterRec T a b n₀ f d) :
   exact formula_subst self.a_pos self.one_lt_b const_pos 
                       self.one_le_d rec_apply hn
 
-private lemma O_rec (self : UpperMasterRec T a b n₀ f d) : 
+lemma O_geom (self : UpperMasterRec T a b n₀ f d) : 
     Nat.cast ∘ T ∈ O ℝ fun n ↦ Nat.cast (R := ℝ) n ^ (Real.logb b a) +
                     GeometricSum (K := ℝ) (↑a / ↑b^d) (⌊Real.logb b n⌋₊ - 1) *
                     Nat.cast (R := ℝ) n^d := by
@@ -470,7 +470,7 @@ private lemma O_rec (self : UpperMasterRec T a b n₀ f d) :
 theorem O_of_lt (self : UpperMasterRec T a b n₀ f d)
     (hlt : a < Nat.cast (R := ℝ) b^d) : 
     Nat.cast ∘ T ∈ O ℝ fun n ↦ Nat.cast (R := ℝ) n^d := by
-  apply O_trans self.O_rec
+  apply O_trans self.O_geom
   apply O_add
   . apply O_of_asymp_le
     apply asymp_le_of_le_of_forall_ge (N := 2)
@@ -510,7 +510,7 @@ theorem O_of_lt (self : UpperMasterRec T a b n₀ f d)
 theorem O_of_eq (self : UpperMasterRec T a b n₀ f d)
     (heq : ↑a = Nat.cast (R := ℝ) b^d) : 
     Nat.cast ∘ T ∈ O ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
-  apply O_trans self.O_rec
+  apply O_trans self.O_geom
   apply O_add
   . apply O_of_asymp_le
     apply asymp_le_of_le_of_forall_ge (N := b)
@@ -565,7 +565,7 @@ theorem O_of_eq (self : UpperMasterRec T a b n₀ f d)
 theorem O_of_gt (self : UpperMasterRec T a b n₀ f d)
     (hgt : ↑a > Nat.cast (R := ℝ) b^d) : 
     Nat.cast ∘ T ∈ O ℝ fun n ↦ Nat.cast (R := ℝ) n^Real.logb b a := by
-  apply O_trans self.O_rec
+  apply O_trans self.O_geom
   apply O_add
   . apply flip O_trans (O_pos_smul
       (c := Nat.cast (R := ℝ) (T ((n₀ + 1) * b + 1)) + 1)
@@ -917,7 +917,7 @@ where
     }
   }
 
-lemma Ω_rec (self : LowerMasterRec T a b n₀ f d) :
+lemma Ω_geom (self : LowerMasterRec T a b n₀ f d) :
     Nat.cast ∘ T ∈ Ω ℝ fun n : ℕ ↦ GeometricSum (K := ℝ) (↑a / ↑b^d) 
                                       (⌊Real.logb ↑b ↑n⌋₊ - 1) *
                                     Nat.cast (R := ℝ) n^d := by
@@ -962,7 +962,7 @@ lemma Ω_rec (self : LowerMasterRec T a b n₀ f d) :
       linarith
     . linarith
 
-theorem Ω_pow_d (self : LowerMasterRec T a b n₀ f d) :
+lemma Ω_pow_d (self : LowerMasterRec T a b n₀ f d) :
     Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n^d := by
   rw [← exists_pos_smul_asymp_ge_iff_Ω]
   rcases self.f_lower_poly with ⟨C, C_pos, N, f_poly⟩
@@ -987,7 +987,7 @@ theorem Ω_pow_d (self : LowerMasterRec T a b n₀ f d) :
 theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)  
     (heq : a = Nat.cast (R := ℝ) b^d) :
     Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Real.logb b (Nat.cast (R := ℝ) n) * ↑n^d := by
-  apply Ω_trans self.Ω_rec
+  apply Ω_trans self.Ω_geom
   rw [← exists_pos_smul_asymp_ge_iff_Ω]
 
   use 1 / 2
@@ -1052,7 +1052,7 @@ theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)
 theorem Ω_of_gt (self : LowerMasterRec T a b n₀ f d)  
     (hgt : ↑a > Nat.cast (R := ℝ) b^d) :
     Nat.cast ∘ T ∈ Ω ℝ fun n ↦ Nat.cast (R := ℝ) n ^ Real.logb ↑b ↑a := by
-  apply Ω_trans self.Ω_rec
+  apply Ω_trans self.Ω_geom
   rw [← exists_pos_smul_asymp_ge_iff_Ω]
   use (Nat.cast (R := ℝ) a / ↑b^d - 1)⁻¹ * (Nat.cast (R := ℝ) a / ↑b^d)⁻¹ * 2⁻¹
   have b_pow_pos : 0 < Nat.cast (R := ℝ) b^d := by {
