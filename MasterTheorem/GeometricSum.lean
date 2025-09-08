@@ -71,7 +71,7 @@ variable [LinearOrder K] [IsStrictOrderedRing K]
 theorem le_of_base_pos_lt_one {x : K} (hpos : 0 < x) 
     (hle : x < 1) (n : ℕ) : GeometricSum x n ≤ 1 / (1 - x) := by
   rw [GeometricSum.base_ne_one, ← neg_div_neg_eq, neg_sub, 
-      div_le_div_iff₀, neg_sub, mul_le_mul_right]
+      div_le_div_iff₀, neg_sub, mul_le_mul_iff_left₀]
   simp
   apply pow_nonneg
   all_goals linarith

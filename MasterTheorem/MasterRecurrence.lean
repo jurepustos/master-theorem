@@ -57,7 +57,7 @@ private lemma add_poly {b n : ℕ} {d : ℝ} (hd : d ≥ 1)
   have n_pos : n > 0 := lt_trans one_pos hn
   have one_le_cast {k : ℕ} (hk_pos : k > 0) : 1 ≤ Nat.cast (R := NNReal) k := 
     by norm_cast
-  rw [add_comm, mul_assoc, mul_le_mul_left (NNReal.rpow_pos two_pos)]
+  rw [add_comm, mul_assoc, mul_le_mul_iff_right₀ (NNReal.rpow_pos two_pos)]
   apply add_le_mul
   . apply le_trans' (NNReal.rpow_le_rpow_of_exponent_le _ hd)
     . rw [NNReal.rpow_one]
@@ -81,8 +81,8 @@ private lemma f_of_add_b_poly {f : ℕ → ℕ} {C d : ℝ} {N b : ℕ}
     apply add_poly hd hb
     linarith
   }
-  apply le_trans ((mul_le_mul_left hC).2 poly_le)
-  rw [← mul_assoc, ← mul_assoc, mul_le_mul_right]
+  apply le_trans ((mul_le_mul_iff_right₀ hC).2 poly_le)
+  rw [← mul_assoc, ← mul_assoc, mul_le_mul_iff_left₀]
   apply Real.rpow_pos_of_pos
   norm_cast
   linarith
@@ -137,7 +137,8 @@ private lemma formula_subst_once {k n : ℕ} {C : ℝ}
       all_goals apply Nat.cast_nonneg
     }
     rw [pow_k_eq, mul_assoc, div_mul_comm, ← mul_assoc C, mul_right_comm C, 
-        mul_comm C, mul_assoc _ C, ← mul_add, ← Real.div_rpow, mul_le_mul_left]
+        mul_comm C, mul_assoc _ C, ← mul_add, ← Real.div_rpow, 
+        mul_le_mul_iff_right₀]
     exact hrec
 
     all_goals norm_cast
@@ -181,7 +182,7 @@ private theorem formula_subst {k : ℕ → ℕ} {C : ℝ}
     rw [Nat.div_div_eq_div_mul, ← pow_succ] at hrec
     apply le_trans hrec
     apply le_add_of_le_add_left (le_refl _)
-    rw [mul_le_mul_left hC, ← Nat.cast_pow]
+    rw [mul_le_mul_iff_right₀ hC, ← Nat.cast_pow]
     apply Real.rpow_le_rpow (Nat.cast_nonneg _) Nat.cast_div_le
     linarith
 
@@ -436,10 +437,10 @@ lemma O_geom (self : UpperMasterRec T a b n₀ f d) :
     apply asymp_le_of_le_of_forall_ge (N := b)
     intro n hn
     simp
-    rw [mul_assoc, mul_le_mul_left C_pos, ← k_def]
+    rw [mul_assoc, mul_le_mul_iff_right₀ C_pos, ← k_def]
     apply le_add_of_le_add_right (b := 0)
     simp
-    rw [mul_le_mul_right]
+    rw [mul_le_mul_iff_left₀]
     apply GeometricSum.le_of_pos_of_le
     . apply div_pos
       . norm_cast
@@ -459,13 +460,12 @@ lemma O_geom (self : UpperMasterRec T a b n₀ f d) :
       . apply div_pos <;> (norm_cast; linarith [self.one_lt_b, self.one_lt_n₀])
       . linarith [self.one_lt_b]
       . apply ne_of_gt
-        apply Nat.log_pos self.one_lt_b
-        linarith
+        exact Nat.log_pos self.one_lt_b hn
     . apply Real.rpow_pos_of_pos
       norm_cast
-      linarith [self.one_lt_b]
+      exact le_trans self.b_pos hn
     . apply Real.rpow_nonneg
-      linarith
+      apply Nat.cast_nonneg
 
 theorem O_of_lt (self : UpperMasterRec T a b n₀ f d)
     (hlt : a < Nat.cast (R := ℝ) b^d) : 
@@ -549,7 +549,8 @@ theorem O_of_eq (self : UpperMasterRec T a b n₀ f d)
       
       rw [add_mul, Nat.cast_sub, sub_mul]
       . simp
-        apply le_trans ((mul_le_mul_right _).2 (Nat.floor_le _)) (le_refl _)
+        apply le_trans ((mul_le_mul_iff_left₀ _).2 
+                        (Nat.floor_le _)) (le_refl _)
         . apply Real.rpow_pos_of_pos
           norm_cast
           linarith
@@ -641,7 +642,7 @@ theorem O_of_gt (self : UpperMasterRec T a b n₀ f d)
         (fun n : ℕ ↦ 1 / (↑a / ↑b^d - 1) * ↑n^Real.logb b a) := by {
       apply asymp_le_of_le_of_forall_ge (N := b + 1)
       intro n hn
-      apply le_trans ((mul_le_mul_right _).2 (geom_le n hn))
+      apply le_trans ((mul_le_mul_iff_left₀ _).2 (geom_le n hn))
       rw [← mul_div_right_comm, ← div_div, ← mul_div, div_self, 
           ← mul_div, mul_comm]
       apply ne_of_gt
@@ -690,7 +691,8 @@ private lemma formula_subst_once {k n : ℕ} {C : ℝ}
       all_goals apply Nat.cast_nonneg
     }
     rw [pow_k_eq, mul_assoc, div_mul_comm, ← mul_assoc C, mul_right_comm C, 
-        mul_comm C, mul_assoc _ C, ← mul_add, ← Real.div_rpow, mul_le_mul_left]
+        mul_comm C, mul_assoc _ C, ← mul_add, ← Real.div_rpow, 
+        mul_le_mul_iff_right₀]
     exact hrec
 
     all_goals norm_cast
@@ -729,7 +731,7 @@ private theorem formula_subst {C : ℝ} (ha : a > 0) (hb : b > 1)
 
     apply le_trans' hrec
     apply add_le_add_left
-    rw [mul_le_mul_right]
+    rw [mul_le_mul_iff_left₀]
     . apply div_le_self
       . linarith
       . apply Real.one_le_rpow <;> linarith
@@ -759,13 +761,13 @@ private theorem formula_subst {C : ℝ} (ha : a > 0) (hb : b > 1)
     apply le_trans' hrec
     rw [Nat.div_div_eq_div_mul, ← pow_succ]
     apply add_le_add_left
-    rw [div_eq_mul_inv, mul_assoc, ← Real.inv_rpow, mul_le_mul_left, 
+    rw [div_eq_mul_inv, mul_assoc, ← Real.inv_rpow, mul_le_mul_iff_right₀, 
         ← Real.mul_rpow]
     apply Real.rpow_le_rpow
     . apply mul_nonneg <;> linarith
     . rw [← Nat.ceil_le, Nat.le_div_iff_mul_le b_pow_pos, 
           ← Nat.cast_le (α := ℝ), Nat.cast_mul]
-      apply le_trans ((mul_le_mul_right _).2 (Nat.ceil_le_two_mul _))
+      apply le_trans ((mul_le_mul_iff_left₀ _).2 (Nat.ceil_le_two_mul _))
       all_goals norm_cast
       . rw [← mul_assoc, mul_assoc, div_mul_cancel₀]
         . linarith
@@ -898,7 +900,13 @@ where
           apply le_trans (mul_le_of_le_one_right _ _)
           . norm_cast
             simp at min_m
-            exact min_m (f n) n hn_N hn (Eq.refl (f n))
+            if h_fn : f n ≤ m then {
+              exact min_m n hn_N hn (Eq.refl (f n)) h_fn
+            }
+            else {
+              simp at h_fn
+              linarith
+            }
           . linarith
           . rw [div_le_one₀]
             . apply Real.rpow_le_rpow <;> norm_cast
@@ -953,7 +961,7 @@ lemma Ω_geom (self : LowerMasterRec T a b n₀ f d) :
   intro n n_ge_one
   apply le_add_of_le_add_right (b := 0)
   . simp
-    rw [← k_def, mul_assoc, mul_le_mul_left C_pos, mul_le_mul_right]
+    rw [← k_def, mul_assoc, mul_le_mul_iff_right₀ C_pos, mul_le_mul_iff_left₀]
     apply Real.rpow_pos_of_pos
     norm_cast
   . norm_cast
@@ -1028,9 +1036,9 @@ theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)
   norm_cast
   rw [Nat.sub_one_add_one]
   simp
-  rw [← mul_assoc, mul_le_mul_right]
+  rw [← mul_assoc, mul_le_mul_iff_left₀]
 
-  apply le_trans ((mul_le_mul_left _).2 (Nat.le_ceil _))
+  apply le_trans ((mul_le_mul_iff_right₀ _).2 (Nat.le_ceil _))
   rw [inv_mul_le_iff₀]
   norm_cast
   rw [← Nat.le_pow_iff_clog_le, mul_comm, pow_mul,
@@ -1098,7 +1106,7 @@ theorem Ω_of_gt (self : LowerMasterRec T a b n₀ f d)
   rw [GeometricSum.base_ne_one, Nat.sub_one_add_one, mul_comm, mul_div, 
       div_eq_mul_inv, mul_comm]
   simp
-  rw [mul_assoc, mul_assoc, mul_le_mul_left, ← Real.rpow_natCast,
+  rw [mul_assoc, mul_assoc, mul_le_mul_iff_right₀, ← Real.rpow_natCast,
       ← div_le_iff₀']
   have pow_logb_swap : 
       Nat.cast (R := ℝ) a^Real.logb ↑b ↑n = ↑n^Real.logb ↑b ↑a := by {
