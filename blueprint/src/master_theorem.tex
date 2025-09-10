@@ -15,14 +15,191 @@ bounds on divide-and-conquer recurrences.
     \[
         T(n) = a T(n/b) + f(n)
     \]
-    holds for some $a > 0$ and $b > 1$. Assume that $f(n) \in \Theta(n^d)$ for some $d \ge 1$. 
+    holds for some $a > 0$ and $b > 1$. Let also $f(n) \in \Theta(n^d)$ for some $d \ge 1$. 
     Then the following holds:
     \begin{enumerate}
         \item if $a < b^d$, then $T(n) \in \Theta(n^d)$,
         \item if $a = b^d$, then $T(n) \in \Theta(n^d \log_b{n})$ and
         \item if $a > b^d$, then $T(n) \in \Theta(n^{\log_b{a}})$.
     \end{enumerate}
-    In cases where $f$ is bounded by $n^d$ only above or only below,
+    In the case where $f$ is bounded above by $n^d$ only above or only below,
     $T$ is also bounded only above or only below by the respective function.
 \end{theorem}
 
+We prove this theorem by proving all of its cases separately. 
+
+\begin{definition}
+    \label{def:upper_master_rec}
+    \lean{UpperMasterRec}
+    \leanok
+    \uses{def:big_o}
+    Let $T f : \mathbb{N} \rightarrow \mathbb{N}$ be functions such that the recurrence
+    \[
+        T(n) \leq a T(\lceil n/b \rceil) + f(n)
+    \]
+    holds for all $n \ge n\_0$ for some $a > 0$, $n\_0 > 1$ and $b > n\_0$. 
+    Let also $f(n) \in O(n^d)$ for some $d \ge 1$. The above recurrence 
+    is an \textbf{upper master recurrence} with parameters $(a, n\_0, b, d)$.
+\end{definition}
+
+\begin{definition}
+    \label{def:lower_master_rec}
+    \lean{LowerMasterRec}
+    \leanok
+    \uses{def:big_omega}
+    Let $T f : \mathbb{N} \rightarrow \mathbb{N}$ be functions such that the recurrence
+    \[
+        T(n) \geq a T(\lfloor n/b \rfloor) + f(n)
+    \]
+    holds for all $n \ge n\_0$ for some $a > 0$, $n\_0 > 1$ and $b > n\_0$. 
+    Let also $f(n) \in \Omega(n^d)$ for some $d \ge 1$. The above recurrence 
+    is a \textbf{lower master recurrence} with parameters $(a, n\_0, b, d)$.
+\end{definition}
+
+\begin{lemma}
+    \label{lemma:big_o_geom}
+    \lean{LowerMasterRec.O_geom}
+    \leanok
+    \uses{def:lower_master_rec, def:big_o}
+    Let $T$ and $f$ be functions that form a lower master recurrence with 
+    parameters $(a, n\_0, b, d)$. Then 
+    $T(n) \in O(n^{\log_b{a}} + \sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d)$.
+\end{lemma}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:lower_master_rec_big_o_of_lt}
+    \lean{LowerMasterRec.O_of_lt}
+    \notready
+    \uses{def:lower_master_rec, def:big_o}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:lower_master_rec_big_o_of_eq}
+    \lean{LowerMasterRec.O_of_eq}
+    \notready
+    \uses{def:lower_master_rec, def:big_o}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:lower_master_rec_big_o_of_gt}
+    \lean{LowerMasterRec.O_of_gt}
+    \notready
+    \uses{def:lower_master_rec, def:big_o}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{lemma}
+    \label{lemma:big_omega_geom}
+    \lean{UpperMasterRec.Ω_geom}
+    \leanok
+    \uses{def:upper_master_rec, def:big_omega}
+    Let $T$ and $f$ be functions that form an upper master recurrence with 
+    parameters $(a, n\_0, b, d)$. Then 
+    $T(n) \in \Omega(n^{\log_b{a}} + \sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d)$.
+\end{lemma}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:upper_master_rec_big_omega}
+    \lean{UpperMasterRec.Ω_pow_d}
+    \notready
+    \uses{def:upper_master_rec, def:big_omega}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:upper_master_rec_big_omega_of_eq}
+    \lean{UpperMasterRec.Ω_of_eq}
+    \notready
+    \uses{def:upper_master_rec, def:big_omega}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{theorem}
+    \label{thm:upper_master_rec_big_omega_of_gt}
+    \lean{UpperMasterRec.Ω_of_gt}
+    \notready
+    \uses{def:upper_master_rec, def:big_omega}
+    TODO
+\end{theorem}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+
+\begin{corollary}
+    \label{thm:master_rec_theta_of_lt}
+    \lean{MasterRec.Θ_of_lt}
+    \notready
+    \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
+    TODO
+\end{corollary}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{corollary}
+    \label{thm:master_rec_theta_of_eq}
+    \lean{MasterRec.Θ_of_eq}
+    \notready
+    \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
+    TODO
+\end{corollary}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
+
+\begin{corollary}
+    \label{thm:master_rec_theta_of_gt}
+    \lean{MasterRec.Θ_of_gt}
+    \notready
+    \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
+    TODO
+\end{corollary}
+
+\begin{proof}
+    \notready
+    TODO
+\end{proof}
