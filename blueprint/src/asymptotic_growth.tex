@@ -602,7 +602,7 @@ section{Asymptotic growth}
 
 \begin{lemma}
     \label{lemma:asymp_bounded_add_pos_right_dom}
-    \lean{asymp_bounded_add_pos_above}
+    \lean{asymp_bounded_add_pos_right_dom}
     \leanok
     \uses{def:asymp_bounded, def:asymp_right_dom, def:asymp_pos}
     Let $f\_1$ be bounded by $g$. Let also $f\_2$ be asymptotically positive and
@@ -611,7 +611,7 @@ section{Asymptotic growth}
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_bounded_add_pos_above, lemma:asymp_bounded_above_of_right_dom}
+    \uses{lemma:asymp_bounded_add_pos_above, lemma:asymp_bounded_above_of_right_dom}
     We prove this with an application of Lemma \ref{lemma:asymp_bounded_add_pos_above}
     on Lemma \ref{lemma:asymp_bounded_above_of_right_dom}.
 \end{proof}
@@ -627,7 +627,7 @@ section{Asymptotic growth}
 
 \begin{proof}
     \leanok
-    \uses{thm:asymp_bounded_add_neg_below, lemma:asymp_bounded_below_of_left_dom}
+    \uses{lemma:asymp_bounded_add_neg_below, lemma:asymp_bounded_below_of_left_dom}
     We prove this with an application of Lemma \ref{lemma:asymp_bounded_add_neg_below}
     on Lemma \ref{lemma:asymp_bounded_below_of_left_dom}.
 \end{proof}
@@ -647,7 +647,7 @@ section{Asymptotic growth}
 
 \begin{proof}
     \leanok
-    \uses{lemma:asymp_le_nonneg_mul}
+    \uses{thm:asymp_le_nonneg_mul}
     Let $k\_1$ and $k\_2$ be the constants such that $f\_1$ is asymptotically less than
     $g\_1$ and $f\_2$ is asymptotically less than $g\_2$. By multiplicativity of asymptotic 
     inequality, $f\_1 * f\_2$ is asymptotically less than $k\_1 \cdot g\_1 * k\_2 \cdot g\_2$,
@@ -666,7 +666,7 @@ section{Asymptotic growth}
 
 \begin{proof}
     \leanok
-    \uses{lemma:asymp_ge_nonpos_mul}
+    \uses{thm:asymp_ge_nonpos_mul}
     Let $k\_1$ and $k\_2$ be the constants such that $f\_1$ is asymptotically greaterthan
     $g\_1$ and $f\_2$ is asymptotically greater than $g\_2$. By multiplicativity of asymptotic 
     inequality, $f\_1 * f\_2$ is asymptotically less than $k\_1 \cdot g\_1 * k\_2 \cdot g\_2$,

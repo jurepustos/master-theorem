@@ -31,7 +31,7 @@ action on $R$ is required.
 \end{definition}
 
 \begin{definition}(Big Theta notation)
-    \label{def:big_theta}
+    \label{def:theta}
     \lean{Θ}
     \leanok
     \uses{def:asymp_bounded}
@@ -91,7 +91,7 @@ action on $R$ is required.
     \label{thm:big_o_and_omega_iff_theta}
     \lean{O_Ω_iff_Θ}
     \leanok
-    \uses{def:big_o, def:big_omega, def:big_theta}
+    \uses{def:big_o, def:big_omega, def:theta}
     $f(x) \in O(g(x))$ and $f(x) \in \Omega(g(x))$ if and only if 
     $f(x) \in \Theta(g(x))$.
 \end{theorem}
@@ -268,10 +268,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:O_refl}
+    \label{lemma:big_o_refl}
     \lean{O_refl}
     \leanok
-    \uses{def:O}
+    \uses{def:big_o}
     $f(x) \in O(f(x))$.
 \end{lemma}
 
@@ -282,10 +282,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:Omega_refl}
+    \label{lemma:big_omega_refl}
     \lean{Ω_refl}
     \leanok
-    \uses{def:Omega}
+    \uses{def:big_omega}
     $f(x) \in \Omega(f(x))$.
 \end{lemma}
 
@@ -299,10 +299,10 @@ action on $R$ is required.
 \subsection{Transitivity}
 
 \begin{lemma}
-    \label{lemma:O_trans}
+    \label{lemma:big_o_trans}
     \lean{O_trans}
     \leanok
-    \uses{def:O}
+    \uses{def:big_o}
     If $f(x) \in O(g(x))$ and $g(x) \in O(h(x))$, then $f(x) \in O(h(x))$.
 \end{lemma}
 
@@ -313,10 +313,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:Omega_trans}
+    \label{lemma:big_omega_trans}
     \lean{Ω_trans}
     \leanok
-    \uses{def:Omega}
+    \uses{def:big_omega}
     If $f(x) \in \Omega(g(x))$ and $g(x) \in \Omega(h(x))$, then $f(x) \in \Omega(h(x))$.
 \end{lemma}
 
@@ -341,10 +341,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:o_trans}
+    \label{lemma:small_o_trans}
     \lean{o_trans}
     \leanok
-    \uses{def:o}
+    \uses{def:small_o}
     If $f(x) \in o(g(x))$ and $g(x) \in o(h(x))$, then $f(x) \in o(h(x))$. 
 \end{lemma}
 
@@ -355,10 +355,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:omega_trans}
+    \label{lemma:small_omega_trans}
     \lean{ω_trans}
     \leanok
-    \uses{def:omega}
+    \uses{def:small_omega}
     If $f(x) \in \omega(g(x))$ and $g(x) \in \omega(h(x))$, then $f(x) \in \omega(h(x))$.
 \end{lemma}
 
@@ -372,10 +372,10 @@ action on $R$ is required.
 \subsection{Scalar multiplicativity}
 
 \begin{lemma}
-    \label{lemma:O_pos_smul}
+    \label{lemma:big_o_pos_smul}
     \lean{O_pos_smul}
     \leanok
-    \uses{def:O}
+    \uses{def:big_o}
     Let $c > 0$. If $f(x) \in O(g(x))$, then $c \cdot f(x) \in O(g(x))$.
 \end{lemma}
 
@@ -386,10 +386,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:Omega_pos_smul}
+    \label{lemma:big_omega_pos_smul}
     \lean{Ω_pos_smul}
     \leanok
-    \uses{def:Omega}
+    \uses{def:big_omega}
     Let $c > 0$. If $f(x) \in \Omega(g(x))$, then $c \cdot f(x) \in \Omega(g(x))$ is also bounded
     below by $g$.
 \end{lemma}
@@ -415,10 +415,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:O_neg_smul}
+    \label{lemma:big_o_neg_smul}
     \lean{O_neg_smul}
     \leanok
-    \uses{def:O}
+    \uses{def:big_o}
     Let $c < 0$. If $f(x) \in O(g(x))$, then $c \cdot f(x) \in O(-g(x))$.
 \end{lemma}
 
@@ -429,10 +429,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:Omega_neg_smul}
+    \label{lemma:big_omega_neg_smul}
     \lean{Ω_neg_smul}
     \leanok
-    \uses{def:Omega}
+    \uses{def:big_omega}
     Let $c < 0$. If $f \in \Omega(g(x))$, then $c \cdot f(x) \in \Omega(-g(x))$.
 \end{lemma}
 
@@ -460,10 +460,10 @@ action on $R$ is required.
 \subsection{Additivity}
 
 \begin{lemma}
-    \label{lemma:O_add}
+    \label{lemma:big_o_add}
     \lean{O_add}
     \leanok
-    \uses{def:O}
+    \uses{def:big_o}
     Let $f\_1(x), f\_2(x) \in O(g(x))$. Then $f\_1(x) + f\_2(x) \in O(g(x))$.
 \end{lemma}
 
@@ -474,10 +474,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:Omega_add}
+    \label{lemma:big_omega_add}
     \lean{Ω_add}
     \leanok
-    \uses{def:Omega}
+    \uses{def:big_omega}
     Let $f\_1(x), f\_2(x) \in \Omega(g(x))$. Then $f\_1(x) + f\_2(x) \in \Omega(g(x))$.
 \end{lemma}
 
@@ -502,10 +502,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:Omega_add_pos}
+    \label{lemma:big_omega_add_pos}
     \lean{Ω_add_pos}
     \leanok
-    \uses{def:Omega, def:asymp_pos}
+    \uses{def:big_omega, def:asymp_pos}
     Let $f\_1(x) \in \Omega(g(x))$ and let $f\_2$ be asymptotically positive. 
     Then $f\_1(x) + f\_2(x) \in \Omega(g(x))$.
 \end{lemma}
@@ -517,10 +517,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:O_add_neg}
+    \label{lemma:big_o_add_neg}
     \lean{O_add_neg}
     \leanok
-    \uses{def:O, def:asymp_neg}
+    \uses{def:big_o, def:asymp_neg}
     Let $f\_1(x) \in O(g(x))$ and let $f\_2$ be asymptotically negative. 
     Then $f\_1(x) + f\_2(x) \in O(g(x))$.
 \end{lemma}
@@ -535,7 +535,7 @@ action on $R$ is required.
     \label{lemma:theta_add_pos_O}
     \lean{Θ_add_pos_O}
     \leanok
-    \uses{def:theta, def:O, def:asymp_pos}
+    \uses{def:theta, def:big_o, def:asymp_pos}
     Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically positive and
     $f\_2(x) \in O(g(x))$. Then $f\_1(x) + f\_2(x) \in \Theta(g(x))$.
 \end{lemma}
@@ -550,7 +550,7 @@ action on $R$ is required.
     \label{lemma:theta_add_neg_Omega}
     \lean{Θ_add_neg_Ω}
     \leanok
-    \uses{def:theta, def:Omega, def:asymp_neg}
+    \uses{def:theta, def:big_omega, def:asymp_neg}
     Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically negative
     and $f\_2(x) \in \Omega(g(x))$. Then $f\_1(x) + f\_2(x) \in \Theta(g(x))$.
 \end{lemma}
@@ -565,7 +565,7 @@ action on $R$ is required.
     \label{lemma:theta_add_pos_o}
     \lean{Θ_add_pos_o}
     \leanok
-    \uses{def:theta, def:o, def:asymp_pos}
+    \uses{def:theta, def:small_o, def:asymp_pos}
     Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically positive and
     $f\_2(x) \in o(g(x))$. Then $f\_1(x) + f\_2(x) \in \Theta(g(x))$.
 \end{lemma}
@@ -580,7 +580,7 @@ action on $R$ is required.
     \label{thm:theta_add_neg_omega}
     \lean{Θ_add_neg_ω}
     \leanok
-    \uses{def:theta, def:omega, def:asymp_neg}
+    \uses{def:theta, def:small_omega, def:asymp_neg}
     Let $f\_1(x) \in \Theta(g(x))$. Let also $f\_2$ be asymptotically negative and
     $f\_2(x) \in \omega(g(x))$. Then $f\_1(X) + f\_2(x) \in \Theta(g(x))$.
 \end{theorem}
@@ -595,10 +595,10 @@ action on $R$ is required.
 \subsection{Multiplicativity}
 
 \begin{lemma}
-    \label{lemma:O_nonneg_mul}
+    \label{lemma:big_o_nonneg_mul}
     \lean{O_nonneg_mul}
     \leanok
-    \uses{def:O, def:asymp_nonneg}
+    \uses{def:big_o, def:asymp_nonneg}
     Let $f\_1$ and $f\_2$ be asymptotically nonnegative functions such that 
     $f\_1(x) \in O(g\_1(x))$ and $f\_2(x) \in O(g\_2(x))$. Then 
     $f\_1(x) * f\_2(x) \in O(g\_1(x) * g\_2(x))$.
@@ -611,10 +611,10 @@ action on $R$ is required.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:Omega_nonpos_mul}
+    \label{lemma:big_omega_nonpos_mul}
     \lean{Ω_nonpos_mul}
     \leanok
-    \uses{def:Omega, def:asymp_nonpos}
+    \uses{def:big_omega, def:asymp_nonpos}
     Let $f\_1$ and $f\_2$ be asymptotically nonpositive functions such that 
     $f\_1(x) \in \Omega(g\_1(x))$ and $f\_2(x) \in \Omega(g\_2(x)$. 
     Then $f\_1(x) * f\_2(x) \in \Omega(g\_1(x) * g\_2(x))$.
