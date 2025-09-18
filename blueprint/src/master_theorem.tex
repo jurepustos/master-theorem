@@ -33,7 +33,8 @@ We prove this theorem by proving all of its cases separately.
     \lean{UpperMasterRec}
     \leanok
     \uses{def:big_o}
-    Let $T f : \mathbb{N} \rightarrow \mathbb{N}$ be functions such that the recurrence
+    Let $T f : \mathbb{N} \rightarrow \mathbb{N}$ be functions such that $T$ 
+    is monotone and the recurrence
     \[
         T(n) \leq a T(\lceil n/b \rceil) + f(n)
     \]
@@ -47,7 +48,8 @@ We prove this theorem by proving all of its cases separately.
     \lean{LowerMasterRec}
     \leanok
     \uses{def:big_omega}
-    Let $T f : \mathbb{N} \rightarrow \mathbb{N}$ be functions such that the recurrence
+    Let $T f : \mathbb{N} \rightarrow \mathbb{N}$ be functions such that $T$ 
+    is monotone and the recurrence
     \[
         T(n) \geq a T(\lfloor n/b \rfloor) + f(n)
     \]
@@ -61,63 +63,165 @@ We prove this theorem by proving all of its cases separately.
     \lean{LowerMasterRec.O_geom}
     \leanok
     \uses{def:lower_master_rec, def:big_o}
-    Let $T$ and $f$ be functions that form a lower master recurrence with 
-    parameters $(a, n\_0, b, d)$. Then 
-    $T(n) \in O(n^{\log_b{a}} + \sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d)$.
+    Let $T$ and $f$ form a lower master recurrence with parameters 
+    $(a, n\_0, b, d)$. Then $T(n) \in O(n^{\log_b{a}} + 
+    \sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d)$.
 \end{lemma}
 
 \begin{proof}
-    \notready
-    TODO
+    \leanok
+    To eliminate ceilings in the recurrence, we substitute $T(n)$ with 
+    $S(n) = T(n+b)$. Since $T$ is monotone, $T(n) \leq S(n) = T(n+b)$ holds 
+    for all $n$. Therefore, an upper bound on $S$ is also an upper bound on 
+    $T$. We must first show that $S$ follows the recurrence of $T$ without 
+    ceilings. By the assumption that $b$ is a natural number such that $b > 1$, 
+    we have the inequality 
+    \begin{equation*}
+        \lceil \frac{n+b}{b} \rceil &\leq \frac{n+b}{b} + 1 \\
+                                    &=    \frac{n}{b} + 2 \\
+                                    &\leq \frac{n}{b} + b.
+    \end{equation*}
+    Therefore, by monotonicity of $T$ we have 
+    \begin{equation*} 
+        S(n)  &= T(n+b) \\
+              &\leq a T(\frac{n}{b} + b) + f(n+b) \\
+              &= a S(\frac{n}{b}) + f(n+b),
+    \end{equation*}
+    which captures the wanted recurrence.
+
+    By substituting the inequality into itself repeatedly, we get
+    \begin{equation}
+        \label{eq:s_rec}
+        S(n) &\leq a S(\frac{n}{b}) + f(n + b) \\
+             &\leq a S(\frac{n}{b}) + C n^d \\
+             &\leq a^2 S(\frac{n}{b^2}) + C n^d + C \frac{a}{b^d} n^d \\
+             &\leq a^3 S(\frac{n}{b^3}) + C (1 + \frac{a}{b^d} + 
+                                            (\frac{a}{b^d})^2) n^d \\
+             &\leq a^k S(\frac{n}{b^k}) + C \sum_{i=0}^k 
+                                                    (\frac{a}{b^d})^i n^d \\
+    \end{equation}
+    Let $N$ be the integer such that for all $n \geq N \geq n\_0$, the 
+    inequality $f(n) \leq C n^d$ holds. Such $N$ exists because 
+    $f(n) \in O(n^d)$. We set $k = \lfloor \log_b{\frac{n}{N}} \rfloor$. 
+    This choice of $k$ allows the inequality $n \geq N * b^k$ to hold for 
+    large enough $n$. 
+
+    Consider both sum parts on the right side of the inequality \ref{eq:s_rec}.
+    For the first part, we notice that $n^{\log_b{a}} = a^{\log_b{n}}$.
+    Expand $k$ in the exponent and apply monotonicity:
+    \begin{equation*}
+        a^k &= a^{\lfloor \log_b{\frac{n}{N}} \rfloor} \\
+            &\leq a^{\log_b{\frac{n}{N}}} \\
+            &\leq a^{\log_b{n}}
+    \end{equation*}
+    This implies $a^k \in O(n^{\log_b{a}})$. We also need $S(\frac{n}{b^k})$ to
+    be bounded by a constant. We show that $S(\frac{n}{b^k}) \leq S(N*b)$.
+    Since $S$ is monotone, this is equivalent to showing 
+    $\frac{n}{b^k} \leq N*b$. We rewrite the left side as
+    \begin{equation*}
+        \frac{n}{b^k} &= \frac{n}{b^{\lfloor \log_b{\frac{n}{N}} \rfloor}} \\
+                      &= \frac{n}{b^{\lfloor \log_b{n} - \log_b{N} \rfloor}} \\
+                      &= \frac{b^{\log_b{n}}}
+                              {b^{\lfloor \log_b{n} - \log_b{N} \rfloor}} \\
+                      &= b^{\log_b{n} - 
+                            \lfloor \log_b{n} - \log_b{N} \rfloor}
+    \end{equation*}
+    Then, rewrite the right side as $N*b = b^{\log_b{N} + 1}$. With both 
+    sides written as exponents of $b$, we only need to prove
+    \[\log_b{n} - \lfloor \log_b{n} - \log_b{N} \rfloor \leq \log_b{N} + 1.\]
+    By swapping terms, we get
+    \[\log_b{n} - \log_b{N} \leq \lfloor \log_b{n} - \log_b{N} \rfloor + 1,\]
+    which holds for all real numbers. 
+
+    For the second part, the inequality $k \leq \lfloor \log_b{n} \rfloor$ 
+    holds by monotonicity of logarithms. As geometric sums are monotone in 
+    the exponent, we get $\sum_{i=0}^k (\frac{a}{b^d})^i n^d \in 
+    O(\sum_{i=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^i n^d)$.
 \end{proof}
 
 \begin{theorem}
     \label{thm:lower_master_rec_big_o_of_lt}
     \lean{LowerMasterRec.O_of_lt}
-    \notready
+    \leanok
     \uses{def:lower_master_rec, def:big_o}
-    TODO
+    Let $T$ and $f$ form a lower master recurrence with parameters 
+    $(a, n\_0, b, d)$, where $a < b^d$. Then $T(n) \in O(n^d)$.
 \end{theorem}
 
 \begin{proof}
     \notready
-    TODO
+    First, we apply Lemma \ref{lemma:big_o_geom}. Since $a < b^d$, we have 
+    $\frac{a}{b^d} < 1$. By basic properties of geometric sums, we get
+    \begin{equation*}
+        T(n) &\leq \sum_{i=0}^{\lfloor \log_b{n} \rfloor} 
+                        (\frac{a}{b^d})^i n^d \\
+             &\leq \frac{1}{1 - \frac{a}{b^d}} n^d,
+    \end{equation*}
+    which proves the upper bound.
 \end{proof}
 
 \begin{theorem}
     \label{thm:lower_master_rec_big_o_of_eq}
     \lean{LowerMasterRec.O_of_eq}
-    \notready
+    \leanok
     \uses{def:lower_master_rec, def:big_o}
-    TODO
+    Let $T$ and $f$ form a lower master recurrence with parameters
+    $(a, n\_0, b, d)$, where $a = b^d$. Then $T(n) \in O(n^d \log_b{n})$.
 \end{theorem}
 
 \begin{proof}
-    \notready
-    TODO
+    \leanok
+    After applying Lemma \ref{lemma:big_o_geom}, we note that $\log_b{a} = d$
+    and then the proof boils down to showing that the geometric sum is bounded 
+    by $\log_b{n}$. Since $\frac{a}{b^d} = 1$, the geometric sum equals
+    $\lfloor \log_b{n} \rfloor$, which is obviously bounded by $\log_b{n}$.
 \end{proof}
 
 \begin{theorem}
     \label{thm:lower_master_rec_big_o_of_gt}
     \lean{LowerMasterRec.O_of_gt}
-    \notready
+    \leanok
     \uses{def:lower_master_rec, def:big_o}
-    TODO
+    Let $T$ and $f$ form a lower master recurrence with parameters
+    $(a, n\_0, b, d)$, where $a > b^d$. Then $T(n) \in O(n^{\log_b{a}})$.
 \end{theorem}
 
 \begin{proof}
     \notready
-    TODO
+    After applying Lemma \ref{lemma:big_o_geom}, the left side of the sum if 
+    trivially bounded by $n^{\log_b{a}}$. We are left with the right summand, 
+    which we transform using an inequality involving the geometric sum:
+    \begin{equation*}
+        \sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d
+            &\leq \frac{1}{\frac{a}{b^d} - 1}
+                    ((\frac{a}{b^d})^{\lfloor \log_b{n} \rfloor} - 1) n^d \\
+            &\leq \frac{1}{\frac{a}{b^d} - 1}
+                    ((\frac{a}{b^d})^{\log_b{n}} - 1) n^d \\
+            &= \frac{1}{\frac{a}{b^d} - 1}
+                    b^{\log_b{\frac{a}{b^d}}}^{\log_b{n}} n^d \\
+            &= \frac{1}{\frac{a}{b^d} - 1}
+                    b^{\log_b{n}}^{\log_b{\frac{a}{b^d}}} n^d \\
+            &= \frac{1}{\frac{a}{b^d} - 1}
+                    n^{\log_b{a} - d} n^d \\
+            &= \frac{1}{\frac{a}{b^d} - 1}
+                    \frac{n^{\log_b{a}}}{n^d} n^d \\
+            &= \frac{1}{\frac{a}{b^d} - 1}
+                    n^{\log_b{a}} \\
+    \end{equation*}
+    Since $a > b^d$, $\frac{a}{b^d} > 1$ holds, so 
+    $\frac{1}{\frac{a}{b^d} - 1} > 0$, which proves boundedness by 
+    $n^{\log_b{a}}$.
 \end{proof}
+
 
 \begin{lemma}
     \label{lemma:big_omega_geom}
     \lean{UpperMasterRec.Ω_geom}
     \leanok
     \uses{def:upper_master_rec, def:big_omega}
-    Let $T$ and $f$ be functions that form an upper master recurrence with 
-    parameters $(a, n\_0, b, d)$. Then 
-    $T(n) \in \Omega(n^{\log_b{a}} + \sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d)$.
+    Let $T$ and $f$ form an upper master recurrence with parameters 
+    $(a, n\_0, b, d)$. Then $T(n) \in 
+    \Omega(\sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d)$.
 \end{lemma}
 
 \begin{proof}
@@ -128,9 +232,10 @@ We prove this theorem by proving all of its cases separately.
 \begin{theorem}
     \label{thm:upper_master_rec_big_omega}
     \lean{UpperMasterRec.Ω_pow_d}
-    \notready
+    \leanok
     \uses{def:upper_master_rec, def:big_omega}
-    TODO
+    Let $T$ and $f$ form an upper master recurrence with parameters 
+    $(a, n\_0, b, d)$. Then $T(n) \in \Omega(n^d)$.
 \end{theorem}
 
 \begin{proof}
@@ -141,9 +246,10 @@ We prove this theorem by proving all of its cases separately.
 \begin{theorem}
     \label{thm:upper_master_rec_big_omega_of_eq}
     \lean{UpperMasterRec.Ω_of_eq}
-    \notready
+    \leanok
     \uses{def:upper_master_rec, def:big_omega}
-    TODO
+    Let $T$ and $f$ form an upper master recurrence with parameters 
+    $(a, n\_0, b, d)$ where $a = b^d$. Then $T(n) \in \Omega(n^d \log_b{n})$.
 \end{theorem}
 
 \begin{proof}
@@ -154,9 +260,10 @@ We prove this theorem by proving all of its cases separately.
 \begin{theorem}
     \label{thm:upper_master_rec_big_omega_of_gt}
     \lean{UpperMasterRec.Ω_of_gt}
-    \notready
+    \leanok
     \uses{def:upper_master_rec, def:big_omega}
-    TODO
+    Let $T$ and $f$ form an upper master recurrence with parameters 
+    $(a, n\_0, b, d)$ where $a > b^d$. Then $T(n) \in \Omega(n^{\log_b{a}})$.
 \end{theorem}
 
 \begin{proof}
@@ -168,38 +275,56 @@ We prove this theorem by proving all of its cases separately.
 \begin{corollary}
     \label{thm:master_rec_theta_of_lt}
     \lean{MasterRec.Θ_of_lt}
-    \notready
+    \leanok
     \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
-    TODO
+    Let $T$ and $f$ form an upper and lower master recurrence with parameters 
+    $(a, n\_0, b, d)$ where $a < b^d$. Then $T(n) \in \Theta(n^d)$.
 \end{corollary}
 
 \begin{proof}
-    \notready
-    TODO
+    \leanok
+    \uses{thm:big_o_and_omega_iff_theta, thm:lower_master_rec_big_o_of_lt,
+        thm:upper_master_rec_big_omega}
+    By Theorem \ref{thm:big_o_and_omega_iff_theta}, it suffices to show
+    lower and upper bounds for $T$, which we already proved in Theorems
+    \ref{thm:lower_master_rec_big_o_of_lt} and 
+    \ref{thm:upper_master_rec_big_omega}.
 \end{proof}
 
 \begin{corollary}
     \label{thm:master_rec_theta_of_eq}
     \lean{MasterRec.Θ_of_eq}
-    \notready
+    \leanok
     \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
-    TODO
+    Let $T$ and $f$ form an upper and lower master recurrence with parameters 
+    $(a, n\_0, b, d)$ where $a = b^d$. Then $T(n) \in \Theta(n^d \log_b{a})$.
 \end{corollary}
 
 \begin{proof}
-    \notready
-    TODO
+    \leanok
+    \uses{thm:big_o_and_omega_iff_theta, thm:lower_master_rec_big_o_of_eq,
+        thm:upper_master_rec_big_omega_of_eq}
+    By Theorem \ref{thm:big_o_and_omega_iff_theta}, it suffices to show
+    lower and upper bounds for $T$, which we already proved in Theorems
+    \ref{thm:lower_master_rec_big_o_of_eq} and 
+    \ref{thm:upper_master_rec_big_omega_of_eq}.
 \end{proof}
 
 \begin{corollary}
     \label{thm:master_rec_theta_of_gt}
     \lean{MasterRec.Θ_of_gt}
-    \notready
+    \leanok
     \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
-    TODO
+    Let $T$ and $f$ form an upper and lower master recurrence with parameters 
+    $(a, n\_0, b, d)$ where $a > b^d$. Then $T(n) \in \Theta(n^{\log_b{n}})$.
 \end{corollary}
 
 \begin{proof}
-    \notready
-    TODO
+    \leanok
+    \uses{thm:big_o_and_omega_iff_theta, thm:lower_master_rec_big_o_of_gt, 
+        thm:upper_master_rec_big_omega_of_gt}
+    By Theorem \ref{thm:big_o_and_omega_iff_theta}, it suffices to show
+    lower and upper bounds for $T$, which we already proved in Theorems
+    \ref{thm:lower_master_rec_big_o_of_gt} and 
+    \ref{thm:upper_master_rec_big_omega_of_gt}.
 \end{proof}

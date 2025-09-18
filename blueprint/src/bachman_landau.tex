@@ -8,8 +8,8 @@ different properties. However, all properties hold for functions from a linearly
 commutative ring to a linearly ordered field. In the rest of this page, we let $R$ be a linearly 
 ordered commutative ring and $F$ be a linearly ordered field. We will also use symbols $f$, 
 $f\_1$, $f\_2$, $g$, $g\_1$ and $g\_2$ for functions $R \to F$. Also, we let $M$ be 
-a right $R$-module, although it is often only required be a (distributive) left multiplicative 
-action on $R$.
+a right $R$-module, although often only a (distributive) left multiplicative 
+action on $R$ is required.
 
 
 \subsection{Asymptotic sets}
@@ -92,7 +92,8 @@ action on $R$.
     \lean{O_Ω_iff_Θ}
     \leanok
     \uses{def:big_o, def:big_omega, def:big_theta}
-    $f(x) \in O(g(x))$ and $f(x) \in \Omega(g(x))$ if and only if $f(x) \in \Theta(g(x))$.
+    $f(x) \in O(g(x))$ and $f(x) \in \Omega(g(x))$ if and only if 
+    $f(x) \in \Theta(g(x))$.
 \end{theorem}
 
 \begin{proof}
