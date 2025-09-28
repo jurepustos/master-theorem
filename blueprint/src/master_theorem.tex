@@ -88,8 +88,8 @@ We prove this theorem by proving all of its cases separately.
               &\leq a T(\frac{n}{b} + b) + f(n+b) \\
               &= a S(\frac{n}{b}) + f(n+b),
     \end{align*}
-    which captures the wanted recurrence.
-
+    which captures the wanted recurrence. Integer division here is defined as 
+    the floor of real-number division.
     By substituting the inequality into itself repeatedly, we get
     \begin{align}
         \label{eq:s_rec}
@@ -98,6 +98,7 @@ We prove this theorem by proving all of its cases separately.
              &\leq a^2 S(\frac{n}{b^2}) + C n^d + C \frac{a}{b^d} n^d \\
              &\leq a^3 S(\frac{n}{b^3}) + C (1 + \frac{a}{b^d} + 
                                             (\frac{a}{b^d})^2) n^d \\
+             &\leq \dots \\
              &\leq a^k S(\frac{n}{b^k}) + C \sum_{i=0}^k 
                                                     (\frac{a}{b^d})^i n^d \\
     \end{align}
@@ -107,7 +108,7 @@ We prove this theorem by proving all of its cases separately.
     This choice of $k$ allows the inequality $n \geq N * b^k$ to hold for 
     large enough $n$. 
 
-    Consider both sum parts on the right side of the inequality \ref{eq:s_rec}.
+    Consider both sum parts on the right side of the Equation \ref{eq:s_rec}.
     For the first part, we notice that $n^{\log_b{a}} = a^{\log_b{n}}$.
     Expand $k$ in the exponent and apply monotonicity:
     \begin{align*}
@@ -229,22 +230,54 @@ We prove this theorem by proving all of its cases separately.
 \end{lemma}
 
 \begin{proof}
-    \notready
-    TODO
+    \leanok
+    \uses{lemma:big_omega_trans}
+    We consider the recurrence formula with ceilings replaced by floors. If the
+    resulting inequality holds, then so does the master recurrence, so it 
+    suffices to prove the lower bound for this inequality.
+
+    By substituting the inequality into itself repeatedly, we get
+    \begin{align}
+        \label{eq:t_rec}
+        T(n) &\leq a T(\frac{n}{b}) + f(n + b) \\
+             &\leq a T(\frac{n}{b}) + C n^d \\
+             &\leq a^2 T(\frac{n}{b^2}) + C n^d + C \frac{a}{b^d} n^d \\
+             &\leq a^3 T(\frac{n}{b^3}) + C (1 + \frac{a}{b^d} + 
+                                            (\frac{a}{b^d})^2) n^d \\
+             &\leq \dots \\
+             &\leq a^k T(\frac{n}{b^k}) + C \sum_{i=0}^k 
+                                                    (\frac{a}{b^d})^i n^d \\
+    \end{align}
+    We set $k = \lfloor \log_b{n} \rfloor$. This choice of $k$ allows the 
+    inequality $n \geq b^k$ to hold for large enough $n$. Here $C$ is a 
+    positive constant such that $f(n) \geq C n^d$ for all $n \geq n\_0$. 
+    Such a constant exists, because $f(n) \in \Omega(n^d)$ implies
+    $f(n) \geq C\_0 n^d$ for some $C\_0 > 0$ for all $n \geq N$ for some $N$.
+    For $n\_0 \leq n \leq N$, The argument is as follows. The set of natural 
+    numbers between $n\_0$ and $N$ is finite, so the image of $f$ on this
+    set has a maximal element $M$. We then have $f(n) \geq \frac{M}{N^d} n^d$.
+
+    The second summand in the right side of Equation \ref{eq:t_rec} is
+    trivially bounded above by 
+    $\sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d$. This is 
+    sufficient to prove the upper bound od $T(n)$ as the left summand is 
+    non-negative.
 \end{proof}
 
-\begin{theorem}
-    \label{thm:upper_master_rec_big_omega}
+\begin{lemma}
+    \label{lemma:upper_master_rec_big_omega}
     \lean{UpperMasterRec.Ω_pow_d}
     \leanok
     \uses{def:upper_master_rec, def:big_omega}
     Let $T$ and $f$ form an upper master recurrence with parameters 
     $(a, n\_0, b, d)$. Then $T(n) \in \Omega(n^d)$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
-    \notready
-    TODO
+    \leanok
+    \uses{lemma:big_omega_trans}
+    Since $T(n) \geq f(n)$ for all $n \ge n\_0$, the lower bound follows 
+    directly from $f(n) \in \Omega(n^d)$.
 \end{proof}
 
 \begin{theorem}
@@ -257,8 +290,16 @@ We prove this theorem by proving all of its cases separately.
 \end{theorem}
 
 \begin{proof}
-    \notready
-    TODO
+    \leanok
+    \uses{lemma:big_omega_geom, lemma:big_omega_trans}
+    By Lemma \ref{lemma:big_omega_geom}, it suffices to show that
+    $\sum_{i=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^i \in 
+    \Omega(\log_b{n})$. Applying equality $a = b^d$, the sum simplifies to
+    \begin{align*}
+        \sum_{i=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^i &= 
+            \sum_{i=0}^{\lfloor \log_b{n} \rfloor} 1^i &=
+            \lfloor \log_b{n} \rfloor.
+    \end{align*}
 \end{proof}
 
 \begin{theorem}
@@ -272,7 +313,23 @@ We prove this theorem by proving all of its cases separately.
 
 \begin{proof}
     \notready
-    TODO
+    \uses{lemma:big_omega_geom, lemma:big_omega_trans}
+    By Lemma \ref{lemma:big_omega_geom}, we need to show that 
+    $\sum_{i=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^i n^d
+    \in \Omega(n^{\log_b{a}}). By $a > b^d$, we have 
+    \begin{align*}
+        \sum_{i=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^i n^d 
+        &\geq (a b^{-d} - 1)^{-1}
+            ((a b^{-d})^{\lfloor \log_b{n} \rfloor} - 1) n^d \\
+        &\geq 2^{-1} (a b^{-d} - 1)^{-1}
+            (a b^{-d})^{\lfloor \log_b{n} \rfloor} n^d \\
+        &\geq 2^{-1} (a b^{-d} - 1)^{-1} (a b^{-d})^{\log_b{n} - 1} n^d \\
+        &\geq 2^{-1} a^{-1} b^d (a b^{-d} - 1)^{-1} a^{\log_b{n}} 
+            (b^{\log_b{n} - 1})^{-d} n^d \\
+        &\geq 2^{-1} a^{-1} b^d (a b^{-d} - 1)^{-1} n^{\log_b{a}} n^{-d} n^d \\
+        &\geq 2^{-1} a^{-1} b^d (a b^{-d} - 1)^{-1} n^{\log_b{a}},
+    \end{align*}
+    which proves the bound.
 \end{proof}
 
 
@@ -290,9 +347,9 @@ We prove this theorem by proving all of its cases separately.
     \uses{thm:big_o_and_omega_iff_theta, thm:lower_master_rec_big_o_of_lt,
         thm:upper_master_rec_big_omega}
     By Theorem \ref{thm:big_o_and_omega_iff_theta}, it suffices to show
-    lower and upper bounds for $T$, which we already proved in Theorems
-    \ref{thm:lower_master_rec_big_o_of_lt} and 
-    \ref{thm:upper_master_rec_big_omega}.
+    lower and upper bounds for $T$, which we already proved in Theorem
+    \ref{thm:lower_master_rec_big_o_of_lt} and Lemma
+    \ref{lemma:upper_master_rec_big_omega}.
 \end{proof}
 
 \begin{corollary}

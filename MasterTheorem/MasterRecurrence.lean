@@ -994,7 +994,7 @@ theorem Ω_of_eq (self : LowerMasterRec T a b n₀ f d)
   apply asymp_ge_of_ge_of_forall_ge (N := b^2)
   intro n hn
 
-  have c_sq_pos : 0 < b ^ 2 := pow_pos self.b_pos 2
+  have b_sq_pos : 0 < b ^ 2 := pow_pos self.b_pos 2
   have n_pos : 0 < n := by linarith
   have n_sq_pos : 0 < n ^ 2 := by {
     apply pow_pos
