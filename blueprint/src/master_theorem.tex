@@ -312,11 +312,11 @@ We prove this theorem by proving all of its cases separately.
 \end{theorem}
 
 \begin{proof}
-    \notready
+    \leanok
     \uses{lemma:big_omega_geom, lemma:big_omega_trans}
     By Lemma \ref{lemma:big_omega_geom}, we need to show that 
     $\sum_{i=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^i n^d
-    \in \Omega(n^{\log_b{a}}). By $a > b^d$, we have 
+    \in \Omega(n^{\log_b{a}})$. By $a > b^d$, we have 
     \begin{align*}
         \sum_{i=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^i n^d 
         &\geq (a b^{-d} - 1)^{-1}
@@ -345,7 +345,7 @@ We prove this theorem by proving all of its cases separately.
 \begin{proof}
     \leanok
     \uses{thm:big_o_and_omega_iff_theta, thm:lower_master_rec_big_o_of_lt,
-        thm:upper_master_rec_big_omega}
+        lemma:upper_master_rec_big_omega}
     By Theorem \ref{thm:big_o_and_omega_iff_theta}, it suffices to show
     lower and upper bounds for $T$, which we already proved in Theorem
     \ref{thm:lower_master_rec_big_o_of_lt} and Lemma
