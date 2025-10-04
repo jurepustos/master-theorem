@@ -60,9 +60,9 @@ We prove this theorem by proving all of its cases separately.
 
 \begin{lemma}
     \label{lemma:big_o_geom}
-    \lean{LowerMasterRec.O_geom}
+    \lean{UpperMasterRec.O_geom}
     \leanok
-    \uses{def:lower_master_rec, def:big_o}
+    \uses{def:upper_master_rec, def:big_o}
     Let $T$ and $f$ form a lower master recurrence with parameters 
     $(a, n\_0, b, d)$. Then $T(n) \in O(n^{\log_b{a}} + 
     \sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d)$.
@@ -142,10 +142,10 @@ We prove this theorem by proving all of its cases separately.
 \end{proof}
 
 \begin{theorem}
-    \label{thm:lower_master_rec_big_o_of_lt}
-    \lean{LowerMasterRec.O_of_lt}
+    \label{thm:big_o_of_lt}
+    \lean{UpperMasterRec.O_of_lt}
     \leanok
-    \uses{def:lower_master_rec, def:big_o}
+    \uses{def:upper_master_rec, def:big_o}
     Let $T$ and $f$ form a lower master recurrence with parameters 
     $(a, n\_0, b, d)$, where $a < b^d$. Then $T(n) \in O(n^d)$.
 \end{theorem}
@@ -164,11 +164,11 @@ We prove this theorem by proving all of its cases separately.
 \end{proof}
 
 \begin{theorem}
-    \label{thm:lower_master_rec_big_o_of_eq}
-    \lean{LowerMasterRec.O_of_eq}
+    \label{thm:big_o_of_eq}
+    \lean{UpperMasterRec.O_of_eq}
     \leanok
-    \uses{def:lower_master_rec, def:big_o}
-    Let $T$ and $f$ form a lower master recurrence with parameters
+    \uses{def:upper_master_rec, def:big_o}
+    Let $T$ and $f$ form an upper master recurrence with parameters
     $(a, n\_0, b, d)$, where $a = b^d$. Then $T(n) \in O(n^d \log_b{n})$.
 \end{theorem}
 
@@ -182,11 +182,11 @@ We prove this theorem by proving all of its cases separately.
 \end{proof}
 
 \begin{theorem}
-    \label{thm:lower_master_rec_big_o_of_gt}
-    \lean{LowerMasterRec.O_of_gt}
+    \label{thm:big_o_of_gt}
+    \lean{UpperMasterRec.O_of_gt}
     \leanok
-    \uses{def:lower_master_rec, def:big_o}
-    Let $T$ and $f$ form a lower master recurrence with parameters
+    \uses{def:upper_master_rec, def:big_o}
+    Let $T$ and $f$ form an upper master recurrence with parameters
     $(a, n\_0, b, d)$, where $a > b^d$. Then $T(n) \in O(n^{\log_b{a}})$.
 \end{theorem}
 
@@ -221,9 +221,9 @@ We prove this theorem by proving all of its cases separately.
 
 \begin{lemma}
     \label{lemma:big_omega_geom}
-    \lean{UpperMasterRec.Ω_geom}
+    \lean{LowerMasterRec.Ω_geom}
     \leanok
-    \uses{def:upper_master_rec, def:big_omega}
+    \uses{def:lower_master_rec, def:big_omega}
     Let $T$ and $f$ form an upper master recurrence with parameters 
     $(a, n\_0, b, d)$. Then $T(n) \in 
     \Omega(\sum_{k=0}^{\lfloor \log_b{n} \rfloor} (\frac{a}{b^d})^k n^d)$.
@@ -265,11 +265,11 @@ We prove this theorem by proving all of its cases separately.
 \end{proof}
 
 \begin{lemma}
-    \label{lemma:upper_master_rec_big_omega}
-    \lean{UpperMasterRec.Ω_pow_d}
+    \label{lemma:big_omega_pow}
+    \lean{LowerMasterRec.Ω_pow_d}
     \leanok
-    \uses{def:upper_master_rec, def:big_omega}
-    Let $T$ and $f$ form an upper master recurrence with parameters 
+    \uses{def:lower_master_rec, def:big_omega}
+    Let $T$ and $f$ form a lower master recurrence with parameters 
     $(a, n\_0, b, d)$. Then $T(n) \in \Omega(n^d)$.
 \end{lemma}
 
@@ -281,11 +281,11 @@ We prove this theorem by proving all of its cases separately.
 \end{proof}
 
 \begin{theorem}
-    \label{thm:upper_master_rec_big_omega_of_eq}
-    \lean{UpperMasterRec.Ω_of_eq}
+    \label{thm:big_omega_of_eq}
+    \lean{LowerMasterRec.Ω_of_eq}
     \leanok
-    \uses{def:upper_master_rec, def:big_omega}
-    Let $T$ and $f$ form an upper master recurrence with parameters 
+    \uses{def:lower_master_rec, def:big_omega}
+    Let $T$ and $f$ form a lower master recurrence with parameters 
     $(a, n\_0, b, d)$ where $a = b^d$. Then $T(n) \in \Omega(n^d \log_b{n})$.
 \end{theorem}
 
@@ -303,10 +303,10 @@ We prove this theorem by proving all of its cases separately.
 \end{proof}
 
 \begin{theorem}
-    \label{thm:upper_master_rec_big_omega_of_gt}
-    \lean{UpperMasterRec.Ω_of_gt}
+    \label{thm:big_omega_of_gt}
+    \lean{LowerMasterRec.Ω_of_gt}
     \leanok
-    \uses{def:upper_master_rec, def:big_omega}
+    \uses{def:lower_master_rec, def:big_omega}
     Let $T$ and $f$ form an upper master recurrence with parameters 
     $(a, n\_0, b, d)$ where $a > b^d$. Then $T(n) \in \Omega(n^{\log_b{a}})$.
 \end{theorem}
@@ -334,7 +334,7 @@ We prove this theorem by proving all of its cases separately.
 
 
 \begin{corollary}
-    \label{thm:master_rec_theta_of_lt}
+    \label{thm:theta_of_lt}
     \lean{MasterRec.Θ_of_lt}
     \leanok
     \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
@@ -344,16 +344,14 @@ We prove this theorem by proving all of its cases separately.
 
 \begin{proof}
     \leanok
-    \uses{thm:big_o_and_omega_iff_theta, thm:lower_master_rec_big_o_of_lt,
-        lemma:upper_master_rec_big_omega}
+    \uses{thm:big_o_and_omega_iff_theta, thm:big_o_of_lt, lemma:big_omega_pow}
     By Theorem \ref{thm:big_o_and_omega_iff_theta}, it suffices to show
     lower and upper bounds for $T$, which we already proved in Theorem
-    \ref{thm:lower_master_rec_big_o_of_lt} and Lemma
-    \ref{lemma:upper_master_rec_big_omega}.
+    \ref{thm:big_o_of_lt} and Lemma \ref{lemma:big_omega_pow}.
 \end{proof}
 
 \begin{corollary}
-    \label{thm:master_rec_theta_of_eq}
+    \label{thm:theta_of_eq}
     \lean{MasterRec.Θ_of_eq}
     \leanok
     \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
@@ -363,16 +361,14 @@ We prove this theorem by proving all of its cases separately.
 
 \begin{proof}
     \leanok
-    \uses{thm:big_o_and_omega_iff_theta, thm:lower_master_rec_big_o_of_eq,
-        thm:upper_master_rec_big_omega_of_eq}
+    \uses{thm:big_o_and_omega_iff_theta, thm:big_o_of_eq, thm:big_omega_of_eq}
     By Theorem \ref{thm:big_o_and_omega_iff_theta}, it suffices to show
     lower and upper bounds for $T$, which we already proved in Theorems
-    \ref{thm:lower_master_rec_big_o_of_eq} and 
-    \ref{thm:upper_master_rec_big_omega_of_eq}.
+    \ref{thm:big_o_of_eq} and \ref{thm:big_omega_of_eq}.
 \end{proof}
 
 \begin{corollary}
-    \label{thm:master_rec_theta_of_gt}
+    \label{thm:theta_of_gt}
     \lean{MasterRec.Θ_of_gt}
     \leanok
     \uses{def:upper_master_rec, def:lower_master_rec, def:theta}
@@ -382,10 +378,8 @@ We prove this theorem by proving all of its cases separately.
 
 \begin{proof}
     \leanok
-    \uses{thm:big_o_and_omega_iff_theta, thm:lower_master_rec_big_o_of_gt, 
-        thm:upper_master_rec_big_omega_of_gt}
+    \uses{thm:big_o_and_omega_iff_theta, thm:big_o_of_gt, thm:big_omega_of_gt}
     By Theorem \ref{thm:big_o_and_omega_iff_theta}, it suffices to show
     lower and upper bounds for $T$, which we already proved in Theorems
-    \ref{thm:lower_master_rec_big_o_of_gt} and 
-    \ref{thm:upper_master_rec_big_omega_of_gt}.
+    \ref{thm:big_o_of_gt} and \ref{thm:big_omega_of_gt}.
 \end{proof}
